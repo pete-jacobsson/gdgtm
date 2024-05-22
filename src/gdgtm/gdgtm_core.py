@@ -1,9 +1,6 @@
 ### Functions forming the core workflow of the gdgtm package.
 
-import os
-import rpy2.robjects as robjects
-import rpy2.rinterface as rinterface
-from rpy2.robjects.packages import importr
+
 
 ### 1. Data getting functions
 ### 2. Data processing functions
@@ -38,7 +35,12 @@ from rpy2.robjects.packages import importr
 
 def get_chelsa_data (parameter, extent, start_date, end_date, write_location):
     
-    ## Import the relevant R packages with names corresponding to those used in the current function
+    ## Import the relevant Python and R packages with names corresponding to those used in the current function
+    import os
+    import rpy2.robjects as robjects
+    import rpy2.rinterface as rinterface
+    from rpy2.robjects.packages import importr
+    
     rchelsa = importr('Rchelsa')
     lubridate = importr('lubridate')
     terra = importr('terra')
