@@ -21,4 +21,9 @@ maintainers = [
   {name = "Pete Jacobsson", email = "pt.jacobsson@gmail.com"}
   ]
 
-readme = "
+readme = "README.md"
+
+license = {file = "LICENSE"}
+
+[project.urls]
+Homepage = 
