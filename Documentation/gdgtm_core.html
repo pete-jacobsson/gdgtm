@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module gdgtm_core</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>gdgtm_core</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/pete/Documents/GitHub/gdgtm/src/gdgtm/gdgtm_core.py">/home/pete/Documents/GitHub/gdgtm/src/gdgtm/gdgtm_core.py</a></font></td></tr></table>
+    <p><tt>###&nbsp;Functions&nbsp;forming&nbsp;the&nbsp;core&nbsp;workflow&nbsp;of&nbsp;the&nbsp;gdgtm&nbsp;package.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-get_chelsa_data"><strong>get_chelsa_data</strong></a>(parameter, extent, start_date, end_date, write_location)</dt><dd><tt>This&nbsp;function&nbsp;gets&nbsp;a&nbsp;cropped&nbsp;raster&nbsp;from&nbsp;Chelsa&nbsp;(<a href="https://chelsa-climate.org/">https://chelsa-climate.org/</a>),&nbsp;saves&nbsp;it&nbsp;as&nbsp;a&nbsp;.tiff&nbsp;to&nbsp;designated&nbsp;folder,&nbsp;checks&nbsp;that&nbsp;the&nbsp;.tiff&nbsp;exists,&nbsp;and&nbsp;prints&nbsp;a&nbsp;confirmation&nbsp;to&nbsp;the&nbsp;console.<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;parameter&nbsp;(str):&nbsp;The&nbsp;name&nbsp;of&nbsp;the&nbsp;variable&nbsp;used&nbsp;by&nbsp;Chelsa&nbsp;to&nbsp;find&nbsp;the&nbsp;intended&nbsp;data&nbsp;(has&nbsp;to&nbsp;be&nbsp;CMIP5&nbsp;standard&nbsp;short&nbsp;name&nbsp;-&nbsp;specifies&nbsp;what&nbsp;climate&nbsp;varia&nbsp;is&nbsp;desired).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;extent&nbsp;(list):&nbsp;a&nbsp;list&nbsp;of&nbsp;four&nbsp;decimals&nbsp;defining&nbsp;the&nbsp;grid&nbsp;square&nbsp;covered.&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;start_date&nbsp;(str):&nbsp;a&nbsp;yyyy-mm-dd&nbsp;formatted&nbsp;string&nbsp;determining&nbsp;the&nbsp;start&nbsp;date&nbsp;for&nbsp;Chelsa&nbsp;data<br>
+&nbsp;&nbsp;&nbsp;&nbsp;end_date&nbsp;(str):&nbsp;a&nbsp;yyyy-mm-dd&nbsp;formatted&nbsp;string&nbsp;determining&nbsp;the&nbsp;end&nbsp;date&nbsp;for&nbsp;Chelsa&nbsp;data<br>
+&nbsp;&nbsp;&nbsp;&nbsp;write_location&nbsp;(str):&nbsp;location&nbsp;to&nbsp;which&nbsp;the&nbsp;downloaded&nbsp;.tiff&nbsp;is&nbsp;written<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;str:&nbsp;string&nbsp;confirming&nbsp;that&nbsp;the&nbsp;intended&nbsp;.tiff&nbsp;indeed&nbsp;exists&nbsp;in&nbsp;the&nbsp;target&nbsp;location<br>
+&nbsp;<br>
+Assumptions:<br>
+1.&nbsp;Rchelsa,&nbsp;lubridate,&nbsp;and&nbsp;terra&nbsp;R&nbsp;packages&nbsp;are&nbsp;installed&nbsp;(function&nbsp;tested&nbsp;using&nbsp;versions&nbsp;1.0.1,&nbsp;1.9.3,&nbsp;and&nbsp;1.7.71&nbsp;respectively)<br>
+2.&nbsp;os&nbsp;and&nbsp;rpy2&nbsp;Python&nbsp;modules&nbsp;are&nbsp;working&nbsp;(function&nbsp;tested&nbsp;using&nbsp;rpy&nbsp;3.5.16)<br>
+3.&nbsp;R&nbsp;version&nbsp;4.1+&nbsp;has&nbsp;been&nbsp;installed&nbsp;(function&nbsp;tested&nbsp;using&nbsp;R&nbsp;4.1.2)<br>
+4.&nbsp;Python&nbsp;3&nbsp;(function&nbsp;tested&nbsp;using&nbsp;Python&nbsp;3.10.12)<br>
+&nbsp;<br>
+Usage&nbsp;example:<br>
+&gt;&gt;&gt;&nbsp;parameter&nbsp;=&nbsp;"tas"<br>
+&gt;&gt;&gt;&nbsp;extent&nbsp;=&nbsp;[7.3,&nbsp;7.5,&nbsp;47.0,&nbsp;47.2]<br>
+&gt;&gt;&gt;&nbsp;start_date&nbsp;=&nbsp;"2023-1-1"<br>
+&gt;&gt;&gt;&nbsp;end_date&nbsp;=&nbsp;"2023-2-2"<br>
+&gt;&gt;&gt;&nbsp;<a href="#-get_chelsa_data">get_chelsa_data</a>(parameter,&nbsp;extent,&nbsp;start_date,&nbsp;end_date,&nbsp;write_location&nbsp;=&nbsp;'/home/pete/Downloads/chesla_temp.tif')<br>
+"Target&nbsp;.tiff&nbsp;exists"</tt></dd></dl>
+ <dl><dt><a name="-reproject_raster"><strong>reproject_raster</strong></a>(new_crs, source_raster, dst_raster)</dt></dl>
+</td></tr></table>
+</body></html>
