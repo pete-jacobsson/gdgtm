@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "gdgtm"
-version = 0.0.1
+version = "0.0.1"
 dynamic = ["version"]
 
 dependencies = [
@@ -26,4 +26,4 @@ readme = "README.md"
 license = {file = "LICENSE"}
 
 [project.urls]
-Homepage = https://github.com/pete-jacobsson/gdgtm
+Homepage = "https://github.com/pete-jacobsson/gdgtm"
