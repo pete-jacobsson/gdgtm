@@ -32,7 +32,7 @@
 ### 3. R version 4.1+ is installed
 
 
-def get_chelsa_data(parameter, extent, start_date, end_date, write_location):
+def get_chelsa_data (parameter, extent, start_date, end_date, write_location):
     
     ## Import the relevant R packages with names corresponding to those used in the current function
     rchelsa = importr('Rchelsa')
