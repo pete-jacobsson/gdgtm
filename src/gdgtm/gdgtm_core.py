@@ -127,6 +127,7 @@ def reproject_raster (new_crs, source_raster, dst_raster, delete_source = True):
     '''
     
     #Get dependencies loaded
+    import os
     import numpy as np
     import rasterio
     from rasterio.warp import calculate_default_transform, reproject, Resampling
@@ -168,7 +169,12 @@ def reproject_raster (new_crs, source_raster, dst_raster, delete_source = True):
         else:
             return_string = "target crs is " + new_crs + ", but the transform returned " + dst.crs
             raise Exception(return_string)
-                
+
+    ##Delete source if required:
+    if delete_source and return_string == "Transform successful":
+        os.remove(source_raster)
+        
+    return return_string
     
 
 #---------------------------------------------------------------
