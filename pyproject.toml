@@ -6,7 +6,6 @@ build-backend = "hatchling.build"
 [project]
 name = "gdgtm"
 version = "0.0.1"
-dynamic = ["version"]
 
 dependencies = [
   "rasterio",
