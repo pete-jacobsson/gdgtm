@@ -1,0 +1,24 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+
+[project]
+name = "gdgtm"
+version = 0.0.1
+dynamic = ["version"]
+
+dependencies = [
+  "rasterio",
+  "rpy2"]
+
+requires-python = ">= 3.8"
+
+authors =[
+  {name = "Pete Jacobsson", email = "pt.jacobsson@gmail.com"}
+  ]
+maintainers = [
+  {name = "Pete Jacobsson", email = "pt.jacobsson@gmail.com"}
+  ]
+
+readme = "
