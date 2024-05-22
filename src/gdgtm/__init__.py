@@ -1,1 +1,1 @@
-from .gdgtm_core.py import get_chelsa_data, reproject_raster
+from .gdgtm_core import get_chelsa_data, reproject_raster
