@@ -84,10 +84,13 @@ def get_chelsa_data (parameter, extent, start_date, end_date, write_location):
 # from rasterio.warp import calculate_default_transform, reproject, Resampling
 
 def reproject_raster (new_crs, source_raster, dst_raster):
-    
+    #Get dependencies loaded
+    import numpy as np
+    import rasterio
+    from rasterio.warp import calculate_default_transform, reproject, Resampling
+
     dst_crs = new_crs #Set the new crs
-    
-    
+        
     ##Get source meta, calculate the transform, upgrade arguments.
     with rasterio.open(source_raster) as src:
         transform, width, height = calculate_default_transform(
@@ -128,7 +131,7 @@ def reproject_raster (new_crs, source_raster, dst_raster):
 
 
 ##############################################################
-########## 2. Data validation Functions ######################
+########## 3. Data validation Functions ######################
 ##############################################################
 
 
