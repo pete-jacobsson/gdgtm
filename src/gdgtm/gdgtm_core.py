@@ -98,7 +98,34 @@ def get_chelsa_data (parameter, extent, start_date, end_date, write_location):
 # import rasterio
 # from rasterio.warp import calculate_default_transform, reproject, Resampling
 
-def reproject_raster (new_crs, source_raster, dst_raster):
+def reproject_raster (new_crs, source_raster, dst_raster, delete_source = True):
+    '''
+    This function takes a geotiff raster (with metadata include coordinate projection) and turns out a geotiff raster with updated projection and a check that the new file projection matches the desired target.
+    The function also has the option to do source deletion (e.g. for DM purposes)
+
+    Args:
+        new_crs (str): New coordinate system to which the raster is to be projected to.
+        source_raster (str): path to the geotiff with relevant metadata that will be reprojected
+        dst_raster (str): path and filename into which new (re-projected) raster will be saved
+        delete_source (bool): determines whether source raster is deleted following function execution
+
+    Resturns:
+        str: string confirming that the new geotiff has the expected projection system
+
+    Assumptions
+    1. Input data is a geotiff with a header readable by rasterio
+    2. Rasterio is working (function tested with rasterio 1.3.10)
+    3. Function tested on Python 3.10.12
+    4. Numpy is working (function tested with numpy 1.24.3)
+
+    Usage example:
+    >>> gdgtm.reproject_raster(new_crs = "ESRI:54028", 
+    >>>                        source_raster = '/home/pete/Downloads/chesla_temp.tif',
+    >>>                        dst_raster = '/home/pete/Downloads/chesla_transformed.tif')
+    "Transform successful"
+
+    '''
+    
     #Get dependencies loaded
     import numpy as np
     import rasterio
@@ -129,12 +156,15 @@ def reproject_raster (new_crs, source_raster, dst_raster):
                     dst_transform=transform,
                     dst_crs=dst_crs,
                     resampling=Resampling.nearest)
-                
+    
+    ##Delete source raster
+    
+    
     ##Test that the new raster is correct crs
     with rasterio.open(dst_raster) as dst:
         check = dst.crs == new_crs
         if check:
-            return print("Transform succesful")
+            return print("Transform successful")
         else:
             return_string = "target crs is " + new_crs + ", but the transform returned " + dst.crs
             raise Exception(return_string)
