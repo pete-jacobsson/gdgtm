@@ -19,21 +19,36 @@
 
 #-------------------------------------------------------------
 ### get_chelsa_data
-### Fuction takes on inputs: chesla parameter (has to be CMIP5 standard short name)
-### extent (of the area to be covered: four decimals defining the area in EPSG:4326 - WGS 84)
-### start_date and end_date (in "yyyy-mm-dd" format)
-### write_location: where do we want the file to be
-### Function assumes:
-### 1. Rchelsa, lubridate, and terra R packages are installed
-### 2. Necessary package imports have been executed:
-# import os
-# import rpy2.robjects as robjects
-# import rpy2.rinterface as rinterface
-# from rpy2.robjects.packages import importr
-### 3. R version 4.1+ is installed
-
 
 def get_chelsa_data (parameter, extent, start_date, end_date, write_location):
+    """
+    This function gets a cropped raster from Chelsa (https://chelsa-climate.org/), saves it as a .tiff to designated folder, checks that the .tiff exists, and prints a confirmation to the console.
+
+    Args:
+        parameter (str): The name of the variable used by Chelsa to find the intended data (has to be CMIP5 standard short name - specifies what climate varia is desired).
+        extent (list): a list of four decimals defining the grid square covered. 
+        start_date (str): a yyyy-mm-dd formatted string determining the start date for Chelsa data
+        end_date (str): a yyyy-mm-dd formatted string determining the end date for Chelsa data
+        write_location (str): location to which the downloaded .tiff is written
+
+    Returns:
+        str: string confirming that the intended .tiff indeed exists in the target location
+
+    Assumptions:
+    1. Rchelsa, lubridate, and terra R packages are installed (function tested using versions 1.0.1, 1.9.3, and 1.7.71 respectively)
+    2. os and rpy2 Python modules are working (function tested using rpy 3.5.16)
+    3. R version 4.1+ has been installed (function tested using R 4.1.2)
+    4. Python 3 (function tested using Python 3.10.12)
+
+    Usage example:
+    >>> parameter = "tas"
+    >>> extent = [7.3, 7.5, 47.0, 47.2]
+    >>> start_date = "2023-1-1"
+    >>> end_date = "2023-2-2"
+    >>> get_chelsa_data(parameter, extent, start_date, end_date, write_location = '/home/pete/Downloads/chesla_temp.tif')
+    "Target .tiff exists"
+
+    """
     
     ## Import the relevant Python and R packages with names corresponding to those used in the current function
     import os
