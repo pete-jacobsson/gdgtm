@@ -42,6 +42,28 @@ Usage&nbsp;example:<br>
 &gt;&gt;&gt;&nbsp;end_date&nbsp;=&nbsp;"2023-2-2"<br>
 &gt;&gt;&gt;&nbsp;<a href="#-get_chelsa_data">get_chelsa_data</a>(parameter,&nbsp;extent,&nbsp;start_date,&nbsp;end_date,&nbsp;write_location&nbsp;=&nbsp;'/home/pete/Downloads/chesla_temp.tif')<br>
 "Target&nbsp;.tiff&nbsp;exists"</tt></dd></dl>
- <dl><dt><a name="-reproject_raster"><strong>reproject_raster</strong></a>(new_crs, source_raster, dst_raster)</dt></dl>
+ <dl><dt><a name="-reproject_raster"><strong>reproject_raster</strong></a>(new_crs, source_raster, dst_raster, delete_source=True)</dt><dd><tt>This&nbsp;function&nbsp;takes&nbsp;a&nbsp;geotiff&nbsp;raster&nbsp;(with&nbsp;metadata&nbsp;include&nbsp;coordinate&nbsp;projection)&nbsp;and&nbsp;turns&nbsp;out&nbsp;a&nbsp;geotiff&nbsp;raster&nbsp;with&nbsp;updated&nbsp;projection&nbsp;and&nbsp;a&nbsp;check&nbsp;that&nbsp;the&nbsp;new&nbsp;file&nbsp;projection&nbsp;matches&nbsp;the&nbsp;desired&nbsp;target.<br>
+The&nbsp;function&nbsp;also&nbsp;has&nbsp;the&nbsp;option&nbsp;to&nbsp;do&nbsp;source&nbsp;deletion&nbsp;(e.g.&nbsp;for&nbsp;DM&nbsp;purposes)<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;new_crs&nbsp;(str):&nbsp;New&nbsp;coordinate&nbsp;system&nbsp;to&nbsp;which&nbsp;the&nbsp;raster&nbsp;is&nbsp;to&nbsp;be&nbsp;projected&nbsp;to.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;source_raster&nbsp;(str):&nbsp;path&nbsp;to&nbsp;the&nbsp;geotiff&nbsp;with&nbsp;relevant&nbsp;metadata&nbsp;that&nbsp;will&nbsp;be&nbsp;reprojected<br>
+&nbsp;&nbsp;&nbsp;&nbsp;dst_raster&nbsp;(str):&nbsp;path&nbsp;and&nbsp;filename&nbsp;into&nbsp;which&nbsp;new&nbsp;(re-projected)&nbsp;raster&nbsp;will&nbsp;be&nbsp;saved<br>
+&nbsp;&nbsp;&nbsp;&nbsp;delete_source&nbsp;(bool):&nbsp;determines&nbsp;whether&nbsp;source&nbsp;raster&nbsp;is&nbsp;deleted&nbsp;following&nbsp;function&nbsp;execution<br>
+&nbsp;<br>
+Resturns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;str:&nbsp;string&nbsp;confirming&nbsp;that&nbsp;the&nbsp;new&nbsp;geotiff&nbsp;has&nbsp;the&nbsp;expected&nbsp;projection&nbsp;system<br>
+&nbsp;<br>
+Assumptions<br>
+1.&nbsp;Input&nbsp;data&nbsp;is&nbsp;a&nbsp;geotiff&nbsp;with&nbsp;a&nbsp;header&nbsp;readable&nbsp;by&nbsp;rasterio<br>
+2.&nbsp;Rasterio&nbsp;is&nbsp;working&nbsp;(function&nbsp;tested&nbsp;with&nbsp;rasterio&nbsp;1.3.10)<br>
+3.&nbsp;Function&nbsp;tested&nbsp;on&nbsp;Python&nbsp;3.10.12<br>
+4.&nbsp;Numpy&nbsp;is&nbsp;working&nbsp;(function&nbsp;tested&nbsp;with&nbsp;numpy&nbsp;1.24.3)<br>
+&nbsp;<br>
+Usage&nbsp;example:<br>
+&gt;&gt;&gt;&nbsp;gdgtm.<a href="#-reproject_raster">reproject_raster</a>(new_crs&nbsp;=&nbsp;"ESRI:54028",&nbsp;<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;source_raster&nbsp;=&nbsp;'/home/pete/Downloads/chesla_temp.tif',<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dst_raster&nbsp;=&nbsp;'/home/pete/Downloads/chesla_transformed.tif')<br>
+"Transform&nbsp;successful"</tt></dd></dl>
 </td></tr></table>
 </body></html>
