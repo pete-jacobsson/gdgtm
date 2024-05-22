@@ -1,5 +1,9 @@
 ### Functions forming the core workflow of the gdgtm package.
 
+import os
+import rpy2.robjects as robjects
+import rpy2.rinterface as rinterface
+from rpy2.robjects.packages import importr
 
 ### 1. Data getting functions
 ### 2. Data processing functions
