@@ -202,6 +202,7 @@ def change_raster_res (target_res, source_raster, dst_raster, delete_source = Tr
     '''
     
     ## Get the dependencies
+    import os
     import rasterio
     from rasterio.warp import calculate_default_transform, reproject, Resampling
     
