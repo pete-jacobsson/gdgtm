@@ -88,5 +88,29 @@ Usage&nbsp;example:<br>
 &gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;source_raster&nbsp;=&nbsp;'/home/pete/Downloads/chesla_temp.tif',<br>
 &gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dst_raster&nbsp;=&nbsp;'/home/pete/Downloads/chesla_transformed.tif')<br>
 "Transform&nbsp;successful"</tt></dd></dl>
+ <dl><dt><a name="-set_raster_boundbox"><strong>set_raster_boundbox</strong></a>(target_bb, source_raster, dst_raster, delete_source=True)</dt><dd><tt>This&nbsp;function&nbsp;loads&nbsp;a&nbsp;geotiff&nbsp;raster,&nbsp;fits&nbsp;it&nbsp;to&nbsp;a&nbsp;new&nbsp;bounding&nbsp;box,&nbsp;saves&nbsp;it&nbsp;as&nbsp;a&nbsp;geotiff&nbsp;file.<br>
+Optionally&nbsp;it&nbsp;deletes&nbsp;the&nbsp;source&nbsp;raster.<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;target_bb&nbsp;(list):&nbsp;list&nbsp;of&nbsp;four&nbsp;numbers&nbsp;defining&nbsp;the&nbsp;target&nbsp;for&nbsp;the&nbsp;new&nbsp;BB&nbsp;(Order:&nbsp;L,&nbsp;B,&nbsp;R,&nbsp;T).&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;source_raster&nbsp;(str):&nbsp;Path&nbsp;to&nbsp;the&nbsp;original&nbsp;raster&nbsp;documents<br>
+&nbsp;&nbsp;&nbsp;&nbsp;dst_raster&nbsp;(str):&nbsp;Path&nbsp;to&nbsp;the&nbsp;file&nbsp;that&nbsp;will&nbsp;hold&nbsp;the&nbsp;re-resolved&nbsp;raster<br>
+&nbsp;&nbsp;&nbsp;&nbsp;delete_source&nbsp;(bool):&nbsp;toggles&nbsp;whether&nbsp;the&nbsp;source&nbsp;raster&nbsp;is&nbsp;to&nbsp;be&nbsp;deleted&nbsp;at&nbsp;the&nbsp;end&nbsp;of&nbsp;the&nbsp;operation<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;str:&nbsp;string&nbsp;confirming&nbsp;that&nbsp;the&nbsp;new&nbsp;BB&nbsp;corners&nbsp;match&nbsp;the&nbsp;target&nbsp;spec.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+Assumptions:<br>
+1.&nbsp;The&nbsp;source_raster&nbsp;is&nbsp;a&nbsp;geotiff.<br>
+2.&nbsp;os&nbsp;and&nbsp;rasterio&nbsp;are&nbsp;installed&nbsp;and&nbsp;working&nbsp;(function&nbsp;tested&nbsp;using&nbsp;rasterio&nbsp;1.3.10)<br>
+3.&nbsp;numpy&nbsp;is&nbsp;working&nbsp;(function&nbsp;tested&nbsp;using&nbsp;numpy&nbsp;1.24.3)<br>
+4.&nbsp;Function&nbsp;tested&nbsp;using&nbsp;Python&nbsp;3.10.12<br>
+&nbsp;<br>
+Usage&nbsp;example:<br>
+&gt;&gt;&gt;&nbsp;new_bb&nbsp;=&nbsp;[556400,&nbsp;5238900,&nbsp;566200,&nbsp;5254900]<br>
+&gt;&gt;&gt;&nbsp;gdgtm.<a href="#-set_raster_boundbox">set_raster_boundbox</a>(target_bb&nbsp;=&nbsp;new_bb,<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;source_raster&nbsp;=&nbsp;"/home/pete/Downloads/chelsa_rescaled_2000.tif",<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dst_raster&nbsp;=&nbsp;"/home/pete/Downloads/chelsa_new_bb.tif")<br>
+"New&nbsp;bounding&nbsp;box&nbsp;implemented&nbsp;successfully:&nbsp;all&nbsp;dimensions&nbsp;match"</tt></dd></dl>
 </td></tr></table>
 </body></html>
