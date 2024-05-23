@@ -170,7 +170,7 @@ def reproject_raster (new_crs, source_raster, dst_raster, delete_source = True):
             return_string = "Reprojection not successful: target crs is " + new_crs + ", but the transform returned " + dst.crs
 
     ##Delete source if required:
-    if delete_source and return_string == "Transform successful":
+    if delete_source and return_string == "Reprojection successful":  ## For the delete to work the string in the second part of this condition has to match the successful return string
         os.remove(source_raster)
         
     return return_string
