@@ -17,8 +17,7 @@
 
 
 
-#-------------------------------------------------------------
-### get_chelsa_data
+# 1.1 get_chelsa_data ----------------------------------------
 
 def get_chelsa_data (parameter, extent, start_date, end_date, write_location):
     """
@@ -88,15 +87,10 @@ def get_chelsa_data (parameter, extent, start_date, end_date, write_location):
 
 ### Data processing function list
 ### 2.1 reproject_raster: wrapper function for rasterio reprojection
+### 2.2 change_raster_res: wrapper for changing resolution with rasterio
+### 2.3 set_raster_bounds 
 
-### The function takes on the target projection, creates a re-projected .tiff
-### Function should send a confirm message that it re-projected correctly
-### Assumes rasterio and numpy packages are installed on the machine
-### Assumes new coord system name is recognized by rasterio
-### Assumes the following have been imported:
-# import numpy as np
-# import rasterio
-# from rasterio.warp import calculate_default_transform, reproject, Resampling
+# 2.1 reproject_raster ---------------------------------------
 
 def reproject_raster (new_crs, source_raster, dst_raster, delete_source = True):
     '''
@@ -173,8 +167,90 @@ def reproject_raster (new_crs, source_raster, dst_raster, delete_source = True):
     if delete_source and return_string == "Reprojection successful":  ## For the delete to work the string in the second part of this condition has to match the successful return string
         os.remove(source_raster)
         
-    return return_string
+    return print(return_string)
     
+
+# 2.2 change_raster_res  ---------------------------------------
+def change_raster_res (target_res, source_raster, dst_raster, delete_source = True):
+    
+    '''
+    The objective of this function is to load a raster from a geotiff, resample it to a set resolution,
+    save it to a new file, and optionally delete the source raster.
+    
+    Args:
+        target_res (float): Target resolution in units relevant to the crs     
+        source_raster (str): Path to the original raster documents
+        dst_raster (str): Path to the file that will hold the re-resolved raster
+        delete_source (bool): toggles whether the source raster is to be deleted at the end of the operation
+        
+    Returns:
+        str: string confirming that the new raster has the desired number of pixels (height and width)
+        
+    Assumptions:
+    1. The source_raster is a geotiff.
+    2. os and rasterio are installed and working (function tested using rasterio 1.3.10)
+    3. numpy is working (function tested using numpy 1.24.3)
+    4. Function tested using Python 3.10.12
+    
+    Usage example:
+    >>> gdgtm.change_raster_res(target_res = 500,
+    >>>                         source_raster = "/home/pete/Downloads/chesla_transformed.tif",
+    >>>                         dst_raster = "/home/pete/Downloads/chesla_rescaled.tif")
+    "Resolution change successful: new pixel size matches target"
+        
+    
+    '''
+    
+    ## Get the dependencies
+    import rasterio
+    from rasterio.warp import calculate_default_transform, reproject, Resampling
+    
+    ## Do the transform - this is calculating all the infor necessary for the res change
+    with rasterio.open (source_raster) as src:
+        ## Get dst_crs (same as source - we are not re-projecting here!!!)
+        dst_crs = src.crs # Can be skipped - kept for legibility four lines below :)
+        
+        ## Calculate the transform matrix that will be used to resample
+        transform, width, height = calculate_default_transform(
+        src.crs, dst_crs, src.width, src.height, *src.bounds, resolution = target_res)
+        
+        #Create reprojected raster and update meta
+        kwargs = src.meta.copy()
+        kwargs.update({
+            'crs': dst_crs,
+            'transform': transform, 
+            'width': width,
+            'height': height
+        })
+        
+    
+        with rasterio.open(dst_raster, 'w', **kwargs) as dst:
+            # Reproject bands
+            for i in range(1, src.count+1):
+                reproject(
+                    source=rasterio.band(src, i),
+                    destination=rasterio.band(dst, i),
+                    src_transform=src.transform,
+                    src_crs=src.crs,
+                    dst_transform=transform,
+                    dst_crs=dst_crs,
+                    resampling=Resampling.nearest
+                )
+    
+    with rasterio.open(dst_raster) as dst:
+        dst_dims = [abs(dst.transform[0]), abs(dst.transform[4])]
+        check = dst_dims == [abs(target_res), abs(target_res)]
+        if check:
+             return_string = "Resolution change successful: new pixel size matches target"
+        else:
+             return_string = "Resolution not successful: target pixel size is: " + target_res + ", but the actual new pixel size is: " + dst.transform[0] + " by " + abs(dst.transform[4])
+    
+    ##Delete source if required:
+    if delete_source and return_string == "Resolution change successful: new pixel size matches target":  ## For the delete to work the string in the second part of this condition has to match the successful return string
+        os.remove(source_raster)
+    
+    return print(return_string)
+
 
 #---------------------------------------------------------------
 
