@@ -165,10 +165,9 @@ def reproject_raster (new_crs, source_raster, dst_raster, delete_source = True):
     with rasterio.open(dst_raster) as dst:
         check = dst.crs == new_crs
         if check:
-            return print("Transform successful")
+            return_string = "Transform successful"
         else:
             return_string = "target crs is " + new_crs + ", but the transform returned " + dst.crs
-            raise Exception(return_string)
 
     ##Delete source if required:
     if delete_source and return_string == "Transform successful":
