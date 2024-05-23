@@ -287,6 +287,7 @@ def set_raster_boundbox (target_bb, source_raster, dst_raster, delete_source = T
     
     ##Imports:
     import os
+    import rasterio
     from osgeo import gdal
     
     ## Load the raster
