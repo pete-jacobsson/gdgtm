@@ -301,17 +301,17 @@ def set_raster_boundbox (target_bb, source_raster, dst_raster, delete_source = T
     ## QC the output
     with rasterio.open(dst_raster) as dst:  #will crash if ouput does no exist.
         dst_bounds = dst.bounds
-        bound_error_x = abs((dst_bounds[0] - target_bb[0]) / dst_bounds[0])
-        bound_error_y = abs((dst_bounds[1] - target_bb[1]) / dst_bounds[1])
+        bound_error_x = abs((dst_bounds[0] - target_bb[0]) / (dst_bounds[2] - dst_bounds[0]))
+        bound_error_y = abs((dst_bounds[1] - target_bb[1]) / (dst_bounds[3] - dst_bounds[1]))
         
-        if max(bound_error_x, bound_error_y) < 0.001:
-            return_string = "Setting new bounding box successful: errors relative to target < 0.001"
+        if max(bound_error_x, bound_error_y) < 0.01:
+            return_string = "Setting new bounding box successful: errors relative to target < 0.01"
         else:
-            return_string = "Setting new bounding box not successful: errors relative to target > 0.001"
+            return_string = "Setting new bounding box not successful: errors relative to target > 0.01"
         
 
-     ##Delete source if required:
-    if delete_source and return_string == "Setting new bounding box successful: errors relative to target < 0.001":  ## For the delete to work the string in the second part of this condition has to match the successful return string
+    ##Delete source if required:
+    if delete_source and return_string == "Setting new bounding box successful: errors relative to target < 0.01":  ## For the delete to work the string in the second part of this condition has to match the successful return string
         os.remove(source_raster)
     
     return print(return_string)
