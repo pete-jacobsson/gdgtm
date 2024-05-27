@@ -13,6 +13,8 @@
 
 ### Data getting function list
 ### 1.1 get_chelsa_data: gets data from Chelsa (bound-setting available natively)
+### 1.2 get_cognames_from_stac_coll_static
+### 1.3 get_cogs_from_olm
 
 
 
@@ -24,7 +26,7 @@ def get_chelsa_data (parameter, extent, start_date, end_date, write_location):
     This function gets a cropped raster from Chelsa (https://chelsa-climate.org/), saves it as a .tiff to designated folder, checks that the .tiff exists, and prints a confirmation to the console.
 
     Args:
-        parameter (str): The name of the variable used by Chelsa to find the intended data (has to be CMIP5 standard short name - specifies what climate varia is desired).
+        parameter (str): The name of the variable used by Chelsa to find the intended data (has to be CMIP5 standard short name - specifies what climate varia is desired, see https://chelsa-climate.org/wp-admin/download-page/CHELSA_tech_specification_V2.pdf for possible varias).
         extent (list): a list of four decimals defining the grid square covered. 
         start_date (str): a yyyy-mm-dd formatted string determining the start date for Chelsa data
         end_date (str): a yyyy-mm-dd formatted string determining the end date for Chelsa data
@@ -76,7 +78,117 @@ def get_chelsa_data (parameter, extent, start_date, end_date, write_location):
         return "Target .tiff exists"
     else:
         raise Exception("Target .tiff does not exist")
+
+# 1.2 get_cognames_from_stac_coll_static -----------------------
+def get_cognames_from_stac_coll_static (static_coll_link):
+    '''
+    This function produces a list of names of cog (cloud optimized geotiffs) files from a STAC collection.
     
+    Args:
+        static_coll_link (str): link to a static STAC collection
+        
+    Returns:
+        list: list of cog names as strings
+        
+    Assumptions:
+    1. Link points at an actual STAC static collection.
+    2. pystac is installed ( function tested using pystac 1.10.1).
+    3. Python installation includes the re module.
+    4. Function tested using Python 3.10.12
+    5. Function version for gdgtm version 0.1.0 is only tested against Open Land Map urls
+    
+    Usage example:
+    >>> test = gdgtm.get_cognames_fom_stac_coll_static("https://s3.eu-central-1.wasabisys.com/stac/openlandmap/wilderness_li2022.human.footprint/collection.json")
+    >>> print(test[0])
+    https://s3.openlandmap.org/arco/wilderness_li2022.human.footprint_p_1km_s_20000101_20001231_go_epsg.4326_v16022022.tif
+    
+    '''
+    ## Import dependencies
+    import pystac
+    import re
+    
+    ## Set up empty list
+    geotiff_names = []
+    
+    ## Get collection items
+    collection = pystac.read_file(static_coll_link)
+    collection_items = collection.get_all_items()
+    
+    ## Iterate over collection items to the asset level. Then in the asset level determine if something is a geotiff
+    for item in collection_items:
+        for asset_key in item.assets:
+            asset = item.assets[asset_key]
+            if re.search("geotiff", asset.media_type):   # Using regex, as the actual media_type string contains much more various data
+                geotiff_names.append(asset.href) # asset.href is the link to the actual geotiff
+                
+    return geotiff_names
+
+
+# 1.3 get_cogs_from_olm ----------------------------------------
+def get_cogs_from_olm (cognames, 
+                       target_directory, 
+                       target_names, 
+                       bbox = (-180, 180, 180, -180), 
+                       date_start = "00010101", 
+                       date_end = "99991231"
+                      ):
+    '''
+    The function uses a list of OpenLandMap cog locations to download a set of rasters bound in space and time
+    
+    Args:
+        cognames (list): list of names of geotiffs in the OLM S3 bucket associated with the STAC collection of interest
+        target_directory (str): directory to which the files will be saved
+        target_names (str): the convention name for the files to be downlaoded
+        bbox (tupple): a tupple of floats indicating the WGS84 (EPSG:4326) coordinates of the bounding box used to crop the rasters downloaded. Defaults to entire grid (-180, 180, 180, -180)
+        date_start (str): date before which the data are ignored. Needs to be provided in the yyyymmdd format. Defaults to 01JAN0001.
+        date_end (str): date after which the data are ignored. Needs to be provided in the yyyymmdd format. Defaults to 31DEC9999.
+    
+    returns:
+        str: names of downloaded files in the target_directory
+        Downloaded geotiff files named in the target_names_orig_file_date format in the target_directory
+        
+    Assumptions:
+        cognames point to an OLM S3 bucket and OLM data
+        All incmong raster refer to data points happenning between 01JAN0001 and 31DEC9999.
+        GDAL is available (function tested using GDAL 3.4.1)
+    
+    Usage:
+    >>> bbox = (5.7663, 47.9163, 10.5532, 45.6755)
+    >>>
+    >>> gdgtm.get_cogs_from_olm(cognames = test, 
+    >>>                   	target_directory = "/home/pete/Downloads/", 
+    >>>                   	target_names = "olm_humfoot_switz_raw_",
+    >>>                   	bbox = bbox,
+    >>>                   	date_start = "20000601",
+    >>>                   	date_end = "20050101"
+    >>>                        )
+    
+    /home/pete/Downloads/olm_humfoot_switz_raw_20010101.tif
+    /home/pete/Downloads/olm_humfoot_switz_raw_20020101.tif
+    /home/pete/Downloads/olm_humfoot_switz_raw_20030101.tif
+    /home/pete/Downloads/olm_humfoot_switz_raw_20040101.tif
+    
+    '''
+    ## Import GDAL
+    from osgeo import gdal
+    
+    ## Loop getting the rasters
+    for raster_name in cognames:
+        ## Filter based on date
+        raster_ymd = raster_name.split("-doy")[0].split("_")[-5: -3]  ###This gets the dates out of the raster_name
+        if min(raster_ymd) > date_start and max(raster_ymd) < date_end: ## Apply filter
+            src_raster = gdal.Open(raster_name) ##Get the actual raster
+            new_raster_name = target_directory + target_names + raster_ymd[0] +".tif"
+            
+            ##Apply bbox and save in target location
+            gdal.Translate(new_raster_name, src_raster, projWin = bbox)
+            
+            ## Disconnect from file
+            src_raster = None
+            print(new_raster_name) ## Print file name to confirm operation successful
+            
+        
+
 #---------------------------------------------------------------
 
 
@@ -191,6 +303,7 @@ def change_raster_res (target_res, source_raster, dst_raster, delete_source = Tr
     2. os and rasterio are installed and working (function tested using rasterio 1.3.10)
     3. numpy is working (function tested using numpy 1.24.3)
     4. Function tested using Python 3.10.12
+    5. WARNING: Assumes that the new target resolution is provided within the CRS units
     
     Usage example:
     >>> gdgtm.change_raster_res(target_res = 500,
