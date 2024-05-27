@@ -303,6 +303,7 @@ def change_raster_res (target_res, source_raster, dst_raster, delete_source = Tr
     2. os and rasterio are installed and working (function tested using rasterio 1.3.10)
     3. numpy is working (function tested using numpy 1.24.3)
     4. Function tested using Python 3.10.12
+    5. WARNING: Assumes that the new target resolution is provided within the CRS units
     
     Usage example:
     >>> gdgtm.change_raster_res(target_res = 500,
