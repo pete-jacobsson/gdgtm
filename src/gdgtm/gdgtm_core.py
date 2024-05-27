@@ -26,7 +26,7 @@ def get_chelsa_data (parameter, extent, start_date, end_date, write_location):
     This function gets a cropped raster from Chelsa (https://chelsa-climate.org/), saves it as a .tiff to designated folder, checks that the .tiff exists, and prints a confirmation to the console.
 
     Args:
-        parameter (str): The name of the variable used by Chelsa to find the intended data (has to be CMIP5 standard short name - specifies what climate varia is desired).
+        parameter (str): The name of the variable used by Chelsa to find the intended data (has to be CMIP5 standard short name - specifies what climate varia is desired, see https://chelsa-climate.org/wp-admin/download-page/CHELSA_tech_specification_V2.pdf for possible varias).
         extent (list): a list of four decimals defining the grid square covered. 
         start_date (str): a yyyy-mm-dd formatted string determining the start date for Chelsa data
         end_date (str): a yyyy-mm-dd formatted string determining the end date for Chelsa data
