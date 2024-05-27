@@ -272,7 +272,7 @@ def set_raster_boundbox (target_bb, source_raster, dst_raster, delete_source = T
         
     Assumptions:
     1. The source_raster is a geotiff.
-    2. os and rasterio are installed and working (function tested using rasterio 1.3.10)
+    2. os, GDAL, and rasterio are installed and working (function tested using GDAL 3.4.1 and rasterio 1.3.10)
     3. numpy is working (function tested using numpy 1.24.3)
     4. Function tested using Python 3.10.12
     
