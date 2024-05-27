@@ -65,6 +65,59 @@ Usage&nbsp;example:<br>
 &gt;&gt;&gt;&nbsp;end_date&nbsp;=&nbsp;"2023-2-2"<br>
 &gt;&gt;&gt;&nbsp;<a href="#-get_chelsa_data">get_chelsa_data</a>(parameter,&nbsp;extent,&nbsp;start_date,&nbsp;end_date,&nbsp;write_location&nbsp;=&nbsp;'/home/pete/Downloads/chesla_temp.tif')<br>
 "Target&nbsp;.tiff&nbsp;exists"</tt></dd></dl>
+ <dl><dt><a name="-get_cognames_from_stac_coll_static"><strong>get_cognames_from_stac_coll_static</strong></a>(static_coll_link)</dt><dd><tt>This&nbsp;function&nbsp;produces&nbsp;a&nbsp;list&nbsp;of&nbsp;names&nbsp;of&nbsp;cog&nbsp;(cloud&nbsp;optimized&nbsp;geotiffs)&nbsp;files&nbsp;from&nbsp;a&nbsp;STAC&nbsp;collection.<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;static_coll_link&nbsp;(str):&nbsp;link&nbsp;to&nbsp;a&nbsp;static&nbsp;STAC&nbsp;collection<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;list:&nbsp;list&nbsp;of&nbsp;cog&nbsp;names&nbsp;as&nbsp;strings<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+Assumptions:<br>
+1.&nbsp;Link&nbsp;points&nbsp;at&nbsp;an&nbsp;actual&nbsp;STAC&nbsp;static&nbsp;collection.<br>
+2.&nbsp;pystac&nbsp;is&nbsp;installed&nbsp;(&nbsp;function&nbsp;tested&nbsp;using&nbsp;pystac&nbsp;1.10.1).<br>
+3.&nbsp;Python&nbsp;installation&nbsp;includes&nbsp;the&nbsp;re&nbsp;module.<br>
+4.&nbsp;Function&nbsp;tested&nbsp;using&nbsp;Python&nbsp;3.10.12<br>
+5.&nbsp;Function&nbsp;version&nbsp;for&nbsp;gdgtm&nbsp;version&nbsp;0.1.0&nbsp;is&nbsp;only&nbsp;tested&nbsp;against&nbsp;Open&nbsp;Land&nbsp;Map&nbsp;urls<br>
+&nbsp;<br>
+Usage&nbsp;example:<br>
+&gt;&gt;&gt;&nbsp;test&nbsp;=&nbsp;gdgtm.get_cognames_fom_stac_coll_static("<a href="https://s3.eu-central-1.wasabisys.com/stac/openlandmap/wilderness_li2022.human.footprint/collection.json">https://s3.eu-central-1.wasabisys.com/stac/openlandmap/wilderness_li2022.human.footprint/collection.json</a>")<br>
+&gt;&gt;&gt;&nbsp;print(test[0])<br>
+<a href="https://s3.openlandmap.org/arco/wilderness_li2022.human.footprint_p_1km_s_20000101_20001231_go_epsg.4326_v16022022.tif">https://s3.openlandmap.org/arco/wilderness_li2022.human.footprint_p_1km_s_20000101_20001231_go_epsg.4326_v16022022.tif</a></tt></dd></dl>
+ <dl><dt><a name="-get_cogs_from_olm"><strong>get_cogs_from_olm</strong></a>(cognames, target_directory, target_names, bbox=(-180, 180, 180, -180), date_start='00010101', date_end='99991231')</dt><dd><tt>The&nbsp;function&nbsp;uses&nbsp;a&nbsp;list&nbsp;of&nbsp;OpenLandMap&nbsp;cog&nbsp;locations&nbsp;to&nbsp;download&nbsp;a&nbsp;set&nbsp;of&nbsp;rasters&nbsp;bound&nbsp;in&nbsp;space&nbsp;and&nbsp;time<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;cognames&nbsp;(list):&nbsp;list&nbsp;of&nbsp;names&nbsp;of&nbsp;geotiffs&nbsp;in&nbsp;the&nbsp;OLM&nbsp;S3&nbsp;bucket&nbsp;associated&nbsp;with&nbsp;the&nbsp;STAC&nbsp;collection&nbsp;of&nbsp;interest<br>
+&nbsp;&nbsp;&nbsp;&nbsp;target_directory&nbsp;(str):&nbsp;directory&nbsp;to&nbsp;which&nbsp;the&nbsp;files&nbsp;will&nbsp;be&nbsp;saved<br>
+&nbsp;&nbsp;&nbsp;&nbsp;target_names&nbsp;(str):&nbsp;the&nbsp;convention&nbsp;name&nbsp;for&nbsp;the&nbsp;files&nbsp;to&nbsp;be&nbsp;downlaoded<br>
+&nbsp;&nbsp;&nbsp;&nbsp;bbox&nbsp;(tupple):&nbsp;a&nbsp;tupple&nbsp;of&nbsp;floats&nbsp;indicating&nbsp;the&nbsp;WGS84&nbsp;(EPSG:4326)&nbsp;coordinates&nbsp;of&nbsp;the&nbsp;bounding&nbsp;box&nbsp;used&nbsp;to&nbsp;crop&nbsp;the&nbsp;rasters&nbsp;downloaded.&nbsp;Defaults&nbsp;to&nbsp;entire&nbsp;grid&nbsp;(-180,&nbsp;180,&nbsp;180,&nbsp;-180)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;date_start&nbsp;(str):&nbsp;date&nbsp;before&nbsp;which&nbsp;the&nbsp;data&nbsp;are&nbsp;ignored.&nbsp;Needs&nbsp;to&nbsp;be&nbsp;provided&nbsp;in&nbsp;the&nbsp;yyyymmdd&nbsp;format.&nbsp;Defaults&nbsp;to&nbsp;01JAN0001.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;date_end&nbsp;(str):&nbsp;date&nbsp;after&nbsp;which&nbsp;the&nbsp;data&nbsp;are&nbsp;ignored.&nbsp;Needs&nbsp;to&nbsp;be&nbsp;provided&nbsp;in&nbsp;the&nbsp;yyyymmdd&nbsp;format.&nbsp;Defaults&nbsp;to&nbsp;31DEC9999.<br>
+&nbsp;<br>
+returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;str:&nbsp;names&nbsp;of&nbsp;downloaded&nbsp;files&nbsp;in&nbsp;the&nbsp;target_directory<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Downloaded&nbsp;geotiff&nbsp;files&nbsp;named&nbsp;in&nbsp;the&nbsp;target_names_orig_file_date&nbsp;format&nbsp;in&nbsp;the&nbsp;target_directory<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+Assumptions:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;cognames&nbsp;point&nbsp;to&nbsp;an&nbsp;OLM&nbsp;S3&nbsp;bucket&nbsp;and&nbsp;OLM&nbsp;data<br>
+&nbsp;&nbsp;&nbsp;&nbsp;All&nbsp;incmong&nbsp;raster&nbsp;refer&nbsp;to&nbsp;data&nbsp;points&nbsp;happenning&nbsp;between&nbsp;01JAN0001&nbsp;and&nbsp;31DEC9999.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;GDAL&nbsp;is&nbsp;available&nbsp;(function&nbsp;tested&nbsp;using&nbsp;GDAL&nbsp;3.4.1)<br>
+&nbsp;<br>
+Usage:<br>
+&gt;&gt;&gt;&nbsp;bbox&nbsp;=&nbsp;(5.7663,&nbsp;47.9163,&nbsp;10.5532,&nbsp;45.6755)<br>
+&gt;&gt;&gt;<br>
+&gt;&gt;&gt;&nbsp;gdgtm.<a href="#-get_cogs_from_olm">get_cogs_from_olm</a>(cognames&nbsp;=&nbsp;test,&nbsp;<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;target_directory&nbsp;=&nbsp;"/home/pete/Downloads/",&nbsp;<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;target_names&nbsp;=&nbsp;"olm_humfoot_switz_raw_",<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;bbox&nbsp;=&nbsp;bbox,<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;date_start&nbsp;=&nbsp;"20000601",<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;date_end&nbsp;=&nbsp;"20050101"<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)<br>
+&nbsp;<br>
+/home/pete/Downloads/olm_humfoot_switz_raw_20010101.tif<br>
+/home/pete/Downloads/olm_humfoot_switz_raw_20020101.tif<br>
+/home/pete/Downloads/olm_humfoot_switz_raw_20030101.tif<br>
+/home/pete/Downloads/olm_humfoot_switz_raw_20040101.tif</tt></dd></dl>
  <dl><dt><a name="-reproject_raster"><strong>reproject_raster</strong></a>(new_crs, source_raster, dst_raster, delete_source=True)</dt><dd><tt>This&nbsp;function&nbsp;takes&nbsp;a&nbsp;geotiff&nbsp;raster&nbsp;(with&nbsp;metadata&nbsp;include&nbsp;coordinate&nbsp;projection)&nbsp;and&nbsp;turns&nbsp;out&nbsp;a&nbsp;geotiff&nbsp;raster&nbsp;with&nbsp;updated&nbsp;projection&nbsp;and&nbsp;a&nbsp;check&nbsp;that&nbsp;the&nbsp;new&nbsp;file&nbsp;projection&nbsp;matches&nbsp;the&nbsp;desired&nbsp;target.<br>
 The&nbsp;function&nbsp;also&nbsp;has&nbsp;the&nbsp;option&nbsp;to&nbsp;do&nbsp;source&nbsp;deletion&nbsp;(e.g.&nbsp;for&nbsp;DM&nbsp;purposes)<br>
 &nbsp;<br>
@@ -102,7 +155,7 @@ Returns:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<br>
 Assumptions:<br>
 1.&nbsp;The&nbsp;source_raster&nbsp;is&nbsp;a&nbsp;geotiff.<br>
-2.&nbsp;os&nbsp;and&nbsp;rasterio&nbsp;are&nbsp;installed&nbsp;and&nbsp;working&nbsp;(function&nbsp;tested&nbsp;using&nbsp;rasterio&nbsp;1.3.10)<br>
+2.&nbsp;os,&nbsp;GDAL,&nbsp;and&nbsp;rasterio&nbsp;are&nbsp;installed&nbsp;and&nbsp;working&nbsp;(function&nbsp;tested&nbsp;using&nbsp;GDAL&nbsp;3.4.1&nbsp;and&nbsp;rasterio&nbsp;1.3.10)<br>
 3.&nbsp;numpy&nbsp;is&nbsp;working&nbsp;(function&nbsp;tested&nbsp;using&nbsp;numpy&nbsp;1.24.3)<br>
 4.&nbsp;Function&nbsp;tested&nbsp;using&nbsp;Python&nbsp;3.10.12<br>
 &nbsp;<br>

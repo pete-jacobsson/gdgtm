@@ -98,7 +98,7 @@ def get_cognames_from_stac_coll_static (static_coll_link):
     5. Function version for gdgtm version 0.1.0 is only tested against Open Land Map urls
     
     Usage example:
-    >>> test = get_cognames_fom_stac_coll_static("https://s3.eu-central-1.wasabisys.com/stac/openlandmap/wilderness_li2022.human.footprint/collection.json")
+    >>> test = gdgtm.get_cognames_fom_stac_coll_static("https://s3.eu-central-1.wasabisys.com/stac/openlandmap/wilderness_li2022.human.footprint/collection.json")
     >>> print(test[0])
     https://s3.openlandmap.org/arco/wilderness_li2022.human.footprint_p_1km_s_20000101_20001231_go_epsg.4326_v16022022.tif
     
@@ -155,13 +155,13 @@ def get_cogs_from_olm (cognames,
     Usage:
     >>> bbox = (5.7663, 47.9163, 10.5532, 45.6755)
     >>>
-    >>> get_cogs_from_olm(cognames = test, 
-    >>>                   target_directory = "/home/pete/Downloads/", 
-    >>>                   target_names = "olm_humfoot_switz_raw_",
-    >>>                   bbox = bbox,
-    >>>                   date_start = "20000601",
-    >>>                   date_end = "20050101"
-    >>>                  )
+    >>> gdgtm.get_cogs_from_olm(cognames = test, 
+    >>>                   	target_directory = "/home/pete/Downloads/", 
+    >>>                   	target_names = "olm_humfoot_switz_raw_",
+    >>>                   	bbox = bbox,
+    >>>                   	date_start = "20000601",
+    >>>                   	date_end = "20050101"
+    >>>                        )
     
     /home/pete/Downloads/olm_humfoot_switz_raw_20010101.tif
     /home/pete/Downloads/olm_humfoot_switz_raw_20020101.tif
