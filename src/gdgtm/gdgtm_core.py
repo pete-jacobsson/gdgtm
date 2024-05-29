@@ -4,7 +4,7 @@
 
 ### 1. Data getting functions
 ### 2. Data processing functions
-### 3. Data validation functions
+### 3. Data alignment and validation functions
 
 
 ##############################################################
@@ -432,18 +432,25 @@ def set_raster_boundbox (target_bb, source_raster, dst_raster, delete_source = T
 
 
 
-#---------------------------------------------------------------
+#-------------------------------------------------------------
 
 
 
 ##############################################################
-########## 3. Data validation Functions ######################
+########## 3. Data alignment and validation Functions ########
 ##############################################################
 
+### Data alignment and validation function list
+### 3.1 align_raster: wrapper function for GDAL align raster
+### 3.2 validate_raster_alignment: executes checks whether two rasters are truly aligned (coords, pixels, etc.)
+### 3.3 align_validate_raster: take a raw and align it, while running the check underneath. Includes automatic re-projection if necessary
 
 
+# 3.1 align_raster -------------------------------------------
 
+#3.2 validate_raster_alignment -------------------------------
 
+#3.2 align_validate_raster -----------------------------------
 
 
 
