@@ -17,7 +17,59 @@
 <font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
     
 <tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><dl><dt><a name="-change_raster_res"><strong>change_raster_res</strong></a>(target_res, source_raster, dst_raster, delete_source=True)</dt><dd><tt>The&nbsp;objective&nbsp;of&nbsp;this&nbsp;function&nbsp;is&nbsp;to&nbsp;load&nbsp;a&nbsp;raster&nbsp;from&nbsp;a&nbsp;geotiff,&nbsp;resample&nbsp;it&nbsp;to&nbsp;a&nbsp;set&nbsp;resolution,<br>
+<td width="100%"><dl><dt><a name="-align_raster"><strong>align_raster</strong></a>(source_raster, target_raster, dst_raster, delete_source=True)</dt><dd><tt>This&nbsp;function&nbsp;aligns&nbsp;the&nbsp;source_raster&nbsp;to&nbsp;the&nbsp;target_raster<br>
+&nbsp;<br>
+**Args:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;source_raster&nbsp;(str):&nbsp;link&nbsp;to&nbsp;the&nbsp;geotiff&nbsp;location&nbsp;of&nbsp;the&nbsp;source&nbsp;raster.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;target_raster&nbsp;(str):&nbsp;link&nbsp;to&nbsp;the&nbsp;geotiff&nbsp;location&nbsp;of&nbsp;the&nbsp;target&nbsp;raster.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;dst_raster&nbsp;(str):&nbsp;path&nbsp;(including&nbsp;name)&nbsp;to&nbsp;the&nbsp;destination&nbsp;where&nbsp;the&nbsp;raster&nbsp;is&nbsp;saved.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;delete_source&nbsp;(bool):&nbsp;if&nbsp;True,&nbsp;delete&nbsp;source&nbsp;raster&nbsp;after&nbsp;completing&nbsp;the&nbsp;function.<br>
+&nbsp;<br>
+&nbsp;<br>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;str:&nbsp;confirmation&nbsp;that&nbsp;dst_raster&nbsp;exists<br>
+&nbsp;<br>
+**Assumptions:**<br>
+1.&nbsp;All&nbsp;input&nbsp;files&nbsp;are&nbsp;geotiffs.<br>
+2.&nbsp;os&nbsp;and&nbsp;GDAL&nbsp;are&nbsp;installed&nbsp;and&nbsp;working&nbsp;(function&nbsp;tested&nbsp;using&nbsp;GDAL&nbsp;4.3.1)<br>
+3.&nbsp;Function&nbsp;tested&nbsp;using&nbsp;Python&nbsp;3.10.12<br>
+&nbsp;<br>
+**Usage:**<br>
+&gt;&gt;&gt;&nbsp;<a href="#-align_raster">align_raster</a>(source_raster&nbsp;=&nbsp;"/home/pete/Documents/tests_and_vals/gdgtm/02_master_reprojected/olm_alc_switz_reproj_20040101.tif",<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;target_raster&nbsp;=&nbsp;"/home/pete/Documents/tests_and_vals/gdgtm/04_master_rebound/olm_alc_switz_rebound_100_20040101.tif",<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dst_raster&nbsp;=&nbsp;"/home/pete/Documents/tests_and_vals/gdgtm/05_supplements_aligned/olm_alc_switz_aligned_20040101.tif",<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete_source&nbsp;=&nbsp;False)<br>
+"/home/pete/Documents/tests_and_vals/gdgtm/05_supplements_aligned/olm_alc_switz_aligned_20040101.tif&nbsp;exists"</tt></dd></dl>
+ <dl><dt><a name="-align_validate_raster"><strong>align_validate_raster</strong></a>(source_raster, target_raster, dst_raster, delete_source=True)</dt><dd><tt>This&nbsp;function&nbsp;aligns&nbsp;the&nbsp;source_raster&nbsp;to&nbsp;the&nbsp;target_raster<br>
+&nbsp;<br>
+**Args:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;source_raster&nbsp;(str):&nbsp;link&nbsp;to&nbsp;the&nbsp;geotiff&nbsp;location&nbsp;of&nbsp;the&nbsp;source&nbsp;raster.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;target_raster&nbsp;(str):&nbsp;link&nbsp;to&nbsp;the&nbsp;geotiff&nbsp;location&nbsp;of&nbsp;the&nbsp;target&nbsp;raster.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;dst_raster&nbsp;(str):&nbsp;path&nbsp;(including&nbsp;name)&nbsp;to&nbsp;the&nbsp;destination&nbsp;where&nbsp;the&nbsp;raster&nbsp;is&nbsp;saved.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;delete_source&nbsp;(bool):&nbsp;if&nbsp;True,&nbsp;delete&nbsp;source&nbsp;raster&nbsp;after&nbsp;completing&nbsp;the&nbsp;function.<br>
+&nbsp;<br>
+&nbsp;<br>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;str:&nbsp;confirmation&nbsp;that&nbsp;dst_raster&nbsp;exists&nbsp;and&nbsp;matches&nbsp;the&nbsp;target&nbsp;raster<br>
+&nbsp;<br>
+**Assumptions:**<br>
+1.&nbsp;All&nbsp;input&nbsp;files&nbsp;are&nbsp;geotiffs.<br>
+2.&nbsp;os&nbsp;and&nbsp;GDAL&nbsp;are&nbsp;installed&nbsp;and&nbsp;working&nbsp;(function&nbsp;tested&nbsp;using&nbsp;GDAL&nbsp;4.3.1)<br>
+3.&nbsp;Function&nbsp;tested&nbsp;using&nbsp;Python&nbsp;3.10.12<br>
+4.&nbsp;Function&nbsp;relies&nbsp;on&nbsp;gdgtm.reproject_raster&nbsp;<br>
+5.&nbsp;Rasterio&nbsp;is&nbsp;working&nbsp;(function&nbsp;tested&nbsp;with&nbsp;rasterio&nbsp;1.3.10)<br>
+&nbsp;<br>
+**Usage:**<br>
+&gt;&gt;&gt;&nbsp;<a href="#-align_validate_raster">align_validate_raster</a>(source_raster&nbsp;=&nbsp;"/home/pete/Documents/tests_and_vals/gdgtm/01_get_functions/olm_alc_switz_reproj_20040101.tif",<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;target_raster&nbsp;=&nbsp;"/home/pete/Documents/tests_and_vals/gdgtm/04_master_rebound/olm_alc_switz_rebound_100_20040101.tif",<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dst_raster&nbsp;=&nbsp;"/home/pete/Documents/tests_and_vals/gdgtm/05_supplements_aligned/olm_alc_switz_aligned_20040101.tif",<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete_source&nbsp;=&nbsp;False)<br>
+&nbsp;<br>
+{'dimension_match':&nbsp;True,<br>
+&nbsp;'projection_match':&nbsp;True,<br>
+&nbsp;'pixel_count_match':&nbsp;True,<br>
+&nbsp;'geotransform_match':&nbsp;True}</tt></dd></dl>
+ <dl><dt><a name="-change_raster_res"><strong>change_raster_res</strong></a>(target_res, source_raster, dst_raster, delete_source=True)</dt><dd><tt>The&nbsp;objective&nbsp;of&nbsp;this&nbsp;function&nbsp;is&nbsp;to&nbsp;load&nbsp;a&nbsp;raster&nbsp;from&nbsp;a&nbsp;geotiff,&nbsp;resample&nbsp;it&nbsp;to&nbsp;a&nbsp;set&nbsp;resolution,<br>
 save&nbsp;it&nbsp;to&nbsp;a&nbsp;new&nbsp;file,&nbsp;and&nbsp;optionally&nbsp;delete&nbsp;the&nbsp;source&nbsp;raster.<br>
 &nbsp;<br>
 Args:<br>
@@ -34,6 +86,7 @@ Assumptions:<br>
 2.&nbsp;os&nbsp;and&nbsp;rasterio&nbsp;are&nbsp;installed&nbsp;and&nbsp;working&nbsp;(function&nbsp;tested&nbsp;using&nbsp;rasterio&nbsp;1.3.10)<br>
 3.&nbsp;numpy&nbsp;is&nbsp;working&nbsp;(function&nbsp;tested&nbsp;using&nbsp;numpy&nbsp;1.24.3)<br>
 4.&nbsp;Function&nbsp;tested&nbsp;using&nbsp;Python&nbsp;3.10.12<br>
+5.&nbsp;WARNING:&nbsp;Assumes&nbsp;that&nbsp;the&nbsp;new&nbsp;target&nbsp;resolution&nbsp;is&nbsp;provided&nbsp;within&nbsp;the&nbsp;CRS&nbsp;units<br>
 &nbsp;<br>
 Usage&nbsp;example:<br>
 &gt;&gt;&gt;&nbsp;gdgtm.<a href="#-change_raster_res">change_raster_res</a>(target_res&nbsp;=&nbsp;500,<br>
@@ -43,7 +96,7 @@ Usage&nbsp;example:<br>
  <dl><dt><a name="-get_chelsa_data"><strong>get_chelsa_data</strong></a>(parameter, extent, start_date, end_date, write_location)</dt><dd><tt>This&nbsp;function&nbsp;gets&nbsp;a&nbsp;cropped&nbsp;raster&nbsp;from&nbsp;Chelsa&nbsp;(<a href="https://chelsa-climate.org/">https://chelsa-climate.org/</a>),&nbsp;saves&nbsp;it&nbsp;as&nbsp;a&nbsp;.tiff&nbsp;to&nbsp;designated&nbsp;folder,&nbsp;checks&nbsp;that&nbsp;the&nbsp;.tiff&nbsp;exists,&nbsp;and&nbsp;prints&nbsp;a&nbsp;confirmation&nbsp;to&nbsp;the&nbsp;console.<br>
 &nbsp;<br>
 Args:<br>
-&nbsp;&nbsp;&nbsp;&nbsp;parameter&nbsp;(str):&nbsp;The&nbsp;name&nbsp;of&nbsp;the&nbsp;variable&nbsp;used&nbsp;by&nbsp;Chelsa&nbsp;to&nbsp;find&nbsp;the&nbsp;intended&nbsp;data&nbsp;(has&nbsp;to&nbsp;be&nbsp;CMIP5&nbsp;standard&nbsp;short&nbsp;name&nbsp;-&nbsp;specifies&nbsp;what&nbsp;climate&nbsp;varia&nbsp;is&nbsp;desired).<br>
+&nbsp;&nbsp;&nbsp;&nbsp;parameter&nbsp;(str):&nbsp;The&nbsp;name&nbsp;of&nbsp;the&nbsp;variable&nbsp;used&nbsp;by&nbsp;Chelsa&nbsp;to&nbsp;find&nbsp;the&nbsp;intended&nbsp;data&nbsp;(has&nbsp;to&nbsp;be&nbsp;CMIP5&nbsp;standard&nbsp;short&nbsp;name&nbsp;-&nbsp;specifies&nbsp;what&nbsp;climate&nbsp;varia&nbsp;is&nbsp;desired,&nbsp;see&nbsp;<a href="https://chelsa-climate.org/wp-admin/download-page/CHELSA_tech_specification_V2.pdf">https://chelsa-climate.org/wp-admin/download-page/CHELSA_tech_specification_V2.pdf</a>&nbsp;for&nbsp;possible&nbsp;varias).<br>
 &nbsp;&nbsp;&nbsp;&nbsp;extent&nbsp;(list):&nbsp;a&nbsp;list&nbsp;of&nbsp;four&nbsp;decimals&nbsp;defining&nbsp;the&nbsp;grid&nbsp;square&nbsp;covered.&nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;start_date&nbsp;(str):&nbsp;a&nbsp;yyyy-mm-dd&nbsp;formatted&nbsp;string&nbsp;determining&nbsp;the&nbsp;start&nbsp;date&nbsp;for&nbsp;Chelsa&nbsp;data<br>
 &nbsp;&nbsp;&nbsp;&nbsp;end_date&nbsp;(str):&nbsp;a&nbsp;yyyy-mm-dd&nbsp;formatted&nbsp;string&nbsp;determining&nbsp;the&nbsp;end&nbsp;date&nbsp;for&nbsp;Chelsa&nbsp;data<br>
@@ -165,5 +218,27 @@ Usage&nbsp;example:<br>
 &gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;source_raster&nbsp;=&nbsp;"/home/pete/Downloads/chelsa_rescaled_2000.tif",<br>
 &gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dst_raster&nbsp;=&nbsp;"/home/pete/Downloads/chelsa_new_bb.tif")<br>
 "New&nbsp;bounding&nbsp;box&nbsp;implemented&nbsp;successfully:&nbsp;all&nbsp;dimensions&nbsp;match"</tt></dd></dl>
+ <dl><dt><a name="-validate_raster_alignment"><strong>validate_raster_alignment</strong></a>(raster_1, raster_2)</dt><dd><tt>This&nbsp;function&nbsp;checks&nbsp;whether&nbsp;two&nbsp;rasters&nbsp;are&nbsp;aligned:&nbsp;i.e.&nbsp;whether&nbsp;they&nbsp;have&nbsp;the&nbsp;same&nbsp;number&nbsp;of&nbsp;pixels&nbsp;and&nbsp;whether&nbsp;these&nbsp;pixels&nbsp;have&nbsp;identical&nbsp;coordinates<br>
+&nbsp;<br>
+**Args:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;first_raster&nbsp;(str):&nbsp;link&nbsp;to&nbsp;the&nbsp;geotiff&nbsp;location&nbsp;of&nbsp;the&nbsp;first&nbsp;raster<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;second_raster&nbsp;(str):&nbsp;link&nbsp;to&nbsp;the&nbsp;geotiff&nbsp;location&nbsp;of&nbsp;the&nbsp;second&nbsp;raster<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;bool:&nbsp;check&nbsp;whether&nbsp;the&nbsp;two&nbsp;rasters&nbsp;are&nbsp;aligned<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+**Assumptions:**<br>
+1.&nbsp;All&nbsp;input&nbsp;files&nbsp;are&nbsp;geotiffs.<br>
+2.&nbsp;os&nbsp;and&nbsp;GDAL&nbsp;are&nbsp;installed&nbsp;and&nbsp;working&nbsp;(function&nbsp;tested&nbsp;using&nbsp;GDAL&nbsp;4.3.1)<br>
+3.&nbsp;Function&nbsp;tested&nbsp;using&nbsp;Python&nbsp;3.10.12<br>
+&nbsp;<br>
+**Usage:**<br>
+&gt;&gt;&gt;&nbsp;<a href="#-validate_raster_alignment">validate_raster_alignment</a>("/home/pete/Documents/tests_and_vals/gdgtm/04_master_rebound/olm_alc_switz_rebound_100_20040101.tif",<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"/home/pete/Documents/tests_and_vals/gdgtm/05_supplements_aligned/olm_alc_switz_aligned_20040101.tif")<br>
+&nbsp;&nbsp;&nbsp;<br>
+{'dimension_match':&nbsp;False,<br>
+&nbsp;'projection_match':&nbsp;True,<br>
+&nbsp;'pixel_count_match':&nbsp;False,<br>
+&nbsp;'geotransform_match':&nbsp;False}</tt></dd></dl>
 </td></tr></table>
 </body></html>
