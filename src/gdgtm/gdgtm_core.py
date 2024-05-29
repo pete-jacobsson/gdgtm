@@ -4,7 +4,7 @@
 
 ### 1. Data getting functions
 ### 2. Data processing functions
-### 3. Data validation functions
+### 3. Data alignment and validation functions
 
 
 ##############################################################
@@ -432,18 +432,239 @@ def set_raster_boundbox (target_bb, source_raster, dst_raster, delete_source = T
 
 
 
-#---------------------------------------------------------------
+#-------------------------------------------------------------
 
 
 
 ##############################################################
-########## 3. Data validation Functions ######################
+########## 3. Data alignment and validation Functions ########
 ##############################################################
 
+### Data alignment and validation function list
+### 3.1 align_raster: wrapper function for GDAL align raster
+### 3.2 validate_raster_alignment: executes checks whether two rasters are truly aligned (coords, pixels, etc.)
+### 3.3 align_validate_raster: take a raw and align it, while running the check underneath. Includes automatic re-projection if necessary
 
 
+# 3.1 align_raster -------------------------------------------
+def align_raster (source_raster, target_raster, dst_raster, delete_source = True):
+    '''
+    This function aligns the source_raster to the target_raster
+    
+    **Args:**
+        - source_raster (str): link to the geotiff location of the source raster.
+        - target_raster (str): link to the geotiff location of the target raster.
+        - dst_raster (str): path (including name) to the destination where the raster is saved.
+        - delete_source (bool): if True, delete source raster after completing the function.
+    
+    
+    **Returns:**
+        - str: confirmation that dst_raster exists
+    
+    **Assumptions:**
+    1. All input files are geotiffs.
+    2. os and GDAL are installed and working (function tested using GDAL 4.3.1)
+    3. Function tested using Python 3.10.12
+    
+    **Usage:**
+    >>> align_raster(source_raster = "/home/pete/Documents/tests_and_vals/gdgtm/02_master_reprojected/olm_alc_switz_reproj_20040101.tif",
+    >>>              target_raster = "/home/pete/Documents/tests_and_vals/gdgtm/04_master_rebound/olm_alc_switz_rebound_100_20040101.tif",
+    >>>              dst_raster = "/home/pete/Documents/tests_and_vals/gdgtm/05_supplements_aligned/olm_alc_switz_aligned_20040101.tif",
+    >>>              delete_source = False)
+    "/home/pete/Documents/tests_and_vals/gdgtm/05_supplements_aligned/olm_alc_switz_aligned_20040101.tif exists"
+    
 
+    '''
+    ##Import dependencies
+    from osgeo import gdal
+    import os
+    
+    ##Import the rasters into GDAL
+    target_ds = gdal.Open(target_raster)
+    source_ds = gdal.Open(source_raster)
+    
+    ##Extract projection and geotransform meta
+    target_geotransform = target_ds.GetGeoTransform()
+    target_projection = target_ds.GetProjection()
+    
+    ##Get target resolution and set output bounds
+    x_res = target_geotransform[1]
+    y_res = target_geotransform[5]
+        
+    output_bounds = [target_geotransform[0], 
+                     target_geotransform[3] + target_ds.RasterYSize * y_res, 
+                     target_geotransform[0] + target_ds.RasterXSize * x_res, 
+                     target_geotransform[3]]
 
+    ##Execute the alignment using GDAL warp function        
+    aligned_ds = gdal.Warp(dst_raster, source_ds, xRes = x_res, yRes = y_res, 
+                           outputBounds = output_bounds, resampleAlg = gdal.GRA_NearestNeighbour, 
+                           dstSRS = target_projection)
 
+    ##Disconnect from the files.
+    target_ds = None
+    source_ds = None
+    aligned_ds = None ##Particularly important to ensure that the file is correct
+    
+    ##Run the checks and the deletion
+    aligned_raster_exists = os.path.exists(dst_raster)
+    
+    if delete_source and aligned_raster_exists:
+        os.remove(source_raster)
+    
+    
+    
+#3.2 validate_raster_alignment -------------------------------
+def validate_raster_alignment (raster_1, raster_2):
+    '''
+    This function checks whether two rasters are aligned: i.e. whether they have the same number of pixels and whether these pixels have identical coordinates
+    
+    **Args:**
+        - first_raster (str): link to the geotiff location of the first raster
+        - second_raster (str): link to the geotiff location of the second raster
+        
+    **Returns:**
+        - bool: check whether the two rasters are aligned
+        
+    **Assumptions:**
+    1. All input files are geotiffs.
+    2. os and GDAL are installed and working (function tested using GDAL 4.3.1)
+    3. Function tested using Python 3.10.12
+    
+    **Usage:**
+    >>> validate_raster_alignment("/home/pete/Documents/tests_and_vals/gdgtm/04_master_rebound/olm_alc_switz_rebound_100_20040101.tif",
+    >>>                           "/home/pete/Documents/tests_and_vals/gdgtm/05_supplements_aligned/olm_alc_switz_aligned_20040101.tif")
+       
+    {'dimension_match': False,
+     'projection_match': True,
+     'pixel_count_match': False,
+     'geotransform_match': False}
+                                
+    
+    '''
+    from osgeo import gdal
+    
+    ## Get the rasters loaded into GDAL
+    raster_1 = gdal.Open(raster_1)
+    raster_2 = gdal.Open(raster_2)
+    
+    ##Check rows and cols (Dimension match)
+    rows1, cols1 = raster_1.RasterYSize, raster_1.RasterXSize
+    rows2, cols2 = raster_2.RasterYSize, raster_2.RasterXSize
+          
+    check_results = {"dimension_match": (rows1 == rows2 and cols1 == cols2)}
+    
+    ##Check projection match
+    proj_1 = raster_1.GetProjection()
+    proj_2 = raster_2.GetProjection()
+    
+    check_results.update({"projection_match": proj_1 == proj_2})
+    
+    ##Check pixels match:
+    num_pixels_1 = rows1 * cols1
+    num_pixels_2 = rows2 * cols2
+    
+    check_results.update({"pixel_count_match": num_pixels_1 == num_pixels_2})
+    
+    ##Check if geotransforms match (implies pixel location match):
+    geotransform_1 = raster_1.GetGeoTransform()
+    geotransform_2 = raster_2.GetGeoTransform()
+    
+    check_results.update({"geotransform_match": geotransform_1 == geotransform_2})
+    
+    ## return val check results
+    return check_results
+    
+    
+
+#3.3 align_validate_raster -----------------------------------
+
+def align_validate_raster (source_raster, target_raster, dst_raster, delete_source = True):
+    '''
+    This function aligns the source_raster to the target_raster
+    
+    **Args:**
+        - source_raster (str): link to the geotiff location of the source raster.
+        - target_raster (str): link to the geotiff location of the target raster.
+        - dst_raster (str): path (including name) to the destination where the raster is saved.
+        - delete_source (bool): if True, delete source raster after completing the function.
+    
+    
+    **Returns:**
+        - str: confirmation that dst_raster exists and matches the target raster
+    
+    **Assumptions:**
+    1. All input files are geotiffs.
+    2. os and GDAL are installed and working (function tested using GDAL 4.3.1)
+    3. Function tested using Python 3.10.12
+    4. Function relies on gdgtm.reproject_raster 
+    5. Rasterio is working (function tested with rasterio 1.3.10)
+    
+    **Usage:**
+    >>> align_validate_raster(source_raster = "/home/pete/Documents/tests_and_vals/gdgtm/01_get_functions/olm_alc_switz_reproj_20040101.tif",
+    >>>                       target_raster = "/home/pete/Documents/tests_and_vals/gdgtm/04_master_rebound/olm_alc_switz_rebound_100_20040101.tif",
+    >>>                       dst_raster = "/home/pete/Documents/tests_and_vals/gdgtm/05_supplements_aligned/olm_alc_switz_aligned_20040101.tif",
+    >>>                       delete_source = False)
+    
+    {'dimension_match': True,
+     'projection_match': True,
+     'pixel_count_match': True,
+     'geotransform_match': True}
+    
+
+    '''
+    ## Import dependencies
+    from osgeo import gdal
+    import rasterio
+    import os
+    from gdgtm import reproject_raster
+    
+    ##Load the two rasters into GDAL objects
+    source_ds = gdal.Open(source_raster)
+    target_ds = gdal.Open(target_raster)
+    
+    ##Check projection match
+    source_projection = source_ds.GetProjection()
+    target_projection = target_ds.GetProjection()
+    
+    projection_check = (source_projection == target_projection)
+    
+    ##If projection does not match, reproject
+    if not projection_check:
+        with rasterio.open(target_raster) as target:
+            target_crs = target.crs
+            
+        reproject_raster(new_crs = target_crs, 
+                         source_raster = source_raster,
+                         dst_raster = 'temp_reproj_source.tif',
+                         delete_source = False)
+    
+    ##We want to preserve the original source_raster value, hence the need for a different arg here.
+    ##Why? With the input source_raster overwritten, the downstream optional source deletion is no longer a viable option.
+    if projection_check:
+        projected_source_loc = source_raster
+    else:
+        projected_source_loc = "temp_reproj_source.tif"
+    
+    ##Align the two rasters
+    align_raster(source_raster = projected_source_loc,
+                 target_raster = target_raster,
+                 dst_raster = dst_raster,
+                 delete_source = False)
+    
+    ##Run the alignment check
+    alignment_outcome = validate_raster_alignment(target_raster, dst_raster)
+    
+    if not projection_check:
+        os.remove("temp_reproj_source.tif")
+        
+    if delete_source and os.path.exists(dst_raster):
+        os.remove(source_raster)
+      
+    return alignment_outcome
+          
+        
+    
+#-------------------------------------------------------------
 
 
