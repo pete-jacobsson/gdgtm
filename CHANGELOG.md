@@ -9,5 +9,12 @@
 - 0.2.0: implement raster mosaics (moved to 0.4.0)
 - 0.2.1: implement raster aligning (moved to 0.3.0)
 
-## Version 0.3 (in test)
+## Version 0.3 (current)
 - 0.3.0: implemented align_validate_raster
+
+## Version 0.4 (test)
+- 0.4.0: implemented raster mosaics and raster merging
+- 0.4.1: address outstanding Github issues (#2 and #3)
+
+## Version 0.5 (dev)
+- 0.5.0: Add extended, standardized, STAC functionality
