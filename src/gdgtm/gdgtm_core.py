@@ -385,7 +385,7 @@ def set_raster_boundbox (target_bb, source_raster, dst_raster, delete_source = T
     Optionally it deletes the source raster.
     
     Args:
-        target_bb (list): list of four numbers defining the target for the new BB (Order: L, B, R, T). 
+        target_bb (tuple): list of four numbers defining the target for the new BB (Order: WNES). 
         source_raster (str): Path to the original raster documents
         dst_raster (str): Path to the file that will hold the re-resolved raster
         delete_source (bool): toggles whether the source raster is to be deleted at the end of the operation
@@ -395,12 +395,12 @@ def set_raster_boundbox (target_bb, source_raster, dst_raster, delete_source = T
         
     Assumptions:
     1. The source_raster is a geotiff.
-    2. os, GDAL, and rasterio are installed and working (function tested using GDAL 3.4.1 and rasterio 1.3.10)
+    2. os and rasterio are installed and working (function tested using rasterio 1.3.10)
     3. numpy is working (function tested using numpy 1.24.3)
     4. Function tested using Python 3.10.12
     
     Usage example:
-    >>> new_bb = [556400, 5238900, 566200, 5254900]
+    >>> new_bb = (556400, 5254900, 566200, 5238900)
     >>> gdgtm.set_raster_boundbox(target_bb = new_bb,
     >>>                           source_raster = "/home/pete/Downloads/chelsa_rescaled_2000.tif",
     >>>                           dst_raster = "/home/pete/Downloads/chelsa_new_bb.tif")
@@ -409,15 +409,15 @@ def set_raster_boundbox (target_bb, source_raster, dst_raster, delete_source = T
     '''
     
     ##Imports:
-    import os
     import rasterio
+    import os
     from osgeo import gdal
     
     ## Load the raster
     input_raster = gdal.Open(source_raster)
     
-    ## Set the bound box (LBRT = xmin, ymin, xmax, ymax)
-    xmin = target_bb[0]; ymin = target_bb[1]; xmax = target_bb[2]; ymax = target_bb[3]
+    ## Set the bound box
+    xmin = target_bb[0]; ymax = target_bb[1]; xmax = target_bb[2]; ymin = target_bb[3]
     
     ## Get input raster projection and geotransform
     gdal.Translate(dst_raster, input_raster, projWin = [xmin, ymax, xmax, ymin])
@@ -426,7 +426,7 @@ def set_raster_boundbox (target_bb, source_raster, dst_raster, delete_source = T
     with rasterio.open(dst_raster) as dst:  #will crash if ouput does no exist.
         dst_bounds = dst.bounds
         bound_error_x = abs((dst_bounds[0] - target_bb[0]) / (dst_bounds[2] - dst_bounds[0]))
-        bound_error_y = abs((dst_bounds[1] - target_bb[1]) / (dst_bounds[3] - dst_bounds[1]))
+        bound_error_y = abs((dst_bounds[1] - target_bb[3]) / (dst_bounds[3] - dst_bounds[1]))
         
         if max(bound_error_x, bound_error_y) < 0.01:
             return_string = "Setting new bounding box successful: errors relative to target < 0.01"
@@ -439,6 +439,7 @@ def set_raster_boundbox (target_bb, source_raster, dst_raster, delete_source = T
         os.remove(source_raster)
     
     return print(return_string)
+    
 
 
 
