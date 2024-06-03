@@ -15,6 +15,8 @@
 ### 1.1 get_chelsa_data: gets data from Chelsa (bound-setting available natively)
 ### 1.2 get_cognames_from_stac_coll_static
 ### 1.3 get_cogs_from_olm
+### 1.4 get_chelsa_bio_19812010_data
+### 1.5 get_chelsa_clim_19812010_data
 
 
 
@@ -198,6 +200,93 @@ def get_cogs_from_olm (cognames,
         src_raster = None
             
         
+# 1.4 get_chelsa_bio_19812010_data -----------------------------
+def get_chelsa_bio_19812010_data (parameter, bbox, dst_raster):
+    '''
+    This function retrieves 1980 - 2010 BIOCLIM+ data from the Chelsa S3 bucket (https://envicloud.wsl.ch/#/?prefix=chelsa%2Fchelsa_V2%2F).
+    The function can be modified to point at a broader range of sources by changing the base_url and adjusting URL construction(indicated below)
+    
+    **Agrs:**
+        - parameter (str): specifies which parameter is being sought. Needs to be exactly one of the paramter names specified in: https://chelsa-climate.org/bioclim/
+        - bbox (tuple): specifies the bounding box of the saved raster. Include edges in the following order: WNES in degrees relative to WGS84
+        - dst_raster (str): path and filename to the raster destination
+        
+    **Returns:**
+        - str: confirmation that file exists
+        
+    **Assumptions:**
+    1. Function tested using GDAL 4.3.1
+    2. Function tested using Python 3.10.12
+    3. The downloaded file is a GeoTIFF
+      
+    '''
+    
+    from osgeo import gdal
+    
+    ## Construct URL - Modify here to point at other parts of the CHELSA S3 bucket
+    base_url = "https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/1981-2010/bio/CHELSA_"
+    url_tail = "_1981-2010_V.2.1.tif"
+    url_to_get = base_url + parameter + url_tail
+    
+    ##Get raster from URL and apply the bounding box
+    src_raster = gdal.Open(url_to_get)
+    gdal.Translate(dst_raster, src_raster, projWin = bbox)
+    
+    if os.path.exists(dst_raster):
+        return_string = "File exists: " + dst_raster
+    else:
+        return_string = "File does not exist: " + dst_raster
+    
+    
+    ##Disconnect from file
+    src_raster = None
+    
+    return print(return_string)
+
+
+# 1.5 get_chelsa_clim_19812010_data ----------------------------
+def get_chelsa_clim_19812010_data (parameter, month, bbox, dst_raster):
+    '''
+    This function retrieves 1980 - 2010 CLIM data from the Chelsa S3 bucket (https://envicloud.wsl.ch/#/?prefix=chelsa%2Fchelsa_V2%2F).
+    The function can be modified to point at a broader range of sources by changing the base_url and adjusting URL construction(indicated below)
+    
+    **Agrs:**
+        - parameter (str): specifies which parameter is being sought. Needs to be exactly one of the paramter names specified in: https://chelsa-climate.org/bioclim/
+        - month (str): string specifying which month of the year is sought. Has to be in the "mm" numeric format (e.g. 01)
+        - bbox (tuple): specifies the bounding box of the saved raster. Include edges in the following order: WNES in degrees relative to WGS84
+        - dst_raster (str): path and filename to the raster destination
+        
+    **Returns:**
+        - str: confirmation that file exists
+        
+    **Assumptions:**
+    1. Function tested using GDAL 4.3.1
+    2. Function tested using Python 3.10.12
+    3. The downloaded file is a GeoTIFF
+      
+    '''
+    
+    from osgeo import gdal
+    
+    ## Construct URL - Modify here to point at other parts of the CHELSA S3 bucket
+    base_url = "https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/1981-2010/PARAM/CHELSA_PARAM_MONTH_1981-2010_V.2.1.tif"
+    url_to_get = base_url.replace("PARAM", parameter)
+    url_to_get = url_to_get.replace("MONTH", month)
+    
+    ##Get raster from URL and apply the bounding box
+    src_raster = gdal.Open(url_to_get)
+    gdal.Translate(dst_raster, src_raster, projWin = bbox)
+    
+    if os.path.exists(dst_raster):
+        return_string = "File exists: " + dst_raster
+    else:
+        return_string = "File does not exist: " + dst_raster
+    
+    
+    ##Disconnect from file
+    src_raster = None
+    
+    return print(return_string)
 
 #---------------------------------------------------------------
 

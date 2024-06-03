@@ -19,4 +19,12 @@
 - 0.5.0: Add summarize_stac
 - 0.5.1: Fix issue 2: getting OLM function to work with non-timestamped data
 - 0.5.2: Standardize bbox inputs (make GDAL compatible)
+- 0.5.3: Added Python-only Chelsa get functions, aiming at 1980-2010 BIOCLIM+
+
+## Version 0.6 (planned)
+- 0.6.0: Remove rasterio dependencies
+- 0.6.1: Remove the R dependency
+
+## Version 0.7 (planned)
+- 0.7.0: Do .shp processing
 
