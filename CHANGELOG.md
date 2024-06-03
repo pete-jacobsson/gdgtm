@@ -12,9 +12,11 @@
 ## Version 0.3 (current)
 - 0.3.0: implemented align_validate_raster
 
-## Version 0.4 (test)
+## Version 0.4 (current)
 - 0.4.0: implemented raster mosaics and raster merging
-- 0.4.1: address outstanding Github issues (#2 and #3)
 
-## Version 0.5 (dev)
-- 0.5.0: Add extended, standardized, STAC functionality
+## Version 0.5 (test)
+- 0.5.0: Add summarize_stac
+- 0.5.1: Fix issue 2: getting OLM function to work with non-timestamped data
+- 0.5.2: Standardize bbox inputs (make GDAL compatible)
+- 0.5.3: Add CHELSA averages data to test
