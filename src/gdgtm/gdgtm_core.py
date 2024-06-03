@@ -27,7 +27,7 @@ def get_chelsa_data (parameter, extent, start_date, end_date, write_location):
 
     Args:
         parameter (str): The name of the variable used by Chelsa to find the intended data (has to be CMIP5 standard short name - specifies what climate varia is desired, see https://chelsa-climate.org/wp-admin/download-page/CHELSA_tech_specification_V2.pdf for possible varias).
-        extent (list): a list of four decimals defining the grid square covered. 
+        extent (tuple): a tuple of four floats defining the area covered (WNES)
         start_date (str): a yyyy-mm-dd formatted string determining the start date for Chelsa data
         end_date (str): a yyyy-mm-dd formatted string determining the end date for Chelsa data
         write_location (str): location to which the downloaded .tiff is written
@@ -43,7 +43,7 @@ def get_chelsa_data (parameter, extent, start_date, end_date, write_location):
 
     Usage example:
     >>> parameter = "tas"
-    >>> extent = [7.3, 7.5, 47.0, 47.2]
+    >>> extent = (7.3, 47.2, 7.5, 47.0)
     >>> start_date = "2023-1-1"
     >>> end_date = "2023-2-2"
     >>> get_chelsa_data(parameter, extent, start_date, end_date, write_location = '/home/pete/Downloads/chesla_temp.tif')
@@ -60,6 +60,9 @@ def get_chelsa_data (parameter, extent, start_date, end_date, write_location):
     rchelsa = importr('Rchelsa')
     lubridate = importr('lubridate')
     terra = importr('terra')
+    
+    ## Convert the GDAL-standardized tuple to Rchelsa-compatible list
+    extent = [extent[0], extent[2], extent[3], extent[1]]
     
     ## Convert Python objects to R objects for the Rchelsa to work (https://rpy2.github.io/doc/v2.9.x/html/vector.html)
     start_date = lubridate.ymd(start_date)
