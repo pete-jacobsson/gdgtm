@@ -129,8 +129,7 @@ def get_cogs_from_olm (cognames,
                        target_directory, 
                        target_names, 
                        bbox = (-180, 180, 180, -180), 
-                       date_start = "00010101", 
-                       date_end = "99991231"
+                       interval = None
                       ):
     '''
     The function uses a list of OpenLandMap cog locations to download a set of rasters bound in space and time
@@ -140,9 +139,8 @@ def get_cogs_from_olm (cognames,
         target_directory (str): directory to which the files will be saved
         target_names (str): the convention name for the files to be downlaoded
         bbox (tupple): a tupple of floats indicating the WGS84 (EPSG:4326) coordinates of the bounding box used to crop the rasters downloaded. Defaults to entire grid (-180, 180, 180, -180)
-        date_start (str): date before which the data are ignored. Needs to be provided in the yyyymmdd format. Defaults to 01JAN0001.
-        date_end (str): date after which the data are ignored. Needs to be provided in the yyyymmdd format. Defaults to 31DEC9999.
-    
+        interval (tupple or None): dates outside which rasters will be ignored. Needs to be provided in the yyyymmdd format. Defaults to 01JAN0001.
+            
     returns:
         str: names of downloaded files in the target_directory
         Downloaded geotiff files named in the target_names_orig_file_date format in the target_directory
@@ -155,13 +153,12 @@ def get_cogs_from_olm (cognames,
     Usage:
     >>> bbox = (5.7663, 47.9163, 10.5532, 45.6755)
     >>>
-    >>> gdgtm.get_cogs_from_olm(cognames = test, 
-    >>>                   	target_directory = "/home/pete/Downloads/", 
-    >>>                   	target_names = "olm_humfoot_switz_raw_",
-    >>>                   	bbox = bbox,
-    >>>                   	date_start = "20000601",
-    >>>                   	date_end = "20050101"
-    >>>                        )
+    >>> get_cogs_from_olm(cognames = test, 
+    >>>                   target_directory = "/home/pete/Downloads/", 
+    >>>                   target_names = "olm_humfoot_switz_raw_",
+    >>>                   bbox = bbox,
+    >>>                   interval = ("20000601", "20050101")
+
     
     /home/pete/Downloads/olm_humfoot_switz_raw_20010101.tif
     /home/pete/Downloads/olm_humfoot_switz_raw_20020101.tif
@@ -174,18 +171,28 @@ def get_cogs_from_olm (cognames,
     
     ## Loop getting the rasters
     for raster_name in cognames:
-        ## Filter based on date
-        raster_ymd = raster_name.split("-doy")[0].split("_")[-5: -3]  ###This gets the dates out of the raster_name
-        if min(raster_ymd) > date_start and max(raster_ymd) < date_end: ## Apply filter
+        if type(interval) is tuple:
+            ## Filter based on date
+            raster_ymd = raster_name.split("-doy")[0].split("_")[-5: -3]  ###This gets the dates out of the raster_name
+            if min(raster_ymd) > interval[0] and max(raster_ymd) < interval[1]: ## Apply filter
+                src_raster = gdal.Open(raster_name) ##Get the actual raster
+                new_raster_name = target_directory + target_names + raster_ymd[0] + ".tif"
+                ##Apply bbox and save in target location
+                gdal.Translate(new_raster_name, src_raster, projWin = bbox)
+                print(new_raster_name) ## Print file name to confirm operation successful
+                
+        else:
+            ## If no interval is set:
             src_raster = gdal.Open(raster_name) ##Get the actual raster
-            new_raster_name = target_directory + target_names + raster_ymd[0] +".tif"
-            
+            new_raster_name = target_directory + target_names + ".tif"
             ##Apply bbox and save in target location
             gdal.Translate(new_raster_name, src_raster, projWin = bbox)
-            
-            ## Disconnect from file
-            src_raster = None
             print(new_raster_name) ## Print file name to confirm operation successful
+            
+       
+            
+        ## Disconnect from file
+        src_raster = None
             
         
 
