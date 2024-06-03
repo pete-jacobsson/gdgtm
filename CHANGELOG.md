@@ -19,4 +19,4 @@
 - 0.5.0: Add summarize_stac
 - 0.5.1: Fix issue 2: getting OLM function to work with non-timestamped data
 - 0.5.2: Standardize bbox inputs (make GDAL compatible)
-- 0.5.3: Add CHELSA averages data to test
+
