@@ -30,7 +30,7 @@ Ubuntu: pip install "git+https://github.com/pete-jacobsson/gdgtm"
 The .toml is configured to import these versions of the packages or higher.
 
 ## Structure
-The module is built around two main sub-modules:
+The module is built around two main sub-modules: **INVALID**
 - gdgtm_core: covers functions for getting and transforming the data
 - gdgtm_manager: covers functions for automating DM tasks and initiating core functions
 
