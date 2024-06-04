@@ -244,6 +244,7 @@ def get_chelsa_bio_19812010_data (parameter, bbox, dst_raster):
     '''
     
     from osgeo import gdal
+    import os
     
     ## Construct URL - Modify here to point at other parts of the CHELSA S3 bucket
     base_url = "https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/1981-2010/bio/CHELSA_"
@@ -294,6 +295,7 @@ def get_chelsa_clim_19812010_data (parameter, month, bbox, dst_raster):
     '''
     
     from osgeo import gdal
+    import os
     
     ## Construct URL - Modify here to point at other parts of the CHELSA S3 bucket
     base_url = "https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/1981-2010/PARAM/CHELSA_PARAM_MONTH_1981-2010_V.2.1.tif"
