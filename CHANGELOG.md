@@ -21,11 +21,12 @@
 - 0.5.2: Standardize bbox inputs (make GDAL compatible)
 - 0.5.3: Added Python-only Chelsa get functions, aiming at 1980-2010 BIOCLIM+
 - 0.5.4: Changed the get_chelsa_data to get_chelsa_daily (including change of underpinning dependencies from Rchelsa to GDAL)
-- 0.5.5: Added get_chelsa_monthly
-- 0.5.6: Changed rasterio dependencies to GDAL
+- 0.5.5: Changed rasterio dependencies to GDAL
 
 ## Version 0.6 (planned)
-
+- 0.6.1 Module re-organization
+- 0.6.2 get_rasterize_shape
+- 0.6.3 get_stac (generalized get STAC function)
 
 ## Version 0.7 (planned)
 - 0.7.0: Do .shp processing
