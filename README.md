@@ -1,9 +1,17 @@
 # gdgtm (Geospatial Data Getting Transforming and Managing)
 
 ## Project overviews
-The purpose of the project is to wrap a set of extant Python utilities to streamline geospatial data downloads and processing (reprojection, bound setting and mosaicing), to allow easier pipeline construction for downstream processing.
+The purpose of the project is to wrap a set of extant Python utilities to streamline geospatial data downloads and processing (reprojection, bound setting and mosaicing), to allow easier pipeline construction for downstream processing. The main point is to simplify the process of acquiring raster data from online sources and building a straightforward pipeline for their processing and standardization ahead of downstream analysis. As of version 0.5 of the package the get functions are written for OpenLandMap STAC (https://stac.openlandmap.org/) and Chelsa (https://chelsa-climate.org/).
+
+The core workflow of this package is:
+1. Get a raster from an online source
+2. Process it to the desired projection, resolution and bounding box - this is the **Master GeoTIFF**
+3. Get further rasters (**complementary rasters**) and align those to the Master
+
+The result is a collection of GeoTIFF files that is standardized in terms of projection, bounding box, resolution, and exact pixel location.
 
 The package is built in Python, with calls to R code as relevant.
+
 
 ## Installation
 Ubuntu: pip install "git+https://github.com/pete-jacobsson/gdgtm"

@@ -218,6 +218,11 @@ def get_chelsa_bio_19812010_data (parameter, bbox, dst_raster):
     1. Function tested using GDAL 4.3.1
     2. Function tested using Python 3.10.12
     3. The downloaded file is a GeoTIFF
+
+    **Usage:**
+    >>> extent = (5.7663, 47.9163, 10.5532, 45.6755)
+    >>> get_chelsa_bio_19812010_data("swe", bbox = extent, dst_raster = "/home/pete/Downloads/chesla_bio_test.tif")
+    File exists: /home/pete/Downloads/chesla_bio_test.tif
       
     '''
     
@@ -263,6 +268,11 @@ def get_chelsa_clim_19812010_data (parameter, month, bbox, dst_raster):
     1. Function tested using GDAL 4.3.1
     2. Function tested using Python 3.10.12
     3. The downloaded file is a GeoTIFF
+
+    **Usage:**
+    >>> extent = (5.7663, 47.9163, 10.5532, 45.6755)
+    >>> get_chelsa_clim_19812010_data("tas", "06", bbox = extent, dst_raster = "/home/pete/Downloads/chesla_clim_test.tif")
+    File exists: /home/pete/Downloads/chesla_clim_test.tif
       
     '''
     
