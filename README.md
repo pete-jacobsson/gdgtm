@@ -18,6 +18,8 @@ Ubuntu: pip install "git+https://github.com/pete-jacobsson/gdgtm"
 
 ### Package was developed and tested using the following:
 * Python 3.10.12
+* datetime 5.5
+* dateutil 2.8.2
 * GDAL 3.4.1
 * Numpy 1.24.3
 * rasterio 1.3.10
