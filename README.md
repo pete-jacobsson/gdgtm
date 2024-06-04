@@ -16,6 +16,8 @@ Ubuntu: pip install "git+https://github.com/pete-jacobsson/gdgtm"
 * pystac 1.10.1
 * pandas 2.0.3
 * rpy2 3.5.16
+The .toml is configured to import these versions of the packages or higher.
+
 
 One function, get_chelsa_data, uses R components (gdgtm versions < 0.6). The package was tested in the following configuration:
 * R 4.1.2
