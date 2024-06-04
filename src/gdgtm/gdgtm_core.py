@@ -12,7 +12,7 @@
 ##############################################################
 
 ### Data getting function list
-### 1.1 get_chelsa_data: gets data from Chelsa (bound-setting available natively)
+### 1.1 get_chelsa_daily: gets data from Chelsa
 ### 1.2 get_cognames_from_stac_coll_static
 ### 1.3 get_cogs_from_olm
 ### 1.4 get_chelsa_bio_19812010_data
@@ -21,68 +21,85 @@
 
 
 
-# 1.1 get_chelsa_data ----------------------------------------
+# 1.1 get_chelsa_daily ---------------------------------------
 
-def get_chelsa_data (parameter, extent, start_date, end_date, write_location):
+def get_chelsa_daily (parameter, bbox, interval, dst_path, dst_name):
     """
     This function gets a cropped raster from Chelsa (https://chelsa-climate.org/), saves it as a .tiff to designated folder, checks that the .tiff exists, and prints a confirmation to the console.
 
     Args:
         parameter (str): The name of the variable used by Chelsa to find the intended data (has to be CMIP5 standard short name - specifies what climate varia is desired, see https://chelsa-climate.org/wp-admin/download-page/CHELSA_tech_specification_V2.pdf for possible varias).
-        extent (tuple): a tuple of four floats defining the area covered (WNES)
-        start_date (str): a yyyy-mm-dd formatted string determining the start date for Chelsa data
-        end_date (str): a yyyy-mm-dd formatted string determining the end date for Chelsa data
-        write_location (str): location to which the downloaded .tiff is written
+        bbox (tuple): a tuple of four floats defining the area covered (WNES)
+        interval (tuple): a yyyy-mm-dd formatted string determining the start date (position 0) and end date (position 1)
+        target_directory (str): location to which the downloaded .tiff is written
+        dst_name (str): First part of the file name
 
     Returns:
         str: string confirming that the intended .tiff indeed exists in the target location
 
     Assumptions:
-    1. Rchelsa, lubridate, and terra R packages are installed (function tested using versions 1.0.1, 1.9.3, and 1.7.71 respectively)
-    2. os and rpy2 Python modules are working (function tested using rpy 3.5.16)
-    3. R version 4.1+ has been installed (function tested using R 4.1.2)
-    4. Python 3 (function tested using Python 3.10.12)
+    1. The provided interval is covered by Chelsa data.
+    2. The parameter name is correct.
+    3. os and GDAL are working (function tested using GDAL 3.4.1)
+    4. datetime and dateutil are working (function tested using versions 5.5 and 2.8.2)
+    4. Function tested using Python 3.10.12
 
     Usage example:
-    >>> parameter = "tas"
-    >>> extent = (7.3, 47.2, 7.5, 47.0)
-    >>> start_date = "2023-1-1"
-    >>> end_date = "2023-2-2"
-    >>> get_chelsa_data(parameter, extent, start_date, end_date, write_location = '/home/pete/Downloads/chesla_temp.tif')
-    "Target .tiff exists"
+    >>> get_chelsa_data(parameter = "tas", 
+    >>>                 bbox = (7.3, 47.2, 7.5, 47.0), 
+    >>>                 interval = ("2023-01-01", "2023-01-05"), 
+    >>>                 dst_path = '/home/pete/Documents/tests_and_vals/gdgtm/01_get_functions/',
+    >>>                 dst_name = "chelsa_tas_"
+    >>>                )
+    File exists: /home/pete/Documents/tests_and_vals/gdgtm/01_get_functions/chelsa_tas_01_01_2023.tif
+    File exists: /home/pete/Documents/tests_and_vals/gdgtm/01_get_functions/chelsa_tas_02_01_2023.tif
+    File exists: /home/pete/Documents/tests_and_vals/gdgtm/01_get_functions/chelsa_tas_03_01_2023.tif
+    File exists: /home/pete/Documents/tests_and_vals/gdgtm/01_get_functions/chelsa_tas_04_01_2023.tif
+    File exists: /home/pete/Documents/tests_and_vals/gdgtm/01_get_functions/chelsa_tas_05_01_2023.tif
 
     """
     
     ## Import the relevant Python and R packages with names corresponding to those used in the current function
     import os
-    import rpy2.robjects as robjects
-    import rpy2.rinterface as rinterface
-    from rpy2.robjects.packages import importr
+    from osgeo import gdal
+    from datetime import datetime
+    from dateutil.rrule import rrule, DAILY ## Note that this has to be imported exactly this way for the function to work
+
+    ## Create a list of dates from the interval
+    start_date = datetime.strptime(interval[0], "%Y-%m-%d")
+    end_date = datetime.strptime(interval[1], "%Y-%m-%d")
+    dates = [dt.strftime("%d_%m_%Y") for dt in rrule(freq = DAILY, dtstart = start_date, until = end_date)]
+
+    ## Transform dates into target_urls
+    core_url = "https://os.unil.cloud.switch.ch/chelsa02/chelsa/global/daily/" + parameter + "/YEAR/CHELSA_"+ parameter + "_DATE_V.2.1.tif"
+    target_urls = []
+
+    for date in dates:
+        year = date[6:10]
+        target_url = core_url.replace("YEAR", year)
+        target_url = target_url.replace("DATE", date)
+        target_urls.append(target_url)
+        
+    ## Use GDAL to download the rasters and enforce the desired bounding box
+    ## First initialize list for filename QC check:
+    return_strings = []
+
+    for i in range(len(dates)):
+        dst_raster = dst_path + dst_name + dates[i] + ".tif"
+        url_to_get = target_urls[i]
     
-    rchelsa = importr('Rchelsa')
-    lubridate = importr('lubridate')
-    terra = importr('terra')
+        ##Get raster from URL and apply the bounding box
+        src_raster = gdal.Open(url_to_get)
+        gdal.Translate(dst_raster, src_raster, projWin = bbox)
+        src_raster = None ## Close connection
     
-    ## Convert the GDAL-standardized tuple to Rchelsa-compatible list
-    extent = [extent[0], extent[2], extent[3], extent[1]]
-    
-    ## Convert Python objects to R objects for the Rchelsa to work (https://rpy2.github.io/doc/v2.9.x/html/vector.html)
-    start_date = lubridate.ymd(start_date)
-    end_date = lubridate.ymd(end_date)
-    extent = rinterface.FloatSexpVector(extent)
-    overwrite_true = rinterface.BoolSexpVector("TRUE")
-    
-    ## Get the bounded raster and store it as an R S4 class 'SpatRaster'
-    framed_raster = rchelsa.getChelsa(parameter, extent = extent, startdate = start_date, enddate = end_date)
-    
-    ## Put the Chesla .tiff into a temp location
-    terra.writeRaster(framed_raster, write_location, overwrite = overwrite_true)
-    
-    ## Check the file exists: note this depends on location clearing in downstream processing
-    if os.path.isfile(write_location):
-        return "Target .tiff exists"
-    else:
-        raise Exception("Target .tiff does not exist")
+        if os.path.isfile(dst_raster):
+            return_strings.append("File exists: " + dst_raster)
+        else:
+            return_strings.append("Warning, file does NOT exist: " + dst_raster)
+
+    return return_strings
+            
 
 # 1.2 get_cognames_from_stac_coll_static -----------------------
 def get_cognames_from_stac_coll_static (static_coll_link):
