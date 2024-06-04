@@ -10,7 +10,7 @@ The core workflow of this package is:
 
 The result is a collection of GeoTIFF files that is standardized in terms of projection, bounding box, resolution, and exact pixel location.
 
-The package is built in Python, with calls to R code as relevant.
+The package is built in Python, with almost all functions being in reality GDAL wrappers designed to simplify the workflow and reduce number of lines of code required to do a project.
 
 
 ## Installation
@@ -25,19 +25,11 @@ Ubuntu: pip install "git+https://github.com/pete-jacobsson/gdgtm"
 * rasterio 1.3.10
 * pystac 1.10.1
 * pandas 2.0.3
-* rpy2 3.5.16
+* datetime 5.5
+* dateutil 2.8.2
 The .toml is configured to import these versions of the packages or higher.
 
-
-One function, get_chelsa_data, uses R components (gdgtm versions < 0.6). The package was tested in the following configuration:
-* R 4.1.2
-* Rchelsa 1.0.1
-* lubridate 1.9.3
-* terra 1.7.71
-* 
-
-
-## Usage
+## Structure
 The module is built around two main sub-modules:
 - gdgtm_core: covers functions for getting and transforming the data
 - gdgtm_manager: covers functions for automating DM tasks and initiating core functions
