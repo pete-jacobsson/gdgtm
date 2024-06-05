@@ -12,72 +12,94 @@
 ##############################################################
 
 ### Data getting function list
-### 1.1 get_chelsa_data: gets data from Chelsa (bound-setting available natively)
+### 1.1 get_chelsa_daily: gets data from Chelsa
 ### 1.2 get_cognames_from_stac_coll_static
 ### 1.3 get_cogs_from_olm
+### 1.4 get_chelsa_bio_19812010_data
+### 1.5 get_chelsa_clim_19812010_data
 
 
 
 
-# 1.1 get_chelsa_data ----------------------------------------
+# 1.1 get_chelsa_daily ---------------------------------------
 
-def get_chelsa_data (parameter, extent, start_date, end_date, write_location):
+def get_chelsa_daily (parameter, bbox, interval, dst_path, dst_name):
     """
     This function gets a cropped raster from Chelsa (https://chelsa-climate.org/), saves it as a .tiff to designated folder, checks that the .tiff exists, and prints a confirmation to the console.
 
     Args:
         parameter (str): The name of the variable used by Chelsa to find the intended data (has to be CMIP5 standard short name - specifies what climate varia is desired, see https://chelsa-climate.org/wp-admin/download-page/CHELSA_tech_specification_V2.pdf for possible varias).
-        extent (list): a list of four decimals defining the grid square covered. 
-        start_date (str): a yyyy-mm-dd formatted string determining the start date for Chelsa data
-        end_date (str): a yyyy-mm-dd formatted string determining the end date for Chelsa data
-        write_location (str): location to which the downloaded .tiff is written
+        bbox (tuple): a tuple of four floats defining the area covered (WNES)
+        interval (tuple): a yyyy-mm-dd formatted string determining the start date (position 0) and end date (position 1)
+        target_directory (str): location to which the downloaded .tiff is written
+        dst_name (str): First part of the file name
 
     Returns:
         str: string confirming that the intended .tiff indeed exists in the target location
 
     Assumptions:
-    1. Rchelsa, lubridate, and terra R packages are installed (function tested using versions 1.0.1, 1.9.3, and 1.7.71 respectively)
-    2. os and rpy2 Python modules are working (function tested using rpy 3.5.16)
-    3. R version 4.1+ has been installed (function tested using R 4.1.2)
-    4. Python 3 (function tested using Python 3.10.12)
+    1. The provided interval is covered by Chelsa data.
+    2. The parameter name is correct.
+    3. os and GDAL are working (function tested using GDAL 3.4.1)
+    4. datetime and dateutil are working (function tested using versions 5.5 and 2.8.2)
+    4. Function tested using Python 3.10.12
 
     Usage example:
-    >>> parameter = "tas"
-    >>> extent = [7.3, 7.5, 47.0, 47.2]
-    >>> start_date = "2023-1-1"
-    >>> end_date = "2023-2-2"
-    >>> get_chelsa_data(parameter, extent, start_date, end_date, write_location = '/home/pete/Downloads/chesla_temp.tif')
-    "Target .tiff exists"
+    >>> get_chelsa_data(parameter = "tas", 
+    >>>                 bbox = (7.3, 47.2, 7.5, 47.0), 
+    >>>                 interval = ("2023-01-01", "2023-01-05"), 
+    >>>                 dst_path = '/home/pete/Documents/tests_and_vals/gdgtm/01_get_functions/',
+    >>>                 dst_name = "chelsa_tas_"
+    >>>                )
+    File exists: /home/pete/Documents/tests_and_vals/gdgtm/01_get_functions/chelsa_tas_01_01_2023.tif
+    File exists: /home/pete/Documents/tests_and_vals/gdgtm/01_get_functions/chelsa_tas_02_01_2023.tif
+    File exists: /home/pete/Documents/tests_and_vals/gdgtm/01_get_functions/chelsa_tas_03_01_2023.tif
+    File exists: /home/pete/Documents/tests_and_vals/gdgtm/01_get_functions/chelsa_tas_04_01_2023.tif
+    File exists: /home/pete/Documents/tests_and_vals/gdgtm/01_get_functions/chelsa_tas_05_01_2023.tif
 
     """
     
     ## Import the relevant Python and R packages with names corresponding to those used in the current function
     import os
-    import rpy2.robjects as robjects
-    import rpy2.rinterface as rinterface
-    from rpy2.robjects.packages import importr
+    from osgeo import gdal
+    from datetime import datetime
+    from dateutil.rrule import rrule, DAILY ## Note that this has to be imported exactly this way for the function to work
+
+    ## Create a list of dates from the interval
+    start_date = datetime.strptime(interval[0], "%Y-%m-%d")
+    end_date = datetime.strptime(interval[1], "%Y-%m-%d")
+    dates = [dt.strftime("%d_%m_%Y") for dt in rrule(freq = DAILY, dtstart = start_date, until = end_date)]
+
+    ## Transform dates into target_urls
+    core_url = "https://os.unil.cloud.switch.ch/chelsa02/chelsa/global/daily/" + parameter + "/YEAR/CHELSA_"+ parameter + "_DATE_V.2.1.tif"
+    target_urls = []
+
+    for date in dates:
+        year = date[6:10]
+        target_url = core_url.replace("YEAR", year)
+        target_url = target_url.replace("DATE", date)
+        target_urls.append(target_url)
+        
+    ## Use GDAL to download the rasters and enforce the desired bounding box
+    ## First initialize list for filename QC check:
+    return_strings = []
+
+    for i in range(len(dates)):
+        dst_raster = dst_path + dst_name + dates[i] + ".tif"
+        url_to_get = target_urls[i]
     
-    rchelsa = importr('Rchelsa')
-    lubridate = importr('lubridate')
-    terra = importr('terra')
+        ##Get raster from URL and apply the bounding box
+        src_raster = gdal.Open(url_to_get)
+        gdal.Translate(dst_raster, src_raster, projWin = bbox)
+        src_raster = None ## Close connection
     
-    ## Convert Python objects to R objects for the Rchelsa to work (https://rpy2.github.io/doc/v2.9.x/html/vector.html)
-    start_date = lubridate.ymd(start_date)
-    end_date = lubridate.ymd(end_date)
-    extent = rinterface.FloatSexpVector(extent)
-    overwrite_true = rinterface.BoolSexpVector("TRUE")
-    
-    ## Get the bounded raster and store it as an R S4 class 'SpatRaster'
-    framed_raster = rchelsa.getChelsa(parameter, extent = extent, startdate = start_date, enddate = end_date)
-    
-    ## Put the Chesla .tiff into a temp location
-    terra.writeRaster(framed_raster, write_location, overwrite = overwrite_true)
-    
-    ## Check the file exists: note this depends on location clearing in downstream processing
-    if os.path.isfile(write_location):
-        return "Target .tiff exists"
-    else:
-        raise Exception("Target .tiff does not exist")
+        if os.path.isfile(dst_raster):
+            return_strings.append("File exists: " + dst_raster)
+        else:
+            return_strings.append("Warning, file does NOT exist: " + dst_raster)
+
+    return return_strings
+            
 
 # 1.2 get_cognames_from_stac_coll_static -----------------------
 def get_cognames_from_stac_coll_static (static_coll_link):
@@ -129,8 +151,7 @@ def get_cogs_from_olm (cognames,
                        target_directory, 
                        target_names, 
                        bbox = (-180, 180, 180, -180), 
-                       date_start = "00010101", 
-                       date_end = "99991231"
+                       interval = None
                       ):
     '''
     The function uses a list of OpenLandMap cog locations to download a set of rasters bound in space and time
@@ -140,9 +161,8 @@ def get_cogs_from_olm (cognames,
         target_directory (str): directory to which the files will be saved
         target_names (str): the convention name for the files to be downlaoded
         bbox (tupple): a tupple of floats indicating the WGS84 (EPSG:4326) coordinates of the bounding box used to crop the rasters downloaded. Defaults to entire grid (-180, 180, 180, -180)
-        date_start (str): date before which the data are ignored. Needs to be provided in the yyyymmdd format. Defaults to 01JAN0001.
-        date_end (str): date after which the data are ignored. Needs to be provided in the yyyymmdd format. Defaults to 31DEC9999.
-    
+        interval (tupple or None): dates outside which rasters will be ignored. Needs to be provided in the yyyymmdd format. Defaults to 01JAN0001.
+            
     returns:
         str: names of downloaded files in the target_directory
         Downloaded geotiff files named in the target_names_orig_file_date format in the target_directory
@@ -155,13 +175,12 @@ def get_cogs_from_olm (cognames,
     Usage:
     >>> bbox = (5.7663, 47.9163, 10.5532, 45.6755)
     >>>
-    >>> gdgtm.get_cogs_from_olm(cognames = test, 
-    >>>                   	target_directory = "/home/pete/Downloads/", 
-    >>>                   	target_names = "olm_humfoot_switz_raw_",
-    >>>                   	bbox = bbox,
-    >>>                   	date_start = "20000601",
-    >>>                   	date_end = "20050101"
-    >>>                        )
+    >>> get_cogs_from_olm(cognames = test, 
+    >>>                   target_directory = "/home/pete/Downloads/", 
+    >>>                   target_names = "olm_humfoot_switz_raw_",
+    >>>                   bbox = bbox,
+    >>>                   interval = ("20000601", "20050101")
+
     
     /home/pete/Downloads/olm_humfoot_switz_raw_20010101.tif
     /home/pete/Downloads/olm_humfoot_switz_raw_20020101.tif
@@ -171,23 +190,136 @@ def get_cogs_from_olm (cognames,
     '''
     ## Import GDAL
     from osgeo import gdal
+
+    ## Ensure that cognames are a list: if only single cogname was provided into the function it turns to a string, breaking down the next step.
+    if type(cognames) != list:
+        cognames = [cognames]
     
     ## Loop getting the rasters
     for raster_name in cognames:
-        ## Filter based on date
-        raster_ymd = raster_name.split("-doy")[0].split("_")[-5: -3]  ###This gets the dates out of the raster_name
-        if min(raster_ymd) > date_start and max(raster_ymd) < date_end: ## Apply filter
+        if type(interval) is tuple:
+            ## Filter based on date
+            raster_ymd = raster_name.split("-doy")[0].split("_")[-5: -3]  ###This gets the dates out of the raster_name
+            if min(raster_ymd) > interval[0] and max(raster_ymd) < interval[1]: ## Apply filter
+                src_raster = gdal.Open(raster_name) ##Get the actual raster
+                new_raster_name = target_directory + target_names + raster_ymd[0] + ".tif"
+                ##Apply bbox and save in target location
+                gdal.Translate(new_raster_name, src_raster, projWin = bbox)
+                print(new_raster_name) ## Print file name to confirm operation successful
+                
+        else:
+            ## If no interval is set:
             src_raster = gdal.Open(raster_name) ##Get the actual raster
-            new_raster_name = target_directory + target_names + raster_ymd[0] +".tif"
-            
+            new_raster_name = target_directory + target_names + ".tif"
             ##Apply bbox and save in target location
             gdal.Translate(new_raster_name, src_raster, projWin = bbox)
-            
-            ## Disconnect from file
-            src_raster = None
             print(new_raster_name) ## Print file name to confirm operation successful
             
+       
+            
+        ## Disconnect from file
+        src_raster = None
+            
         
+# 1.4 get_chelsa_bio_19812010_data -----------------------------
+def get_chelsa_bio_19812010_data (parameter, bbox, dst_raster):
+    '''
+    This function retrieves 1980 - 2010 BIOCLIM+ data from the Chelsa S3 bucket (https://envicloud.wsl.ch/#/?prefix=chelsa%2Fchelsa_V2%2F).
+    The function can be modified to point at a broader range of sources by changing the base_url and adjusting URL construction(indicated below)
+    
+    **Agrs:**
+        - parameter (str): specifies which parameter is being sought. Needs to be exactly one of the paramter names specified in: https://chelsa-climate.org/bioclim/
+        - bbox (tuple): specifies the bounding box of the saved raster. Include edges in the following order: WNES in degrees relative to WGS84
+        - dst_raster (str): path and filename to the raster destination
+        
+    **Returns:**
+        - str: confirmation that file exists
+        
+    **Assumptions:**
+    1. Function tested using GDAL 3.4.1
+    2. Function tested using Python 3.10.12
+    3. The downloaded file is a GeoTIFF
+
+    **Usage:**
+    >>> extent = (5.7663, 47.9163, 10.5532, 45.6755)
+    >>> get_chelsa_bio_19812010_data("swe", bbox = extent, dst_raster = "/home/pete/Downloads/chesla_bio_test.tif")
+    File exists: /home/pete/Downloads/chesla_bio_test.tif
+      
+    '''
+    
+    from osgeo import gdal
+    import os
+    
+    ## Construct URL - Modify here to point at other parts of the CHELSA S3 bucket
+    base_url = "https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/1981-2010/bio/CHELSA_"
+    url_tail = "_1981-2010_V.2.1.tif"
+    url_to_get = base_url + parameter + url_tail
+    
+    ##Get raster from URL and apply the bounding box
+    src_raster = gdal.Open(url_to_get)
+    gdal.Translate(dst_raster, src_raster, projWin = bbox)
+    
+    if os.path.exists(dst_raster):
+        return_string = "File exists: " + dst_raster
+    else:
+        return_string = "File does not exist: " + dst_raster
+    
+    
+    ##Disconnect from file
+    src_raster = None
+    
+    return print(return_string)
+
+
+# 1.5 get_chelsa_clim_19812010_data ----------------------------
+def get_chelsa_clim_19812010_data (parameter, month, bbox, dst_raster):
+    '''
+    This function retrieves 1980 - 2010 CLIM data from the Chelsa S3 bucket (https://envicloud.wsl.ch/#/?prefix=chelsa%2Fchelsa_V2%2F).
+    The function can be modified to point at a broader range of sources by changing the base_url and adjusting URL construction(indicated below)
+    
+    **Agrs:**
+        - parameter (str): specifies which parameter is being sought. Needs to be exactly one of the paramter names specified in: https://chelsa-climate.org/bioclim/
+        - month (str): string specifying which month of the year is sought. Has to be in the "mm" numeric format (e.g. 01)
+        - bbox (tuple): specifies the bounding box of the saved raster. Include edges in the following order: WNES in degrees relative to WGS84
+        - dst_raster (str): path and filename to the raster destination
+        
+    **Returns:**
+        - str: confirmation that file exists
+        
+    **Assumptions:**
+    1. Function tested using GDAL 3.4.1
+    2. Function tested using Python 3.10.12
+    3. The downloaded file is a GeoTIFF
+
+    **Usage:**
+    >>> extent = (5.7663, 47.9163, 10.5532, 45.6755)
+    >>> get_chelsa_clim_19812010_data("tas", "06", bbox = extent, dst_raster = "/home/pete/Downloads/chesla_clim_test.tif")
+    File exists: /home/pete/Downloads/chesla_clim_test.tif
+      
+    '''
+    
+    from osgeo import gdal
+    import os
+    
+    ## Construct URL - Modify here to point at other parts of the CHELSA S3 bucket
+    base_url = "https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/1981-2010/PARAM/CHELSA_PARAM_MONTH_1981-2010_V.2.1.tif"
+    url_to_get = base_url.replace("PARAM", parameter)
+    url_to_get = url_to_get.replace("MONTH", month)
+    
+    ##Get raster from URL and apply the bounding box
+    src_raster = gdal.Open(url_to_get)
+    gdal.Translate(dst_raster, src_raster, projWin = bbox)
+    
+    if os.path.exists(dst_raster):
+        return_string = "File exists: " + dst_raster
+    else:
+        return_string = "File does not exist: " + dst_raster
+    
+    
+    ##Disconnect from file
+    src_raster = None
+    
+    return print(return_string)
 
 #---------------------------------------------------------------
 
@@ -204,9 +336,18 @@ def get_cogs_from_olm (cognames,
 
 # 2.1 reproject_raster ---------------------------------------
 
-def reproject_raster (new_crs, source_raster, dst_raster, delete_source = True):
+### The function takes on the target projection, creates a re-projected .tiff
+### Function should send a confirm message that it re-projected correctly
+### Assumes rasterio and numpy packages are installed on the machine
+### Assumes new coord system name is recognized by rasterio
+### Assumes the following have been imported:
+# import numpy as np
+# import rasterio
+# from rasterio.warp import calculate_default_transform, reproject, Resampling
+
+def reproject_raster (new_crs, src_raster, dst_raster, delete_source = True):
     '''
-    This function takes a geotiff raster (with metadata include coordinate projection) and turns out a geotiff raster with updated projection and a check that the new file projection matches the desired target.
+    This function takes a geotiff raster (with metadata include coordinate projection) and turns out a geotiff raster with updated projection and a check that the new file exists.
     The function also has the option to do source deletion (e.g. for DM purposes)
 
     Args:
@@ -219,71 +360,48 @@ def reproject_raster (new_crs, source_raster, dst_raster, delete_source = True):
         str: string confirming that the new geotiff has the expected projection system
 
     Assumptions
-    1. Input data is a geotiff with a header readable by rasterio
-    2. Rasterio is working (function tested with rasterio 1.3.10)
+    1. Input data is a geotiff with a header readable by GDAL
+    2. GDAL is working (function tested with GDAL 3.4.1)
     3. Function tested on Python 3.10.12
-    4. Numpy is working (function tested with numpy 1.24.3)
 
     Usage example:
     >>> gdgtm.reproject_raster(new_crs = "ESRI:54028", 
-    >>>                        source_raster = '/home/pete/Downloads/chesla_temp.tif',
-    >>>                        dst_raster = '/home/pete/Downloads/chesla_transformed.tif')
-    "Transform successful"
-
+    >>>                        source_raster = '/home/pete/Documents/tests_and_vals/gdgtm/01_get_functions/chelsa_tas_01_01_2023.tif',
+    >>>                        dst_raster = '/home/pete/Downloads/chelsa_transformed.tif')
+    "File exists: /home/pete/Downloads/chelsa_transformed.tif"
     '''
-    
-    #Get dependencies loaded
     import os
-    import numpy as np
-    import rasterio
-    from rasterio.warp import calculate_default_transform, reproject, Resampling
+    import re
+    from osgeo import gdal
+    
+    ## Open the input raster
+    src_ds = gdal.Open(src_raster)
 
-    dst_crs = new_crs #Set the new crs
-        
-    ##Get source meta, calculate the transform, upgrade arguments.
-    with rasterio.open(source_raster) as src:
-        transform, width, height = calculate_default_transform(
-            src.crs, dst_crs, src.width, src.height, *src.bounds)
-        kwargs = src.meta.copy()
-        kwargs.update({
-            'crs': dst_crs,
-            'transform': transform,
-            'width': width,
-            'height': height
-        })
-        
-        ##Generate reprojected raster
-        with rasterio.open(dst_raster, 'w', **kwargs) as dst:
-            for i in range(1, src.count + 1):
-                reproject(
-                    source=rasterio.band(src, i),
-                    destination=rasterio.band(dst, i),
-                    src_transform=src.transform,
-                    src_crs=src.crs,
-                    dst_transform=transform,
-                    dst_crs=dst_crs,
-                    resampling=Resampling.nearest)
-    
-    ##Delete source raster
-    
-    
-    ##Test that the new raster is correct crs
-    with rasterio.open(dst_raster) as dst:
-        check = dst.crs == new_crs
-        if check:
-            return_string = "Reprojection successful"
-        else:
-            return_string = "Reprojection not successful: target crs is " + new_crs + ", but the transform returned " + dst.crs
+    ## Reproject the input raster to the output raster
+    gdal.Warp(dst_raster, src_ds, dstSRS = new_crs)
 
-    ##Delete source if required:
-    if delete_source and return_string == "Reprojection successful":  ## For the delete to work the string in the second part of this condition has to match the successful return string
-        os.remove(source_raster)
-        
-    return print(return_string)
-    
+    ## Close down connections
+    dst_ds = None
+    src_ds = None
+            
+    ##Test that the new raster exists
+    file_exists = os.path.exists(dst_raster)
 
+    if file_exists:
+        return_string = "File exists: " + dst_raster
+    else:
+        return_string = "Warning, file does not exist: " + dst_raster
+
+    if delete_source and re.match("File exists", return_string):  ## For the delete to work the string in the second part of this condition has to match the successful return string
+        os.remove(src_raster)
+    
+    return return_string
+        
+                
+ 
+   
 # 2.2 change_raster_res  ---------------------------------------
-def change_raster_res (target_res, source_raster, dst_raster, delete_source = True):
+def change_raster_res (target_res, src_raster, dst_raster, delete_source = True):
     
     '''
     The objective of this function is to load a raster from a geotiff, resample it to a set resolution,
@@ -291,7 +409,7 @@ def change_raster_res (target_res, source_raster, dst_raster, delete_source = Tr
     
     Args:
         target_res (float): Target resolution in units relevant to the crs     
-        source_raster (str): Path to the original raster documents
+        src_raster (str): Path to the original raster documents
         dst_raster (str): Path to the file that will hold the re-resolved raster
         delete_source (bool): toggles whether the source raster is to be deleted at the end of the operation
         
@@ -300,83 +418,70 @@ def change_raster_res (target_res, source_raster, dst_raster, delete_source = Tr
         
     Assumptions:
     1. The source_raster is a geotiff.
-    2. os and rasterio are installed and working (function tested using rasterio 1.3.10)
-    3. numpy is working (function tested using numpy 1.24.3)
-    4. Function tested using Python 3.10.12
-    5. WARNING: Assumes that the new target resolution is provided within the CRS units
+    2. os, re and GDAL are installed and working (function tested using GDAL 3.4.1)
+    3. Function tested using Python 3.10.12
+    4. WARNING: Assumes that the new target resolution is provided within the CRS units
     
     Usage example:
     >>> gdgtm.change_raster_res(target_res = 500,
     >>>                         source_raster = "/home/pete/Downloads/chesla_transformed.tif",
-    >>>                         dst_raster = "/home/pete/Downloads/chesla_rescaled.tif")
-    "Resolution change successful: new pixel size matches target"
+    >>>                         dst_raster = "/home/pete/Downloads/chesla_transformed_500.tif")
+    "Resolution meets target, file exists: /home/pete/Downloads/chelsa_transformed_500.tif"
         
     
     '''
     
     ## Get the dependencies
     import os
-    import rasterio
-    from rasterio.warp import calculate_default_transform, reproject, Resampling
+    import re
+    from osgeo import gdal
     
-    ## Do the transform - this is calculating all the infor necessary for the res change
-    with rasterio.open (source_raster) as src:
-        ## Get dst_crs (same as source - we are not re-projecting here!!!)
-        dst_crs = src.crs # Can be skipped - kept for legibility four lines below :)
-        
-        ## Calculate the transform matrix that will be used to resample
-        transform, width, height = calculate_default_transform(
-        src.crs, dst_crs, src.width, src.height, *src.bounds, resolution = target_res)
-        
-        #Create reprojected raster and update meta
-        kwargs = src.meta.copy()
-        kwargs.update({
-            'crs': dst_crs,
-            'transform': transform, 
-            'width': width,
-            'height': height
-        })
-        
-    
-        with rasterio.open(dst_raster, 'w', **kwargs) as dst:
-            # Reproject bands
-            for i in range(1, src.count+1):
-                reproject(
-                    source=rasterio.band(src, i),
-                    destination=rasterio.band(dst, i),
-                    src_transform=src.transform,
-                    src_crs=src.crs,
-                    dst_transform=transform,
-                    dst_crs=dst_crs,
-                    resampling=Resampling.nearest
-                )
-    
-    with rasterio.open(dst_raster) as dst:
-        dst_dims = [abs(dst.transform[0]), abs(dst.transform[4])]
-        check = dst_dims == [abs(target_res), abs(target_res)]
-        if check:
-             return_string = "Resolution change successful: new pixel size matches target"
+    ## Load the source raster into GDAL
+    src_ds = gdal.Open(src_raster)
+
+    ## Set the new res
+    new_xres = target_res
+    new_yres = target_res
+
+    ## Create output raster with the new resolution
+    dst_ds = gdal.Warp(dst_raster, src_ds, xRes = new_xres, yRes = new_yres)
+
+    ## Disconnect
+    dst_ds = None
+    src_ds = None    
+
+    ## Check if new Res matches target
+    file_exists = os.path.exists(dst_raster)
+
+    if not file_exists:
+        return_string = "Warning, the file does not exist: " + dst_raster
+    else:
+        dst_geotransform = gdal.Open(dst_raster).GetGeoTransform()
+        dst_res = [dst_geotransform[1], -dst_geotransform[5]]
+        if dst_res == [target_res, target_res]:
+            return_string = "Resolution meets target, file exists: " + dst_raster
         else:
-             return_string = "Resolution not successful: target pixel size is: " + target_res + ", but the actual new pixel size is: " + dst.transform[0] + " by " + abs(dst.transform[4])
+            return_string = "Warning, resolution does not meet the target, file exists: " + dst_raster
     
-    ##Delete source if required:
-    if delete_source and return_string == "Resolution change successful: new pixel size matches target":  ## For the delete to work the string in the second part of this condition has to match the successful return string
-        os.remove(source_raster)
-    
-    return print(return_string)
+    ## Run deletion
+    if delete_source and re.match("Resolution meets target", return_string):
+        os.remove(src_raster)
+        
+    return return_string
+
 
 
 
 # 2.3 set_raster_boundbox --------------------------------------
-def set_raster_boundbox (target_bb, source_raster, dst_raster, delete_source = True):
+def set_raster_boundbox (target_bbox, src_raster, dst_raster, delete_source = True):
     
     '''
     This function loads a geotiff raster, fits it to a new bounding box, saves it as a geotiff file.
     Optionally it deletes the source raster.
     
     Args:
-        target_bb (list): list of four numbers defining the target for the new BB (Order: L, B, R, T). 
-        source_raster (str): Path to the original raster documents
+        target_bbox (tuple): Four numbers defining the target for the new BB (Order: WNES). 
+        src_raster (str): Path to the original raster documents
         dst_raster (str): Path to the file that will hold the re-resolved raster
         delete_source (bool): toggles whether the source raster is to be deleted at the end of the operation
         
@@ -385,50 +490,61 @@ def set_raster_boundbox (target_bb, source_raster, dst_raster, delete_source = T
         
     Assumptions:
     1. The source_raster is a geotiff.
-    2. os, GDAL, and rasterio are installed and working (function tested using GDAL 3.4.1 and rasterio 1.3.10)
+    2. os and rasterio are installed and working (function tested using rasterio 1.3.10)
     3. numpy is working (function tested using numpy 1.24.3)
     4. Function tested using Python 3.10.12
     
     Usage example:
-    >>> new_bb = [556400, 5238900, 566200, 5254900]
-    >>> gdgtm.set_raster_boundbox(target_bb = new_bb,
+    >>> new_bb = (556400, 5254900, 566200, 5238900)
+    >>> gdgtm.set_raster_boundbox(target_bbox = new_bb,
     >>>                           source_raster = "/home/pete/Downloads/chelsa_rescaled_2000.tif",
     >>>                           dst_raster = "/home/pete/Downloads/chelsa_new_bb.tif")
-    "New bounding box implemented successfully: all dimensions match"
+    "Warning, setting errors > 0.01 and file exists: /home/pete/Downloads/chelsa_transformed_500_cropped.tif"
     
     '''
     
     ##Imports:
     import os
-    import rasterio
+    import re
     from osgeo import gdal
     
     ## Load the raster
-    input_raster = gdal.Open(source_raster)
-    
-    ## Set the bound box (LBRT = xmin, ymin, xmax, ymax)
-    xmin = target_bb[0]; ymin = target_bb[1]; xmax = target_bb[2]; ymax = target_bb[3]
+    src_ds = gdal.Open(src_raster)
     
     ## Get input raster projection and geotransform
-    gdal.Translate(dst_raster, input_raster, projWin = [xmin, ymax, xmax, ymin])
-    
-    ## QC the output
-    with rasterio.open(dst_raster) as dst:  #will crash if ouput does no exist.
-        dst_bounds = dst.bounds
-        bound_error_x = abs((dst_bounds[0] - target_bb[0]) / (dst_bounds[2] - dst_bounds[0]))
-        bound_error_y = abs((dst_bounds[1] - target_bb[1]) / (dst_bounds[3] - dst_bounds[1]))
-        
-        if max(bound_error_x, bound_error_y) < 0.01:
-            return_string = "Setting new bounding box successful: errors relative to target < 0.01"
-        else:
-            return_string = "Setting new bounding box not successful: errors relative to target > 0.01"
-        
+    dst_ds = gdal.Translate(dst_raster, src_ds, projWin = target_bbox)
 
-    ##Delete source if required:
-    if delete_source and return_string == "Setting new bounding box successful: errors relative to target < 0.01":  ## For the delete to work the string in the second part of this condition has to match the successful return string
-        os.remove(source_raster)
+    ## Reset the connections
+    dst_ds = None
+    src_ds = None
     
-    return print(return_string)
+    ## QC the outputs
+    file_exists = os.path.exists(dst_raster)
+
+    if not file_exists:
+        return_string = "Warning, the file does not exist: " + dst_raster
+    else:
+        ## Set up the QC calculation: difference between the positions of the NW corner in the target_bbox and the actual raster, divided by raster width/height
+        dst_geotransform = gdal.Open(dst_raster).GetGeoTransform()
+        dst_width = gdal.Open(dst_raster).RasterXSize * dst_geotransform[1]
+        dst_height = gdal.Open(dst_raster).RasterYSize * -dst_geotransform[5]
+        nw_corner = [dst_geotransform[3], dst_geotransform[0]]
+
+        x_error = abs((nw_corner[1] - target_bbox[0]) / dst_width)
+        y_error = abs((nw_corner[0] - target_bbox[1]) / dst_height)
+
+        if max(x_error, y_error) < 0.01:
+            return_string = "Setting errors < 0.01 and file exists: " + dst_raster
+        else:
+            return_string = "Warning, setting errors > 0.01 and file exists: " + dst_raster
+
+    ## Run deletion
+    if delete_source and re.match("Setting errors < 0.01", return_string):
+        os.remove(src_raster)
+
+    return return_string
+
+    
 
 
 
@@ -463,7 +579,7 @@ def align_raster (source_raster, target_raster, dst_raster, delete_source = True
     
     **Assumptions:**
     1. All input files are geotiffs.
-    2. os and GDAL are installed and working (function tested using GDAL 4.3.1)
+    2. os and GDAL are installed and working (function tested using GDAL 3.4.1)
     3. Function tested using Python 3.10.12
     
     **Usage:**
@@ -528,7 +644,7 @@ def validate_raster_alignment (raster_1, raster_2):
         
     **Assumptions:**
     1. All input files are geotiffs.
-    2. os and GDAL are installed and working (function tested using GDAL 4.3.1)
+    2. os and GDAL are installed and working (function tested using GDAL 3.4.1)
     3. Function tested using Python 3.10.12
     
     **Usage:**
@@ -595,7 +711,7 @@ def align_validate_raster (source_raster, target_raster, dst_raster, delete_sour
     
     **Assumptions:**
     1. All input files are geotiffs.
-    2. os and GDAL are installed and working (function tested using GDAL 4.3.1)
+    2. os and GDAL are installed and working (function tested using GDAL 3.4.1)
     3. Function tested using Python 3.10.12
     4. Function relies on gdgtm.reproject_raster 
     5. Rasterio is working (function tested with rasterio 1.3.10)
@@ -635,7 +751,7 @@ def align_validate_raster (source_raster, target_raster, dst_raster, delete_sour
             target_crs = target.crs
             
         reproject_raster(new_crs = target_crs, 
-                         source_raster = source_raster,
+                         src_raster = source_raster,
                          dst_raster = 'temp_reproj_source.tif',
                          delete_source = False)
     

@@ -20,7 +20,7 @@ def mosaic_rasters (raster_1, raster_2, dst_raster, delete_source = True):
     1. Both rasters are GeoTIFFs
     2. Both rasters are same projection
     3. Both rasters have the same bands
-    4. Function tested using GDAL 4.3.1 and Python 3.10.12
+    4. Function tested using GDAL 3.4.1 and Python 3.10.12
     
     **Usage:**
     >>> mosaic_rasters(raster_1 = "/home/pete/Documents/tests_and_vals/gdgtm/06_mosaic_merge_prep/olm_humfoot_switz_raw_west_20010101.tif",
@@ -84,7 +84,7 @@ def merge_rasters (raster_1, raster_2, dst_raster, delete_source = True):
     **Assumptions:**
     1. The two rasters share the same projection and dimensions
     2. Both rasters are GeoTIFFs
-    4. Function tested using GDAL 4.3.1 and Python 3.10.12
+    4. Function tested using GDAL 3.4.1 and Python 3.10.12
     
     **Usage:**
     >>> merge_rasters(raster_1 = "/home/pete/Documents/tests_and_vals/gdgtm/06_mosaic_merge_prep/olm_humfoot_switz_raw_west_20010101.tif", 
