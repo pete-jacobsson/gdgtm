@@ -190,6 +190,10 @@ def get_cogs_from_olm (cognames,
     '''
     ## Import GDAL
     from osgeo import gdal
+
+    ## Ensure that cognames are a list: if only single cogname was provided into the function it turns to a string, breaking down the next step.
+    if type(cognames) != list:
+        cognames = [cognames]
     
     ## Loop getting the rasters
     for raster_name in cognames:
