@@ -27,6 +27,7 @@
 - 0.6.1 Module re-organization
 - 0.6.2 get_rasterize_shape
 - 0.6.3 get_stac (generalized get STAC function)
+- 0.6.4 numpyify_raster
 
 ## Version 0.7 (planned)
 - 0.7.0: raster_to_numpy
