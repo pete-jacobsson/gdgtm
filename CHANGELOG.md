@@ -23,13 +23,16 @@
 - 0.5.4: Changed the get_chelsa_data to get_chelsa_daily (including change of underpinning dependencies from Rchelsa to GDAL)
 - 0.5.5: Changed rasterio dependencies to GDAL
 
-## Version 0.6 (dev)
+## Version 0.6 (test)
 - 0.6.1 Module re-organization, including function renaming
 - 0.6.2 rasterize_shape
 - 0.6.3 numpyify_raster
-- 0.6.4 get_stac (generalized get STAC function)
 
 
 ## Version 0.7 (planned)
-- 0.7.0: raster_to_numpy
+- 0.7.0: get_stac
+- 0.7.1: Function robustness with try:
+- 0.7.2: Address nodata issue
+- 0.7.3: Data management functions
+- Improve .md docs production: string to text, text to .md
 
