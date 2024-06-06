@@ -24,7 +24,7 @@
 - 0.5.5: Changed rasterio dependencies to GDAL
 
 ## Version 0.6 (dev)
-- 0.6.1 Module re-organization
+- 0.6.1 Module re-organization, including function renaming
 - 0.6.2 rasterize_shape
 - 0.6.3 numpyify_raster
 - 0.6.4 get_stac (generalized get STAC function)
