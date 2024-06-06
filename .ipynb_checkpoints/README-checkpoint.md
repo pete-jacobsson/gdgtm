@@ -1,7 +1,7 @@
 # gdgtm (Geospatial Data Getting Transforming and Managing)
 
 ## Project overviews
-The purpose of the project is to wrap a set of extant Python utilities to streamline geospatial data downloads and processing (reprojection, bound setting and mosaicing), to allow easier pipeline construction for downstream processing. The main point is to simplify the process of acquiring raster data from online sources and building a straightforward pipeline for their processing and standardization ahead of downstream analysis. As of version 0.5 of the package the get functions are written for OpenLandMap STAC (https://stac.openlandmap.org/) and Chelsa (https://chelsa-climate.org/).
+The purpose of the project is to wrap a set of extant Python utilities to streamline geospatial data downloads and processing (reprojection, bound setting and mosaicing), to allow easier pipeline construction for downstream processing. The main point is to simplify the process of acquiring raster data from online sources and building a straightforward pipeline for their processing and standardization ahead of downstream analysis. As of version 0.6 of the package the get functions are written for OpenLandMap STAC (https://stac.openlandmap.org/) and Chelsa (https://chelsa-climate.org/).
 
 The core workflow of this package is:
 1. Get a raster from an online source
@@ -30,19 +30,23 @@ Ubuntu: pip install "git+https://github.com/pete-jacobsson/gdgtm"
 The .toml is configured to import these versions of the packages or higher.
 
 ## Structure
-The module is built around two main sub-modules:
-- gdgtm_core: covers functions for getting and transforming the data
-- gdgtm_manager: covers functions for automating DM tasks and initiating core functions
+The package is built around the following modules:
+- gdgtm_core: covers functions for transforming and aligning rasters.
+- gdgtm_chelsa_gets: functions for getting data from https://chelsa-climate.org/
+- gdgtm_stac_gets: functions for interacting with STAC objects (static and open only).
+- gdgtm_merge_mosaic: functions for mosaicing rasters and for merging multiple rasters into a single multi-layer raster.
+- gdgtm_numpys: functions for converting GeoTiffs into numpy arrays (2D only).
+- gdgtm_shapefiles: functions for converting ESRI .shp files into GeoTiffs.
 
-Specific usage examples provided in the documentation.
+Specific usage examples provided in the documentation and the demo.
 
 
 ## Supported Data Formats
 gdgtm has only been tested for geotif (.tif) format.
 
 ## Testing
-gdgtm are built in Jupyter with explicit tests built into the process.
-The functions are then copied into the gdgtm repo and tested from re-build against original tests
+gdgtm functions are built in Jupyter with explicit tests built into the process.
+Beyond in-development testing, all functions in the "main" branch will have been run through the test script, including failure tests.
 
 ## License
 MIT License

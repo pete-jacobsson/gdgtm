@@ -78,7 +78,7 @@ def save_numpd_raster (src_raster, dst_txt):
 
     **Assumptions:**
         1. The src_raster is a GeoTIFF
-        2. Function tested using: GDAL 3.4.1, numpy 1.24.3, gdaltools 1.5 and Python 3.10.12
+        2. Function tested using: GDAL 3.4.1, numpy 1.24.3 and Python 3.10.12
         3. Function assumes that the shell command gdalinfo will work.
 
     **Usage:**
