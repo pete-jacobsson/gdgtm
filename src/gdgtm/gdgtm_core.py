@@ -1,119 +1,21 @@
 ### Functions forming the core workflow of the gdgtm package.
 
 
-
-### 1. Data getting functions
-### 2. Data processing functions
-### 3. Data alignment and validation functions
-
-
-##############################################################
-########## 1. Data getting Functions #########################
-##############################################################
-
-### Data getting function list
-
-### 1.2 get_cognames_from_stac_coll_static
-### 1.3 get_cogs_from_olm
-
-
-            
-
-
-
-
-# 1.3 get_cogs_from_olm ----------------------------------------
-def get_cogs_from_olm (cognames, 
-                       target_directory, 
-                       target_names, 
-                       bbox = (-180, 180, 180, -180), 
-                       interval = None
-                      ):
-    '''
-    The function uses a list of OpenLandMap cog locations to download a set of rasters bound in space and time
-    
-    Args:
-        cognames (list): list of names of geotiffs in the OLM S3 bucket associated with the STAC collection of interest
-        target_directory (str): directory to which the files will be saved
-        target_names (str): the convention name for the files to be downlaoded
-        bbox (tupple): a tupple of floats indicating the WGS84 (EPSG:4326) coordinates of the bounding box used to crop the rasters downloaded. Defaults to entire grid (-180, 180, 180, -180)
-        interval (tupple or None): dates outside which rasters will be ignored. Needs to be provided in the yyyymmdd format. Defaults to 01JAN0001.
-            
-    returns:
-        str: names of downloaded files in the target_directory
-        Downloaded geotiff files named in the target_names_orig_file_date format in the target_directory
-        
-    Assumptions:
-        cognames point to an OLM S3 bucket and OLM data
-        All incmong raster refer to data points happenning between 01JAN0001 and 31DEC9999.
-        GDAL is available (function tested using GDAL 3.4.1)
-    
-    Usage:
-    >>> bbox = (5.7663, 47.9163, 10.5532, 45.6755)
-    >>>
-    >>> get_cogs_from_olm(cognames = test, 
-    >>>                   target_directory = "/home/pete/Downloads/", 
-    >>>                   target_names = "olm_humfoot_switz_raw_",
-    >>>                   bbox = bbox,
-    >>>                   interval = ("20000601", "20050101")
-
-    
-    /home/pete/Downloads/olm_humfoot_switz_raw_20010101.tif
-    /home/pete/Downloads/olm_humfoot_switz_raw_20020101.tif
-    /home/pete/Downloads/olm_humfoot_switz_raw_20030101.tif
-    /home/pete/Downloads/olm_humfoot_switz_raw_20040101.tif
-    
-    '''
-    ## Import GDAL
-    from osgeo import gdal
-
-    ## Ensure that cognames are a list: if only single cogname was provided into the function it turns to a string, breaking down the next step.
-    if type(cognames) != list:
-        cognames = [cognames]
-    
-    ## Loop getting the rasters
-    for raster_name in cognames:
-        if type(interval) is tuple:
-            ## Filter based on date
-            raster_ymd = raster_name.split("-doy")[0].split("_")[-5: -3]  ###This gets the dates out of the raster_name
-            if min(raster_ymd) > interval[0] and max(raster_ymd) < interval[1]: ## Apply filter
-                src_raster = gdal.Open(raster_name) ##Get the actual raster
-                new_raster_name = target_directory + target_names + raster_ymd[0] + ".tif"
-                ##Apply bbox and save in target location
-                gdal.Translate(new_raster_name, src_raster, projWin = bbox)
-                print(new_raster_name) ## Print file name to confirm operation successful
-                
-        else:
-            ## If no interval is set:
-            src_raster = gdal.Open(raster_name) ##Get the actual raster
-            new_raster_name = target_directory + target_names + ".tif"
-            ##Apply bbox and save in target location
-            gdal.Translate(new_raster_name, src_raster, projWin = bbox)
-            print(new_raster_name) ## Print file name to confirm operation successful
-            
-       
-            
-        ## Disconnect from file
-        src_raster = None
-            
-
-
-
-
-#---------------------------------------------------------------
+### 1. Data processing functions (intended for setting up the Master GeoTIFF: see Demo)
+### 2. Data alignment and validation functions
 
 
 
 ##############################################################
-########## 2. Data processing Functions ######################
+########## 1. Data processing Functions ######################
 ##############################################################
 
 ### Data processing function list
-### 2.1 reproject_raster: wrapper function for rasterio reprojection
-### 2.2 change_raster_res: wrapper for changing resolution with rasterio
-### 2.3 set_raster_boundbox: wrapper for re-setting the bounding box with gdal
+### 1.1 reproject_raster: wrapper function for rasterio reprojection
+### 1.2 change_raster_res: wrapper for changing resolution with rasterio
+### 1.3 set_raster_boundbox: wrapper for re-setting the bounding box with gdal
 
-# 2.1 reproject_raster ---------------------------------------
+# 1.1 reproject_raster --------------------------------------------------------
 
 ### The function takes on the target projection, creates a re-projected .tiff
 ### Function should send a confirm message that it re-projected correctly
@@ -179,7 +81,7 @@ def reproject_raster (new_crs, src_raster, dst_raster, delete_source = True):
                 
  
    
-# 2.2 change_raster_res  ---------------------------------------
+# 1.2 change_raster_res  ------------------------------------------------------
 def change_raster_res (target_res, src_raster, dst_raster, delete_source = True):
     
     '''
@@ -251,7 +153,7 @@ def change_raster_res (target_res, src_raster, dst_raster, delete_source = True)
 
 
 
-# 2.3 set_raster_boundbox --------------------------------------
+# 1.3 set_raster_boundbox -----------------------------------------------------
 def set_raster_boundbox (target_bbox, src_raster, dst_raster, delete_source = True):
     
     '''
@@ -327,7 +229,7 @@ def set_raster_boundbox (target_bbox, src_raster, dst_raster, delete_source = Tr
 
 
 
-#-------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 
 
@@ -336,12 +238,12 @@ def set_raster_boundbox (target_bbox, src_raster, dst_raster, delete_source = Tr
 ##############################################################
 
 ### Data alignment and validation function list
-### 3.1 align_raster: wrapper function for GDAL align raster
-### 3.2 validate_raster_alignment: executes checks whether two rasters are truly aligned (coords, pixels, etc.)
-### 3.3 align_validate_raster: take a raw and align it, while running the check underneath. Includes automatic re-projection if necessary
+### 2.1 align_raster: wrapper function for GDAL align raster
+### 2.2 validate_raster_alignment: executes checks whether two rasters are truly aligned (coords, pixels, etc.)
+### 2.3 align_validate_raster: take a raw and align it, while running the check underneath. Includes automatic re-projection if necessary
 
 
-# 3.1 align_raster -------------------------------------------
+# 2.1 align_raster ------------------------------------------------------------
 def align_raster (source_raster, target_raster, dst_raster, delete_source = True):
     '''
     This function aligns the source_raster to the target_raster
@@ -409,7 +311,7 @@ def align_raster (source_raster, target_raster, dst_raster, delete_source = True
     
     
     
-#3.2 validate_raster_alignment -------------------------------
+# 2.2 validate_raster_alignment -----------------------------------------------
 def validate_raster_alignment (raster_1, raster_2):
     '''
     This function checks whether two rasters are aligned: i.e. whether they have the same number of pixels and whether these pixels have identical coordinates
@@ -472,7 +374,7 @@ def validate_raster_alignment (raster_1, raster_2):
     
     
 
-#3.3 align_validate_raster -----------------------------------
+#3.3 align_validate_raster ----------------------------------------------------
 
 def align_validate_raster (source_raster, target_raster, dst_raster, delete_source = True):
     '''
@@ -560,6 +462,6 @@ def align_validate_raster (source_raster, target_raster, dst_raster, delete_sour
           
         
     
-#-------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 

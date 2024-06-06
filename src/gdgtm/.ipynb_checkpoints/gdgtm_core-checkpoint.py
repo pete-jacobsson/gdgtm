@@ -1,259 +1,21 @@
 ### Functions forming the core workflow of the gdgtm package.
 
 
-
-### 1. Data getting functions
-### 2. Data processing functions
-### 3. Data alignment and validation functions
-
-
-##############################################################
-########## 1. Data getting Functions #########################
-##############################################################
-
-### Data getting function list
-### 1.1 get_chelsa_daily: gets data from Chelsa
-### 1.2 get_cognames_from_stac_coll_static
-### 1.3 get_cogs_from_olm
-### 1.4 get_chelsa_bio_19812010_data
-### 1.5 get_chelsa_clim_19812010_data
-
-            
-
-# 1.2 get_cognames_from_stac_coll_static -----------------------
-def get_cognames_from_stac_coll_static (static_coll_link):
-    '''
-    This function produces a list of names of cog (cloud optimized geotiffs) files from a STAC collection.
-    
-    Args:
-        static_coll_link (str): link to a static STAC collection
-        
-    Returns:
-        list: list of cog names as strings
-        
-    Assumptions:
-    1. Link points at an actual STAC static collection.
-    2. pystac is installed ( function tested using pystac 1.10.1).
-    3. Python installation includes the re module.
-    4. Function tested using Python 3.10.12
-    5. Function version for gdgtm version 0.1.0 is only tested against Open Land Map urls
-    
-    Usage example:
-    >>> test = gdgtm.get_cognames_fom_stac_coll_static("https://s3.eu-central-1.wasabisys.com/stac/openlandmap/wilderness_li2022.human.footprint/collection.json")
-    >>> print(test[0])
-    https://s3.openlandmap.org/arco/wilderness_li2022.human.footprint_p_1km_s_20000101_20001231_go_epsg.4326_v16022022.tif
-    
-    '''
-    ## Import dependencies
-    import pystac
-    import re
-    
-    ## Set up empty list
-    geotiff_names = []
-    
-    ## Get collection items
-    collection = pystac.read_file(static_coll_link)
-    collection_items = collection.get_all_items()
-    
-    ## Iterate over collection items to the asset level. Then in the asset level determine if something is a geotiff
-    for item in collection_items:
-        for asset_key in item.assets:
-            asset = item.assets[asset_key]
-            if re.search("geotiff", asset.media_type):   # Using regex, as the actual media_type string contains much more various data
-                geotiff_names.append(asset.href) # asset.href is the link to the actual geotiff
-                
-    return geotiff_names
-
-
-# 1.3 get_cogs_from_olm ----------------------------------------
-def get_cogs_from_olm (cognames, 
-                       target_directory, 
-                       target_names, 
-                       bbox = (-180, 180, 180, -180), 
-                       interval = None
-                      ):
-    '''
-    The function uses a list of OpenLandMap cog locations to download a set of rasters bound in space and time
-    
-    Args:
-        cognames (list): list of names of geotiffs in the OLM S3 bucket associated with the STAC collection of interest
-        target_directory (str): directory to which the files will be saved
-        target_names (str): the convention name for the files to be downlaoded
-        bbox (tupple): a tupple of floats indicating the WGS84 (EPSG:4326) coordinates of the bounding box used to crop the rasters downloaded. Defaults to entire grid (-180, 180, 180, -180)
-        interval (tupple or None): dates outside which rasters will be ignored. Needs to be provided in the yyyymmdd format. Defaults to 01JAN0001.
-            
-    returns:
-        str: names of downloaded files in the target_directory
-        Downloaded geotiff files named in the target_names_orig_file_date format in the target_directory
-        
-    Assumptions:
-        cognames point to an OLM S3 bucket and OLM data
-        All incmong raster refer to data points happenning between 01JAN0001 and 31DEC9999.
-        GDAL is available (function tested using GDAL 3.4.1)
-    
-    Usage:
-    >>> bbox = (5.7663, 47.9163, 10.5532, 45.6755)
-    >>>
-    >>> get_cogs_from_olm(cognames = test, 
-    >>>                   target_directory = "/home/pete/Downloads/", 
-    >>>                   target_names = "olm_humfoot_switz_raw_",
-    >>>                   bbox = bbox,
-    >>>                   interval = ("20000601", "20050101")
-
-    
-    /home/pete/Downloads/olm_humfoot_switz_raw_20010101.tif
-    /home/pete/Downloads/olm_humfoot_switz_raw_20020101.tif
-    /home/pete/Downloads/olm_humfoot_switz_raw_20030101.tif
-    /home/pete/Downloads/olm_humfoot_switz_raw_20040101.tif
-    
-    '''
-    ## Import GDAL
-    from osgeo import gdal
-
-    ## Ensure that cognames are a list: if only single cogname was provided into the function it turns to a string, breaking down the next step.
-    if type(cognames) != list:
-        cognames = [cognames]
-    
-    ## Loop getting the rasters
-    for raster_name in cognames:
-        if type(interval) is tuple:
-            ## Filter based on date
-            raster_ymd = raster_name.split("-doy")[0].split("_")[-5: -3]  ###This gets the dates out of the raster_name
-            if min(raster_ymd) > interval[0] and max(raster_ymd) < interval[1]: ## Apply filter
-                src_raster = gdal.Open(raster_name) ##Get the actual raster
-                new_raster_name = target_directory + target_names + raster_ymd[0] + ".tif"
-                ##Apply bbox and save in target location
-                gdal.Translate(new_raster_name, src_raster, projWin = bbox)
-                print(new_raster_name) ## Print file name to confirm operation successful
-                
-        else:
-            ## If no interval is set:
-            src_raster = gdal.Open(raster_name) ##Get the actual raster
-            new_raster_name = target_directory + target_names + ".tif"
-            ##Apply bbox and save in target location
-            gdal.Translate(new_raster_name, src_raster, projWin = bbox)
-            print(new_raster_name) ## Print file name to confirm operation successful
-            
-       
-            
-        ## Disconnect from file
-        src_raster = None
-            
-        
-# 1.4 get_chelsa_bio_19812010_data -----------------------------
-def get_chelsa_bio_19812010_data (parameter, bbox, dst_raster):
-    '''
-    This function retrieves 1980 - 2010 BIOCLIM+ data from the Chelsa S3 bucket (https://envicloud.wsl.ch/#/?prefix=chelsa%2Fchelsa_V2%2F).
-    The function can be modified to point at a broader range of sources by changing the base_url and adjusting URL construction(indicated below)
-    
-    **Agrs:**
-        - parameter (str): specifies which parameter is being sought. Needs to be exactly one of the paramter names specified in: https://chelsa-climate.org/bioclim/
-        - bbox (tuple): specifies the bounding box of the saved raster. Include edges in the following order: WNES in degrees relative to WGS84
-        - dst_raster (str): path and filename to the raster destination
-        
-    **Returns:**
-        - str: confirmation that file exists
-        
-    **Assumptions:**
-    1. Function tested using GDAL 3.4.1
-    2. Function tested using Python 3.10.12
-    3. The downloaded file is a GeoTIFF
-
-    **Usage:**
-    >>> extent = (5.7663, 47.9163, 10.5532, 45.6755)
-    >>> get_chelsa_bio_19812010_data("swe", bbox = extent, dst_raster = "/home/pete/Downloads/chesla_bio_test.tif")
-    File exists: /home/pete/Downloads/chesla_bio_test.tif
-      
-    '''
-    
-    from osgeo import gdal
-    import os
-    
-    ## Construct URL - Modify here to point at other parts of the CHELSA S3 bucket
-    base_url = "https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/1981-2010/bio/CHELSA_"
-    url_tail = "_1981-2010_V.2.1.tif"
-    url_to_get = base_url + parameter + url_tail
-    
-    ##Get raster from URL and apply the bounding box
-    src_raster = gdal.Open(url_to_get)
-    gdal.Translate(dst_raster, src_raster, projWin = bbox)
-    
-    if os.path.exists(dst_raster):
-        return_string = "File exists: " + dst_raster
-    else:
-        return_string = "File does not exist: " + dst_raster
-    
-    
-    ##Disconnect from file
-    src_raster = None
-    
-    return print(return_string)
-
-
-# 1.5 get_chelsa_clim_19812010_data ----------------------------
-def get_chelsa_clim_19812010_data (parameter, month, bbox, dst_raster):
-    '''
-    This function retrieves 1980 - 2010 CLIM data from the Chelsa S3 bucket (https://envicloud.wsl.ch/#/?prefix=chelsa%2Fchelsa_V2%2F).
-    The function can be modified to point at a broader range of sources by changing the base_url and adjusting URL construction(indicated below)
-    
-    **Agrs:**
-        - parameter (str): specifies which parameter is being sought. Needs to be exactly one of the paramter names specified in: https://chelsa-climate.org/bioclim/
-        - month (str): string specifying which month of the year is sought. Has to be in the "mm" numeric format (e.g. 01)
-        - bbox (tuple): specifies the bounding box of the saved raster. Include edges in the following order: WNES in degrees relative to WGS84
-        - dst_raster (str): path and filename to the raster destination
-        
-    **Returns:**
-        - str: confirmation that file exists
-        
-    **Assumptions:**
-    1. Function tested using GDAL 3.4.1
-    2. Function tested using Python 3.10.12
-    3. The downloaded file is a GeoTIFF
-
-    **Usage:**
-    >>> extent = (5.7663, 47.9163, 10.5532, 45.6755)
-    >>> get_chelsa_clim_19812010_data("tas", "06", bbox = extent, dst_raster = "/home/pete/Downloads/chesla_clim_test.tif")
-    File exists: /home/pete/Downloads/chesla_clim_test.tif
-      
-    '''
-    
-    from osgeo import gdal
-    import os
-    
-    ## Construct URL - Modify here to point at other parts of the CHELSA S3 bucket
-    base_url = "https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/1981-2010/PARAM/CHELSA_PARAM_MONTH_1981-2010_V.2.1.tif"
-    url_to_get = base_url.replace("PARAM", parameter)
-    url_to_get = url_to_get.replace("MONTH", month)
-    
-    ##Get raster from URL and apply the bounding box
-    src_raster = gdal.Open(url_to_get)
-    gdal.Translate(dst_raster, src_raster, projWin = bbox)
-    
-    if os.path.exists(dst_raster):
-        return_string = "File exists: " + dst_raster
-    else:
-        return_string = "File does not exist: " + dst_raster
-    
-    
-    ##Disconnect from file
-    src_raster = None
-    
-    return print(return_string)
-
-#---------------------------------------------------------------
+### 1. Data processing functions (intended for setting up the Master GeoTIFF: see Demo)
+### 2. Data alignment and validation functions
 
 
 
 ##############################################################
-########## 2. Data processing Functions ######################
+########## 1. Data processing Functions ######################
 ##############################################################
 
 ### Data processing function list
-### 2.1 reproject_raster: wrapper function for rasterio reprojection
-### 2.2 change_raster_res: wrapper for changing resolution with rasterio
-### 2.3 set_raster_boundbox: wrapper for re-setting the bounding box with gdal
+### 1.1 reproject_raster: wrapper function for rasterio reprojection
+### 1.2 change_raster_res: wrapper for changing resolution with rasterio
+### 1.3 set_raster_boundbox: wrapper for re-setting the bounding box with gdal
 
-# 2.1 reproject_raster ---------------------------------------
+# 1.1 reproject_raster --------------------------------------------------------
 
 ### The function takes on the target projection, creates a re-projected .tiff
 ### Function should send a confirm message that it re-projected correctly
@@ -319,7 +81,7 @@ def reproject_raster (new_crs, src_raster, dst_raster, delete_source = True):
                 
  
    
-# 2.2 change_raster_res  ---------------------------------------
+# 1.2 change_raster_res  ------------------------------------------------------
 def change_raster_res (target_res, src_raster, dst_raster, delete_source = True):
     
     '''
@@ -391,7 +153,7 @@ def change_raster_res (target_res, src_raster, dst_raster, delete_source = True)
 
 
 
-# 2.3 set_raster_boundbox --------------------------------------
+# 1.3 set_raster_boundbox -----------------------------------------------------
 def set_raster_boundbox (target_bbox, src_raster, dst_raster, delete_source = True):
     
     '''
@@ -467,7 +229,7 @@ def set_raster_boundbox (target_bbox, src_raster, dst_raster, delete_source = Tr
 
 
 
-#-------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 
 
@@ -476,12 +238,12 @@ def set_raster_boundbox (target_bbox, src_raster, dst_raster, delete_source = Tr
 ##############################################################
 
 ### Data alignment and validation function list
-### 3.1 align_raster: wrapper function for GDAL align raster
-### 3.2 validate_raster_alignment: executes checks whether two rasters are truly aligned (coords, pixels, etc.)
-### 3.3 align_validate_raster: take a raw and align it, while running the check underneath. Includes automatic re-projection if necessary
+### 2.1 align_raster: wrapper function for GDAL align raster
+### 2.2 validate_raster_alignment: executes checks whether two rasters are truly aligned (coords, pixels, etc.)
+### 2.3 align_validate_raster: take a raw and align it, while running the check underneath. Includes automatic re-projection if necessary
 
 
-# 3.1 align_raster -------------------------------------------
+# 2.1 align_raster ------------------------------------------------------------
 def align_raster (source_raster, target_raster, dst_raster, delete_source = True):
     '''
     This function aligns the source_raster to the target_raster
@@ -549,7 +311,7 @@ def align_raster (source_raster, target_raster, dst_raster, delete_source = True
     
     
     
-#3.2 validate_raster_alignment -------------------------------
+# 2.2 validate_raster_alignment -----------------------------------------------
 def validate_raster_alignment (raster_1, raster_2):
     '''
     This function checks whether two rasters are aligned: i.e. whether they have the same number of pixels and whether these pixels have identical coordinates
@@ -612,7 +374,7 @@ def validate_raster_alignment (raster_1, raster_2):
     
     
 
-#3.3 align_validate_raster -----------------------------------
+#3.3 align_validate_raster ----------------------------------------------------
 
 def align_validate_raster (source_raster, target_raster, dst_raster, delete_source = True):
     '''
@@ -700,6 +462,6 @@ def align_validate_raster (source_raster, target_raster, dst_raster, delete_sour
           
         
     
-#-------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 
