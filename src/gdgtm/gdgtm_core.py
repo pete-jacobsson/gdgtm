@@ -12,57 +12,14 @@
 ##############################################################
 
 ### Data getting function list
-### 1.1 get_chelsa_daily: gets data from Chelsa
+
 ### 1.2 get_cognames_from_stac_coll_static
 ### 1.3 get_cogs_from_olm
-### 1.4 get_chelsa_bio_19812010_data
-### 1.5 get_chelsa_clim_19812010_data
+
 
             
 
-# 1.2 get_cognames_from_stac_coll_static -----------------------
-def get_cognames_from_stac_coll_static (static_coll_link):
-    '''
-    This function produces a list of names of cog (cloud optimized geotiffs) files from a STAC collection.
-    
-    Args:
-        static_coll_link (str): link to a static STAC collection
-        
-    Returns:
-        list: list of cog names as strings
-        
-    Assumptions:
-    1. Link points at an actual STAC static collection.
-    2. pystac is installed ( function tested using pystac 1.10.1).
-    3. Python installation includes the re module.
-    4. Function tested using Python 3.10.12
-    5. Function version for gdgtm version 0.1.0 is only tested against Open Land Map urls
-    
-    Usage example:
-    >>> test = gdgtm.get_cognames_fom_stac_coll_static("https://s3.eu-central-1.wasabisys.com/stac/openlandmap/wilderness_li2022.human.footprint/collection.json")
-    >>> print(test[0])
-    https://s3.openlandmap.org/arco/wilderness_li2022.human.footprint_p_1km_s_20000101_20001231_go_epsg.4326_v16022022.tif
-    
-    '''
-    ## Import dependencies
-    import pystac
-    import re
-    
-    ## Set up empty list
-    geotiff_names = []
-    
-    ## Get collection items
-    collection = pystac.read_file(static_coll_link)
-    collection_items = collection.get_all_items()
-    
-    ## Iterate over collection items to the asset level. Then in the asset level determine if something is a geotiff
-    for item in collection_items:
-        for asset_key in item.assets:
-            asset = item.assets[asset_key]
-            if re.search("geotiff", asset.media_type):   # Using regex, as the actual media_type string contains much more various data
-                geotiff_names.append(asset.href) # asset.href is the link to the actual geotiff
-                
-    return geotiff_names
+
 
 
 # 1.3 get_cogs_from_olm ----------------------------------------
@@ -139,106 +96,9 @@ def get_cogs_from_olm (cognames,
         ## Disconnect from file
         src_raster = None
             
-        
-# 1.4 get_chelsa_bio_19812010_data -----------------------------
-def get_chelsa_bio_19812010_data (parameter, bbox, dst_raster):
-    '''
-    This function retrieves 1980 - 2010 BIOCLIM+ data from the Chelsa S3 bucket (https://envicloud.wsl.ch/#/?prefix=chelsa%2Fchelsa_V2%2F).
-    The function can be modified to point at a broader range of sources by changing the base_url and adjusting URL construction(indicated below)
-    
-    **Agrs:**
-        - parameter (str): specifies which parameter is being sought. Needs to be exactly one of the paramter names specified in: https://chelsa-climate.org/bioclim/
-        - bbox (tuple): specifies the bounding box of the saved raster. Include edges in the following order: WNES in degrees relative to WGS84
-        - dst_raster (str): path and filename to the raster destination
-        
-    **Returns:**
-        - str: confirmation that file exists
-        
-    **Assumptions:**
-    1. Function tested using GDAL 3.4.1
-    2. Function tested using Python 3.10.12
-    3. The downloaded file is a GeoTIFF
-
-    **Usage:**
-    >>> extent = (5.7663, 47.9163, 10.5532, 45.6755)
-    >>> get_chelsa_bio_19812010_data("swe", bbox = extent, dst_raster = "/home/pete/Downloads/chesla_bio_test.tif")
-    File exists: /home/pete/Downloads/chesla_bio_test.tif
-      
-    '''
-    
-    from osgeo import gdal
-    import os
-    
-    ## Construct URL - Modify here to point at other parts of the CHELSA S3 bucket
-    base_url = "https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/1981-2010/bio/CHELSA_"
-    url_tail = "_1981-2010_V.2.1.tif"
-    url_to_get = base_url + parameter + url_tail
-    
-    ##Get raster from URL and apply the bounding box
-    src_raster = gdal.Open(url_to_get)
-    gdal.Translate(dst_raster, src_raster, projWin = bbox)
-    
-    if os.path.exists(dst_raster):
-        return_string = "File exists: " + dst_raster
-    else:
-        return_string = "File does not exist: " + dst_raster
-    
-    
-    ##Disconnect from file
-    src_raster = None
-    
-    return print(return_string)
 
 
-# 1.5 get_chelsa_clim_19812010_data ----------------------------
-def get_chelsa_clim_19812010_data (parameter, month, bbox, dst_raster):
-    '''
-    This function retrieves 1980 - 2010 CLIM data from the Chelsa S3 bucket (https://envicloud.wsl.ch/#/?prefix=chelsa%2Fchelsa_V2%2F).
-    The function can be modified to point at a broader range of sources by changing the base_url and adjusting URL construction(indicated below)
-    
-    **Agrs:**
-        - parameter (str): specifies which parameter is being sought. Needs to be exactly one of the paramter names specified in: https://chelsa-climate.org/bioclim/
-        - month (str): string specifying which month of the year is sought. Has to be in the "mm" numeric format (e.g. 01)
-        - bbox (tuple): specifies the bounding box of the saved raster. Include edges in the following order: WNES in degrees relative to WGS84
-        - dst_raster (str): path and filename to the raster destination
-        
-    **Returns:**
-        - str: confirmation that file exists
-        
-    **Assumptions:**
-    1. Function tested using GDAL 3.4.1
-    2. Function tested using Python 3.10.12
-    3. The downloaded file is a GeoTIFF
 
-    **Usage:**
-    >>> extent = (5.7663, 47.9163, 10.5532, 45.6755)
-    >>> get_chelsa_clim_19812010_data("tas", "06", bbox = extent, dst_raster = "/home/pete/Downloads/chesla_clim_test.tif")
-    File exists: /home/pete/Downloads/chesla_clim_test.tif
-      
-    '''
-    
-    from osgeo import gdal
-    import os
-    
-    ## Construct URL - Modify here to point at other parts of the CHELSA S3 bucket
-    base_url = "https://os.zhdk.cloud.switch.ch/envicloud/chelsa/chelsa_V2/GLOBAL/climatologies/1981-2010/PARAM/CHELSA_PARAM_MONTH_1981-2010_V.2.1.tif"
-    url_to_get = base_url.replace("PARAM", parameter)
-    url_to_get = url_to_get.replace("MONTH", month)
-    
-    ##Get raster from URL and apply the bounding box
-    src_raster = gdal.Open(url_to_get)
-    gdal.Translate(dst_raster, src_raster, projWin = bbox)
-    
-    if os.path.exists(dst_raster):
-        return_string = "File exists: " + dst_raster
-    else:
-        return_string = "File does not exist: " + dst_raster
-    
-    
-    ##Disconnect from file
-    src_raster = None
-    
-    return print(return_string)
 
 #---------------------------------------------------------------
 
