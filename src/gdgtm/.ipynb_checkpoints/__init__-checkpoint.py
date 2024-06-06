@@ -1,6 +1,6 @@
 from .gdgtm_chelsa_gets import get_chelsa_daily, get_chelsa_bio_19812010_data, get_chelsa_clim_19812010_data
 
-from .gdgtm_stac_gets import summarize_stac, get_cognames_from_stac_coll_static, get_cogs_from_olm 
+from .gdgtm_stac_gets import summarize_static_stac, get_cognames_static_stac, get_olm_cogs 
 
 from .gdgtm_core import reproject_raster, change_raster_res, set_raster_boundbox, align_raster, validate_raster_alignment, align_validate_raster
 
