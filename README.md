@@ -21,23 +21,32 @@ If installing to root in **Ubuntu** use: pip install "git+https://github.com/pet
 *Otherwise*:
 The key challenge is getting GDAL up and running: pip install gdal does not work. 
 This is easiest achieved through conda:
+
 conda create -n my_env python=3.10  ###Set up a Python 3.10 conda venv
+
 conda activate my_env ### Activate the venv
+
 conda install gdal ### Install GDAL
 
 pip install matplotlib ### Will cause some errors to come up
+
 pip install "git+https://github.com/pete-jacobsson/gdgtm" ### Will cause some errors to come up
 
 ### Using jupyter from the conda environment
 *To do this you will need to install Jupyter on your conda local environment*:
+
 conda activate myenv (if not active)
+
 conda install -c conda-forge jupyterlab  ### This was tested using Jupyter lab. In principle Jupyter notebook should work as well.
+
 conda install ipykernel
 
 *Next add the environment as a Jupyter Kernel*:
+
 python -m ipykernel install --user --name=myenv --display-name "Python (myenv)"
 
 *Open Jupyter lab*:
+
 jupyter lab
 
 
