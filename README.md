@@ -51,8 +51,13 @@ Beyond in-development testing, all functions in the "main" branch will have been
 ## License
 MIT License
 
-## Sources of test shapefiles:
-- 
+## Sources of test shapefiles
+
+The package includes three shapefiles used in functionality testing, and which will also be part of the demo. Their sources are as follows:
+
+- STRUCTHELV_LINE_AUX.shp and STRUCTHELV_POLYGON_MAIN.shp have been obtained from https://www.swisstopo.admin.ch/en/special-geological-maps-vector (Collection 128 Structural Map of the Helvetic Zone of the swiss Alps, including Vorarlberg (Austria) and Haute Savoie (France)) under the following terms: https://shop.swisstopo.admin.ch/en/free-geodata
+- gadm41_CHE_3.shp has been obtained from: https://gadm.org/download_country.html under the following terms: https://gadm.org/license.html
+
 
 ## Contact
 Pete Jacobsson (pt.jacobsson@gmail.com)
