@@ -276,7 +276,7 @@ def rasterize_shapefile (src_shape, dst_raster, target_bbox, target_xres, dst_sh
 
     ##Crop original shapefile
     try: 
-        bound_shape(src_shape, dst_shape, target_bbox = target_box)
+        bound_shape(src_shape, dst_shape, target_bbox = target_bbox)
     except Exception as e:
         print(f"Error creating {dst_shape}: {e}")
 
