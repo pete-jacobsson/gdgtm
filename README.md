@@ -23,6 +23,8 @@ For set-up in venv, the key challenge is installing GDAL (the effective GIS engi
 1. set up virtual environment: conda create -n gdgtm python =3.10
 2. Activate the virtual environment: conda activate my_env
 3. Intsall GDAL: conda install gdal
+4. pip install matplotlib
+5. pip install "git+https://github.com/pete-jacobsson/gdgtm"
 
 
 ### Package was developed and tested using the following:
