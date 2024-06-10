@@ -14,7 +14,18 @@ The package is built in Python, with almost all functions being in reality GDAL 
 
 
 ## Installation
-Ubuntu: pip install "git+https://github.com/pete-jacobsson/gdgtm"
+### Ubuntu with pre-installed GDAL 
+pip install "git+https://github.com/pete-jacobsson/gdgtm"
+
+### Virtual environments
+For set-up in venv, the key challenge is installing GDAL (the effective GIS engine underneath all of the gdgtm functions. Unfortunately, pip cannot install GDAL easily, making it difficult to set up virtual environments through the usual means. However, Conda can install GDAL easily, making it possible to set up a virtual environment across all three major platforms.
+
+1. set up virtual environment: conda create -n gdgtm python =3.10
+2. Activate the virtual environment: conda activate my_env
+3. Intsall GDAL: conda install gdal
+4. pip install matplotlib
+5. pip install "git+https://github.com/pete-jacobsson/gdgtm"
+
 
 ### Package was developed and tested using the following:
 * Python 3.10.12
