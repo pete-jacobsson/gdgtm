@@ -14,13 +14,25 @@ The package is built in Python, with almost all functions being in reality GDAL 
 
 
 ## Installation
-Ubuntu: pip install "git+https://github.com/pete-jacobsson/gdgtm"
+### Ubuntu with pre-installed GDAL 
+pip install "git+https://github.com/pete-jacobsson/gdgtm"
+
+### Virtual environments
+For set-up in venv, the key challenge is installing GDAL (the effective GIS engine underneath all of the gdgtm functions. Unfortunately, pip cannot install GDAL easily, making it difficult to set up virtual environments through the usual means. However, Conda can install GDAL easily, making it possible to set up a virtual environment across all three major platforms.
+
+1. set up virtual environment: conda create -n gdgtm python =3.10
+2. Activate the virtual environment: conda activate my_env
+3. Intsall GDAL: conda install gdal=3.6.2
+4. pip install matplotlib
+5. pip install "git+https://github.com/pete-jacobsson/gdgtm"
+
+In the Conda environment, GDAL 3.6.2 is required for the correct functioning of the shapefile processing functions.
 
 ### Package was developed and tested using the following:
 * Python 3.10.12
 * datetime 5.5
 * dateutil 2.8.2
-* GDAL 3.4.1
+* GDAL 3.6.2 ### NOTE: failing to work for Shapefiles
 * Numpy 1.24.3
 * rasterio 1.3.10
 * pystac 1.10.1
