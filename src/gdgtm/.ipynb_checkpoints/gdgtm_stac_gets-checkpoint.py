@@ -98,7 +98,7 @@ def get_cognames_static_stac (static_coll_link):
     5. Function version for gdgtm version 0.1.0 is only tested against Open Land Map urls
     
     Usage example:
-    >>> test = gdgtm.get_cognames_fom_stac_coll_static("https://s3.eu-central-1.wasabisys.com/stac/openlandmap/wilderness_li2022.human.footprint/collection.json")
+    >>> test = gdgtm.get_cognames_static_stac("https://s3.eu-central-1.wasabisys.com/stac/openlandmap/wilderness_li2022.human.footprint/collection.json")
     >>> print(test[0])
     https://s3.openlandmap.org/arco/wilderness_li2022.human.footprint_p_1km_s_20000101_20001231_go_epsg.4326_v16022022.tif
     
@@ -170,9 +170,10 @@ def get_olm_cogs (cognames, target_directory, target_names, bbox = (-180, 180, 1
     
     ## Loop getting the rasters
     for raster_name in cognames:
+        ###This gets the dates out of the raster_name
+        raster_ymd = raster_name.split("-doy")[0].split("_")[-5: -3]
         if type(interval) is tuple:
-            ## Filter based on date
-            raster_ymd = raster_name.split("-doy")[0].split("_")[-5: -3]  ###This gets the dates out of the raster_name
+            ## Filter based on date - if date out of range, no action taken
             if min(raster_ymd) > interval[0] and max(raster_ymd) < interval[1]: ## Apply filter
                 src_raster = gdal.Open(raster_name) ##Get the actual raster
                 new_raster_name = target_directory + target_names + raster_ymd[0] + ".tif"
@@ -183,7 +184,7 @@ def get_olm_cogs (cognames, target_directory, target_names, bbox = (-180, 180, 1
         else:
             ## If no interval is set:
             src_raster = gdal.Open(raster_name) ##Get the actual raster
-            new_raster_name = target_directory + target_names + ".tif"
+            new_raster_name = target_directory + target_names + raster_ymd + ".tif"
             ##Apply bbox and save in target location
             gdal.Translate(new_raster_name, src_raster, projWin = bbox)
             print(new_raster_name) ## Print file name to confirm operation successful
