@@ -124,7 +124,7 @@ def rasterize_shapefile_base (src_shape, dst_raster, target_xres):
     y_res = int((extent[3] - extent[2]) / pixel_size)
 
     ##Set up the destination raster
-    dst_ds = gdal.GetDriverByName("GTiff").Create(dst_raster, x_res, y_res, 1, gdal.GDT_Byte)
+    dst_ds = gdal.GetDriverByName("GTiff").Create(dst_raster, x_res, y_res, 1, gdal.Int_32)
     dst_ds.SetGeoTransform(dst_geot)
     dst_ds.SetProjection(projection.ExportToWkt())
 
