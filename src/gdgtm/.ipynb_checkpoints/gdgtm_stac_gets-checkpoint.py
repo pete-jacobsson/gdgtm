@@ -184,7 +184,7 @@ def get_olm_cogs (cognames, target_directory, target_names, bbox = (-180, 180, 1
         else:
             ## If no interval is set:
             src_raster = gdal.Open(raster_name) ##Get the actual raster
-            new_raster_name = target_directory + target_names + raster_ymd + ".tif"
+            new_raster_name = target_directory + target_names + raster_ymd[0] + ".tif"
             ##Apply bbox and save in target location
             gdal.Translate(new_raster_name, src_raster, projWin = bbox)
             print(new_raster_name) ## Print file name to confirm operation successful
