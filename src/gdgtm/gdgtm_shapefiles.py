@@ -6,25 +6,38 @@
 
 # This set of functions is intended for transforming multi-poly shapefiles into rasters
 # General workflow is as follows:
-# 1. Crop shapefile
-# 2. Set up "template" raster
-# 3. Break up the cropped shape file into individual files for each poly line
-# 4. Add the data from the individual poly lines into the template raster
-# 5. Remove all the temp files
+# 1. Check bbox correspondance, amend if necessary, throw error if no overlap (if crop shapefile requested)
+# 2. Crop shapefile (if requested)
+# 3. Set up "template" raster
+# 4. Break up the cropped shape file into individual files for each poly line
+# 5. Add the data from the individual poly lines into the template raster
+# 6. Remove all the temp files
 
 ## List of functions and relationship to workflow steps:
-# 1. bound_shape (crops shapefiles - WF step 1)
-# 2. rasterize_shapefile_base (creates the "template" raster - WF step 2)
-# 3. break_polys (creates shapefiles for each layer - WF step 3)
-# 4. add_polys_to_raster (adds data from individual polys to template raster - WF step 4)
-# 5. rasterize_shapefile (wrapper to execute the workflow and delete temp files - WF steps 1 - 5)
+# 1. get_shape_extent (gets shapefile extents - WF step 1)
+# 2. check_bbox_overlap (checks if the two bboxes overalp - WF step 1)
+# 3. harmonize_bboxes (if any dimension of target_bbox bigger than src_bbox, trim back down to src_bbox - WF step 1)
+# 4. bound_shape (crops shapefiles - WF step 2)
+# 5. rasterize_shapefile_base (creates the "template" raster - WF step 3)
+# 6. break_polys (creates shapefiles for each layer - WF step 4)
+# 7. add_polys_to_raster (adds data from individual polys to template raster - WF step 5)
+# 8. rasterize_shapefile (wrapper to execute the workflow and delete temp files - WF steps 1 - 6)
 
 
 ###############################################################################
 #############################  Functions  #####################################
 ###############################################################################
 
-# 1 bound_shape ---------------------------------------------------------------
+# 1 get_shape_extent ----------------------------------------------------------
+
+
+# 2 check_bbox_overlap --------------------------------------------------------
+
+
+# 3 harmonize_bboxes ----------------------------------------------------------
+
+
+# 4 bound_shape ---------------------------------------------------------------
 def bound_shape (src_shape, dst_shape, target_bbox):
     '''
     This function set a new bounding box on a shape file.
@@ -77,7 +90,7 @@ def bound_shape (src_shape, dst_shape, target_bbox):
 
 
 
-# 2 rasterize_shapefile_base --------------------------------------------------
+# 5 rasterize_shapefile_base --------------------------------------------------
 def rasterize_shapefile_base (src_shape, dst_raster, target_xres):
     '''
     This function takes on a shapefile and transforms it into a background raster using GDAL
@@ -140,7 +153,7 @@ def rasterize_shapefile_base (src_shape, dst_raster, target_xres):
 
 
 
-# 3 break_polys ---------------------------------------------------------------
+# 6 break_polys ---------------------------------------------------------------
 def break_polys (src_shape, temp_folder):
     '''
     This function takes on a shapefile and breaks it down into individual polygons for downstream addition to a raster.
@@ -190,7 +203,7 @@ def break_polys (src_shape, temp_folder):
     
 
 
-# 4 add_polys_to_raster -------------------------------------------------------
+# 7 add_polys_to_raster -------------------------------------------------------
 def add_polys_to_raster (poly_folder, dst_raster):
     '''
     This function adds data from individual polygons to a raster. 
@@ -237,7 +250,7 @@ def add_polys_to_raster (poly_folder, dst_raster):
         
 
 
-# 5 rasterize_shapefile -------------------------------------------------------
+# 8 rasterize_shapefile -------------------------------------------------------
 def rasterize_shapefile (src_shape, dst_raster, target_xres, target_bbox = None, dst_shape = "temp_shape.shp", poly_folder = "temp_folder"):
     '''
     This is the wrapper function for transforming ESRI shapefiles into .tiff rasters. It works by: 
