@@ -29,13 +29,117 @@
 ###############################################################################
 
 # 1 get_shape_extent ----------------------------------------------------------
+def get_shape_extent (src_shape):
+    '''
+    This function gets the extent of a shape.
 
+    **Args:**
+        - src_shape (str): path to the original file
+
+    **Returns:**
+        - tuple: coordinates of the WNES edges of the shape bounding box
+
+    **Assumptions:**
+    1. Input file is an ESRI shapefile
+    2. ogr is working (tested using GDAL version 3.6.2)
+    3. Function tested using Python 3.10.12
+
+    **Usage:**
+    >>> test = get_shape_extent("/home/pete/Documents/tests_and_vals/gdgtm_test/09_rasters_from_shp/STRUCTHELV_POLYGON_MAIN.shp")
+    >>> print(test)
+    (WNES)
+    
+    '''
+    from osgeo import ogr
+
+    ##Create the link
+    src_ds = ogr.Open(src_shape)
+    src_lyr = src_ds.GetLayer()
+
+    ##Get the extent
+    extent = src_lyr.GetExtent()
+
+    ##Re-arrange extent to WNES standard 
+    extent = (extent[0], extent[3], extent[1], extent[2])
+
+    return extent
 
 # 2 check_bbox_overlap --------------------------------------------------------
+def check_bbox_overlap (target_bbox, src_bbox):
+    '''
+    This function checks whether there is any overlap between two bboxes. Intended for the context of automating shapefile re-sizing.
 
+    **Args:**
+        - target_bbox (tuple): boundary box that we would like to apply to a given piece of geodata.
+        - src_box (tuple): boundary box of the actual source file.
+
+    **Returns:**
+        - list: match overall (bool), indication which edges are out.
+
+    **Assumptions:**
+    1. All inputs are WNES tuples.
+
+    **Usage:**
+    >>> new_bbox = (6.7663, 47.9163, 10.5532, 45.6755)
+    >>> test_bbox1 = get_shape_extent("/home/pete/Documents/tests_and_vals/gdgtm_test/09_rasters_from_shp/STRUCTHELV_POLYGON_MAIN.shp")
+    >>> test_bbox2 = get_shape_extent(/home/pete/Documents/tests_and_vals/gdgtm_test/09_rasters_from_shp/gadm41_CHE_3.shp")
+    >>> test1 = check_bbox_overlap(new_bbox, test_bbox1)
+    >>> test2 = check_bbox_overlap(new_bbox, test_bbox2)
+    >>> print(test1)
+    >>> print(test2)
+
+    [False, ['Out of bounds (WNES):', [True, False, False, True]]]
+    [True, ['Out of bounds (WNES):', [False, False, False, False]]]
+    
+    '''
+    ## Set defaults to target_bbox fitting completely within src_bbox
+    e_out = False; n_out = False; w_out = False; s_out = False
+    
+    ## Run the checks
+    if target_bbox[2] <= src_bbox[0]: w_out = True ## Check if the east bound of the target_bbox is to the west of the west bound of the src_bbox
+    if target_bbox[3] >= src_bbox[1]: n_out = True ## Check if the south bound of the target_bbox is to the north of the north bound of the src_bbox
+    if target_bbox[0] >= src_bbox[2]: e_out = True ## Check if the west bound of the target_bbox is to the east of the east bound of the src_bbox
+    if target_bbox[1] <= src_bbox[3]: s_out = True ## Check if the north bound of the target_bbox is to the south of the south bound of the src_bbox
+
+    ## Confirm boxes overlap
+    boxes_overlap = True
+    if e_out or n_out or w_out or s_out:
+        boxes_overlap = False
+
+    return [boxes_overlap, ["Out of bounds (WNES):", [w_out, n_out, e_out, s_out]]] ## Return in list structures for potential downstream processing of the bools
 
 # 3 harmonize_bboxes ----------------------------------------------------------
+def harmonize_bboxes (target_bbox, src_bbox):
+    '''
+    The function harmonizes the target bbox to the source bbox: if any target bbox edge is out of range of the src_box range, it is re-set to src_box value.
 
+    **Args:**
+        - target_bbox (tuple): boundary box that we would like to apply to a given piece of geodata.
+        - src_box (tuple): boundary box of the actual source file.
+
+    **Returns:**
+        - tuple: a harmonized boundary box.
+
+    **Assumptions:**
+    1. The target_bbox is not out of range of the src_bbox (e.g. target_bbox W edge being to the E of src_bbox E edge).
+
+    **Usage:**
+    >>> new_bbox = (0.0, 47.5, 0.0, 45.5)
+    >>> test = harmonize_bboxes("/home/pete/Documents/tests_and_vals/gdgtm_test/09_rasters_from_shp/STRUCTHELV_POLYGON_MAIN.shp")
+    >>> print(test)
+
+    (5.9560632710001755, 47.5, 10.49511200000012, 45.5)
+    '''
+    ## Convert target_bbox to list - necessary because tuples are immutable
+    target_bbox = list(target_bbox)
+    
+    ## Run the checks
+    if target_bbox[0] < src_bbox[0] : target_bbox[0] = src_bbox[0] ## Check W edge and amend if necessary
+    if target_bbox[1] > src_bbox[1] : target_bbox[1] = src_bbox[1] ## Check N edge and amend if necessary
+    if target_bbox[2] < src_bbox[2] : target_bbox[2] = src_bbox[2] ## Check E edge and amend if necessary
+    if target_bbox[3] > src_bbox[3] : target_bbox[3] = src_bbox[3] ## Check S edge and amend if necessary
+    
+    return tuple(target_bbox) ## Convert back to tuple
 
 # 4 bound_shape ---------------------------------------------------------------
 def bound_shape (src_shape, dst_shape, target_bbox):
@@ -287,14 +391,17 @@ def rasterize_shapefile (src_shape, dst_raster, target_xres, target_bbox = None,
     from osgeo import gdal, ogr
     import os
 
-    ########################################################
-    ## BBOX TESTING HERE!!!!!!!!!! #########################
-    ########################################################
-
     ##Crop original shapefile
     if not target_bbox == None:
         try: 
-            bound_shape(src_shape, dst_shape, target_bbox = target_bbox)
+            ### First check whether boxes overlap and harmonize if necessary
+            src_bbox = get_shape_extent(src_shape)
+            overlap_check = check_bbox_overlap(target_bbox, src_bbox)
+            if not overlap_check[0]:
+                raise ValueError(overlap_check[1])
+
+            target_bbox = harmonize_bboxes(target_bbox, src_bbox)
+            bound_shape(src_shape, dst_shape, target_bbox = target_bbox) ### Do the shape re-binding
         except Exception as e:
             print(f"Error creating {dst_shape}: {e}")
     else:
