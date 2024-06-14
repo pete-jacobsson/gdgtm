@@ -238,7 +238,7 @@ def add_polys_to_raster (poly_folder, dst_raster):
 
 
 # 5 rasterize_shapefile -------------------------------------------------------
-def rasterize_shapefile (src_shape, dst_raster, target_bbox, target_xres, dst_shape = "temp_shape.shp", poly_folder = "temp_folder"):
+def rasterize_shapefile (src_shape, dst_raster, target_xres, target_bbox = None, dst_shape = "temp_shape.shp", poly_folder = "temp_folder"):
     '''
     This is the wrapper function for transforming ESRI shapefiles into .tiff rasters. It works by: 
     1) cropping the original shapefiles; 
@@ -274,11 +274,18 @@ def rasterize_shapefile (src_shape, dst_raster, target_bbox, target_xres, dst_sh
     from osgeo import gdal, ogr
     import os
 
+    ########################################################
+    ## BBOX TESTING HERE!!!!!!!!!! #########################
+    ########################################################
+
     ##Crop original shapefile
-    try: 
-        bound_shape(src_shape, dst_shape, target_bbox = target_bbox)
-    except Exception as e:
-        print(f"Error creating {dst_shape}: {e}")
+    if not target_bbox == None:
+        try: 
+            bound_shape(src_shape, dst_shape, target_bbox = target_bbox)
+        except Exception as e:
+            print(f"Error creating {dst_shape}: {e}")
+    else:
+        dst_shape = src_shape #If cropping not necessary, work directly with the source raster
 
     ##Create the "template" raster
     ##!!!!From here on after work only with dst_shape!!!!
@@ -308,10 +315,11 @@ def rasterize_shapefile (src_shape, dst_raster, target_bbox, target_xres, dst_sh
     
     try:
         ## Cropped shape
-        os.remove(dst_shape)
-        os.remove(dst_shape[:-3] + "prj")
-        os.remove(dst_shape[:-3] + "shx")
-        os.remove(dst_shape[:-3] + "dbf")
+        if not target_bbox == None:
+            os.remove(dst_shape)
+            os.remove(dst_shape[:-3] + "prj")
+            os.remove(dst_shape[:-3] + "shx")
+            os.remove(dst_shape[:-3] + "dbf")
 
         ## Temp shape files and folder
         for filename in os.listdir(poly_folder + "/"):
