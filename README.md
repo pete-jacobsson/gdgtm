@@ -3,7 +3,9 @@
 ## Project overviews
 The purpose of the project is to wrap a set of extant Python utilities to streamline geospatial data downloads and processing (reprojection, bound setting and mosaicing), to allow easier pipeline construction for downstream processing. The main point is to simplify the process of acquiring raster data from online sources and building a straightforward pipeline for their processing and standardization ahead of downstream analysis. As of version 0.6 of the package the get functions are written for OpenLandMap STAC (https://stac.openlandmap.org/) and Chelsa (https://chelsa-climate.org/).
 
-The core workflow of this package is:
+At its core the functions herein are wrappers for **GDAL**: https://gdal.org/index.html
+
+The core workflow of this package is: **To be amended in future version by working from a blank template GeoTiff**
 1. Get a raster from an online source
 2. Process it to the desired projection, resolution and bounding box - this is the **Master GeoTIFF**
 3. Get further rasters (**complementary rasters**) and align those to the Master
@@ -14,7 +16,8 @@ The package is built in Python, with almost all functions being in reality GDAL 
 
 
 ## Installation
-### Ubuntu with pre-installed GDAL 
+
+### Ubuntu root with pre-installed GDAL 
 pip install "git+https://github.com/pete-jacobsson/gdgtm"
 
 ### Virtual environments
@@ -26,7 +29,30 @@ For set-up in venv, the key challenge is installing GDAL (the effective GIS engi
 4. pip install matplotlib
 5. pip install "git+https://github.com/pete-jacobsson/gdgtm"
 
-In the Conda environment, GDAL 3.6.2 is required for the correct functioning of the shapefile processing functions.
+conda create -n my_env python=3.10  ###Set up a Python 3.10 conda venv
+
+conda activate my_env ### Activate the venv
+
+conda install gdal ### Install GDAL
+**In the Conda environment, GDAL 3.6.2 is required for the correct functioning of the shapefile processing functions.**
+
+pip install matplotlib ### Will cause some errors to come up
+
+pip install "git+https://github.com/pete-jacobsson/gdgtm" ### Will cause some errors to come up
+
+### Using jupyter from the conda environment
+*To do this you will need to install Jupyter on your conda environment*:
+conda activate myenv (if not active)
+conda install -c conda-forge jupyterlab  ### This was tested using Jupyter lab. In principle Jupyter notebook should work as well.
+conda install ipykernel
+
+*Next add the environment as a Jupyter Kernel*:
+python -m ipykernel install --user --name=myenv --display-name "Python (myenv)"
+
+*Open Jupyter lab*:
+jupyter lab
+
+
 
 ### Package was developed and tested using the following:
 * Python 3.10.12
