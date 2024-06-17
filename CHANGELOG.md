@@ -26,7 +26,7 @@
 ## Version 0.6 (test)
 - 0.6.1 Module re-organization, including function renaming
 - 0.6.2 rasterize_shape
-- 0.6.3 numpyify_raster
+- 0.6.3 numpyify_raster + general clean-up
 
 
 ## Version 0.7 (planned)
