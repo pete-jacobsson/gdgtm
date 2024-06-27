@@ -3,7 +3,9 @@
 ## Project overviews
 The purpose of the project is to wrap a set of extant Python utilities to streamline geospatial data downloads and processing (reprojection, bound setting and mosaicing), to allow easier pipeline construction for downstream processing. The main point is to simplify the process of acquiring raster data from online sources and building a straightforward pipeline for their processing and standardization ahead of downstream analysis. As of version 0.6 of the package the get functions are written for OpenLandMap STAC (https://stac.openlandmap.org/) and Chelsa (https://chelsa-climate.org/).
 
-The core workflow of this package is:
+At its core the functions herein are wrappers for **GDAL**: https://gdal.org/index.html
+
+The core workflow of this package is: **To be amended in future version by working from a blank template GeoTiff**
 1. Get a raster from an online source
 2. Process it to the desired projection, resolution and bounding box - this is the **Master GeoTIFF**
 3. Get further rasters (**complementary rasters**) and align those to the Master
@@ -14,19 +16,38 @@ The package is built in Python, with almost all functions being in reality GDAL 
 
 
 ## Installation
-### Ubuntu with pre-installed GDAL 
-pip install "git+https://github.com/pete-jacobsson/gdgtm"
 
-### Virtual environments
-For set-up in venv, the key challenge is installing GDAL (the effective GIS engine underneath all of the gdgtm functions. Unfortunately, pip cannot install GDAL easily, making it difficult to set up virtual environments through the usual means. However, Conda can install GDAL easily, making it possible to set up a virtual environment across all three major platforms.
+=======
+If installing to root in **Ubuntu** use: pip install "git+https://github.com/pete-jacobsson/gdgtm"
 
-1. set up virtual environment: conda create -n gdgtm python =3.10
-2. Activate the virtual environment: conda activate my_env
-3. Intsall GDAL: conda install gdal=3.6.2
-4. pip install matplotlib
-5. pip install "git+https://github.com/pete-jacobsson/gdgtm"
+*Otherwise*:
+The key challenge is getting GDAL up and running: pip install gdal does not work. 
+This is easiest achieved through conda:
 
-In the Conda environment, GDAL 3.6.2 is required for the correct functioning of the shapefile processing functions.
+conda create -n my_env python=3.10  ###Set up a Python 3.10 conda venv
+conda activate my_env ### Activate the venv
+conda install gdal ### Install GDAL
+pip install matplotlib ### Will cause some errors to come up
+pip install "git+https://github.com/pete-jacobsson/gdgtm" ### Will cause some errors to come up
+
+**In the Conda environment, GDAL 3.6.2 is required for the correct functioning of the shapefile processing functions.**
+
+### Using jupyter from the conda environment
+*To do this you will need to install Jupyter on your conda local environment*:
+
+conda activate myenv (if not active)
+conda install -c conda-forge jupyterlab  ### This was tested using Jupyter lab. In principle Jupyter notebook should work as well.
+conda install ipykernel
+
+
+*Next add the environment as a Jupyter Kernel*:
+python -m ipykernel install --user --name=myenv --display-name "Python (myenv)"
+
+
+*Open Jupyter lab*:
+jupyter lab
+
+
 
 ### Package was developed and tested using the following:
 * Python 3.10.12
