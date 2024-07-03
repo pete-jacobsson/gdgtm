@@ -10,3 +10,5 @@ from .gdgtm_shapefiles import bound_shape, rasterize_shapefile_base, break_polys
 
 from .gdgtm_numpys import numpyify_raster, save_numpd_raster
 
+from .gdgtm_auto_workflow import get_proj_transform, check_if_geotiff, set_up_blank, download_raster, align_rasters
+
