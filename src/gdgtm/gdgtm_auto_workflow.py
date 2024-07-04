@@ -254,7 +254,6 @@ def align_rasters (bbox, proj, pixel_size, dst_blank, src_rasters, dst_rasters):
     {"home/pete/Documents/tests_and_vals/gdgtm_dev_copy/down_aligned.tif": TRUE}
          
     '''
-    import gdgtm
     import os
     
     ## Convert src_rasters and dst_rasters to lists if necessary
@@ -284,15 +283,15 @@ def align_rasters (bbox, proj, pixel_size, dst_blank, src_rasters, dst_rasters):
 
     alignment_log = {}
     for i in range(len(raw_temps)):
-        gdgtm.reproject_raster(new_crs = proj,
-                               src_raster = raw_temps[i],
-                               dst_raster = reproject_temps[i],
-                               delete_source = True)
+        reproject_raster(new_crs = proj,
+                         src_raster = raw_temps[i],
+                         dst_raster = reproject_temps[i],
+                         delete_source = True)
         
-        alignment_validation = gdgtm.align_validate_raster(source_raster = reproject_temps[i],
-                                                           target_raster = dst_blank,
-                                                           dst_raster = dst_rasters[i],
-                                                           delete_source = True)
+        alignment_validation = align_validate_raster(source_raster = reproject_temps[i],
+                                                     target_raster = dst_blank,
+                                                     dst_raster = dst_rasters[i],
+                                                     delete_source = True)
         ##Run alignment checks
         if os.path.exists(dst_rasters[i]):
             alignment_log[dst_rasters[i]] = alignment_validation
