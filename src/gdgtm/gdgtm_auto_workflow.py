@@ -255,6 +255,7 @@ def align_rasters (bbox, proj, pixel_size, dst_blank, src_rasters, dst_rasters):
          
     '''
     import os
+    from gdgtm_core import reproject_raster, align_validate_raster
     
     ## Convert src_rasters and dst_rasters to lists if necessary
     if isinstance(src_rasters, str):
