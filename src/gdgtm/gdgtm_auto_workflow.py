@@ -239,7 +239,7 @@ def align_rasters (bbox, proj, pixel_size, dst_blank, src_rasters, dst_rasters):
         - dst_rasters (str or list): paths/names of the saved, aligned rasters.
     
     **Returns:**
-        -dict: confirmation that the dst_rasters exist.
+        -dict: confirmation that the .
         
     **Assumptions:**
         - raster_links points to a valid raster links (local or online)
@@ -251,11 +251,11 @@ def align_rasters (bbox, proj, pixel_size, dst_blank, src_rasters, dst_rasters):
     >>>                  dst_blank = "/home/pete/Documents/tests_and_vals/gdgtm_dev_copy/align_blank.tif",
     >>>                  src_rasters = "home/pete/Documents/tests_and_vals/gdgtm_dev_copy/down_raster.tif",
     >>>                  dst_rasters = "home/pete/Documents/tests_and_vals/gdgtm_dev_copy/down_aligned.tif")
-    {"home/pete/Documents/tests_and_vals/gdgtm_dev_copy/down_aligned.tif": TRUE}
+    {'/home/pete/Documents/tests_and_vals/gdgtm_dev_copy/down_aligned.tif': {'dimension_match': True, 'projection_match': True, 'pixel_count_match': True, 'geotransform_match': True}}
          
     '''
+    import gdgtm
     import os
-    from gdgtm_core import reproject_raster, align_validate_raster
     
     ## Convert src_rasters and dst_rasters to lists if necessary
     if isinstance(src_rasters, str):
@@ -284,15 +284,15 @@ def align_rasters (bbox, proj, pixel_size, dst_blank, src_rasters, dst_rasters):
 
     alignment_log = {}
     for i in range(len(raw_temps)):
-        reproject_raster(new_crs = proj,
-                         src_raster = raw_temps[i],
-                         dst_raster = reproject_temps[i],
-                         delete_source = True)
+        gdgtm.reproject_raster(new_crs = proj,
+                               src_raster = raw_temps[i],
+                               dst_raster = reproject_temps[i],
+                               delete_source = True)
         
-        alignment_validation = align_validate_raster(source_raster = reproject_temps[i],
-                                                     target_raster = dst_blank,
-                                                     dst_raster = dst_rasters[i],
-                                                     delete_source = True)
+        alignment_validation = gdgtm.align_validate_raster(source_raster = reproject_temps[i],
+                                                           target_raster = dst_blank,
+                                                           dst_raster = dst_rasters[i],
+                                                           delete_source = True)
         ##Run alignment checks
         if os.path.exists(dst_rasters[i]):
             alignment_log[dst_rasters[i]] = alignment_validation
