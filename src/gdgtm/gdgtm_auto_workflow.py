@@ -239,7 +239,7 @@ def align_rasters (bbox, proj, pixel_size, dst_blank, src_rasters, dst_rasters):
         - dst_rasters (str or list): paths/names of the saved, aligned rasters.
     
     **Returns:**
-        -dict: confirmation that the .
+        -dict: confirmation that the dst_rasters exist.
         
     **Assumptions:**
         - raster_links points to a valid raster links (local or online)
