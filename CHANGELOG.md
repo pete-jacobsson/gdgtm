@@ -2,17 +2,17 @@
 - Developing function to downlaod data from Chelsa
 - Developing the core pipeline up to post-reprojecting application of a Bounding Box
 
-## Version 0.1 (current)
+## Version 0.1 (closed)
 - 0.1.0: implemented two functions: download of cog names from STAC collection and downloading cogs from OLM (in test)
 
 ## Version 0.2 (skipped)
 - 0.2.0: implement raster mosaics (moved to 0.4.0)
 - 0.2.1: implement raster aligning (moved to 0.3.0)
 
-## Version 0.3 (current)
+## Version 0.3 (closed)
 - 0.3.0: implemented align_validate_raster
 
-## Version 0.4 (current)
+## Version 0.4 (closed)
 - 0.4.0: implemented raster mosaics and raster merging
 
 ## Version 0.5 (current)
@@ -23,12 +23,12 @@
 - 0.5.4: Changed the get_chelsa_data to get_chelsa_daily (including change of underpinning dependencies from Rchelsa to GDAL)
 - 0.5.5: Changed rasterio dependencies to GDAL
 
-## Version 0.6 (test)
+## Version 0.6 (skipped)
 - 0.6.1 Module re-organization, including function renaming
 - 0.6.2 rasterize_shape
 - 0.6.3 numpyify_raster + general clean-up
 
 
-## Version 0.7 (planned)
-- 0.7.0: Add automated workflow to a blank raster
-
+## Version 0.7 (test)
+- 0.7.0 Move from GDAL to rasterio as underpinning engine (drop GDAL dependencies). Identify lost functionality.
+- 0.7.1 re-implement lost functionality
