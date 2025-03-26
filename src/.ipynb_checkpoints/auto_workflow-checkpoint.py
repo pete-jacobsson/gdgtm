@@ -178,3 +178,80 @@ def set_up_blank (bbox, proj, pixel_size, dst_raster, dtype = "uint16"):
         dst.write(np.zeros((height, width), dtype=dtype), 1)
     
     return [proj, list(transform.to_gdal()) + [0.0, 0.0, 1.0]]
+
+
+
+###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def align_rasters (bbox, proj, pixel_size, dst_blank, src_rasters, dst_rasters):
+    '''
+    The function takes on projection, resolution and bbox specs, alongside a list of raster links, or a string with a single raster name.
+    It generates a blank raster, checks whether it matches required specs, and then aligns the rasters from the list provided.
+    **Args:**
+        - bbox (tuple): a WNES bbox defining the limits of the blank raster. Values need to match the standard set in the projection.
+        - proj (str): authority:code formatted projection.
+        - pixel_size (float): size of the individual pixels (length of edges). Units need to be concurrent with the projection.
+        - dst_blank (str): string indicating the location and filename where the blank raster is to be saved.
+        - src_rasters (str or list): name of a single input raster or a list of input raster names.
+        - dst_rasters (str or list): paths/names of the saved, aligned rasters.
+    
+    **Returns:**
+        -dict: confirmation that the .
+        
+    **Assumptions:**
+        - raster_links points to a valid raster links (local or online)
+        - Function developed and tested using GDAL version 3.6.2 and Python 3.10.12
+        - Number of src_rasters matches the number of dst_rasters
+        
+    **Usage:**
+    >>>    align_rasters(bbox = (6, 47, 7, 45), proj = "EPSG:21781", pixel_size = 200,
+    >>>                  dst_blank = "/home/pete/Documents/tests_and_vals/gdgtm_dev_copy/align_blank.tif",
+    >>>                  src_rasters = "home/pete/Documents/tests_and_vals/gdgtm_dev_copy/down_raster.tif",
+    >>>                  dst_rasters = "home/pete/Documents/tests_and_vals/gdgtm_dev_copy/down_aligned.tif")
+    {'/home/pete/Documents/tests_and_vals/gdgtm_dev_copy/down_aligned.tif': {'dimension_match': True, 'projection_match': True, 'pixel_count_match': True, 'geotransform_match': True}}
+         
+    '''
+    
+    ## Convert src_rasters and dst_rasters to lists if necessary
+    if isinstance(src_rasters, str):
+        src_rasters = [src_rasters]
+
+    if isinstance(dst_rasters, str):
+        dst_rasters = [dst_rasters]
+
+    ## Set up blank raster
+    set_up_blank(bbox, proj, pixel_size, dst_blank)
+      
+    ## Download src_rasters
+    raw_temps = [] ## Set up the raw temps list to enable correct handling
+    
+    for i in range(len(src_rasters)):
+        raw_temps.append(f"raw_temp{i}.tif")
+
+    for i in range(len(src_rasters)):
+        download_raster(src_rasters[i], raw_temps[i])
+
+    ## Re-project src_rasters
+    reproject_temps = []
+    
+    for i in range(len(raw_temps)):
+        reproject_temps.append(f"reproject_temp{i}.tif")
+
+    alignment_log = {}
+    for i in range(len(raw_temps)):
+        gdgtm.reproject_raster(new_crs = proj,
+                               src_raster = raw_temps[i],
+                               dst_raster = reproject_temps[i],
+                               delete_source = True)
+        
+        alignment_validation = gdgtm.align_validate_raster(source_raster = reproject_temps[i],
+                                                           target_raster = dst_blank,
+                                                           dst_raster = dst_rasters[i],
+                                                           delete_source = True)
+        ##Run alignment checks
+        if os.path.exists(dst_rasters[i]):
+            alignment_log[dst_rasters[i]] = alignment_validation
+        else:
+            alignment_log[dst_rasters[i]] = "No file"
+    
+    ## Return alignment log.
+    return alignment_log
