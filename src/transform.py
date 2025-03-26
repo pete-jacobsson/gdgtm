@@ -522,12 +522,12 @@ def validate_raster_alignment(raster_1, raster_2):
 
 
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def align_validate_raster(source_raster, target_raster, dst_raster):
+def align_validate_raster(src_raster, target_raster, dst_raster):
     '''
     This function aligns the source_raster to the target_raster and validates the alignment.
 
     **Args:**
-        - source_raster (str): Link to the geotiff location of the source raster.
+        - src_raster (str): Link to the geotiff location of the source raster.
         - target_raster (str): Link to the geotiff location of the target raster.
         - dst_raster (str): Path (including name) to the destination where the raster is saved.
 
@@ -557,16 +557,16 @@ def align_validate_raster(source_raster, target_raster, dst_raster):
         target_crs = target.crs
 
     # Check if the source raster needs to be reprojected
-    with rasterio.open(source_raster) as src:
+    with rasterio.open(ssrc_raster) as src:
         if src.crs != target_crs:
             # Reproject the source raster
-            reproject_raster(new_crs=target_crs.to_string(), src_raster=source_raster, dst_raster='temp_reproj_source.tif')
+            reproject_raster(new_crs=target_crs.to_string(), src_raster=src_raster, dst_raster='temp_reproj_source.tif')
             projected_source_loc = 'temp_reproj_source.tif'
         else:
-            projected_source_loc = source_raster
+            projected_source_loc = src_raster
 
     # Align the two rasters
-    align_raster(source_raster=projected_source_loc, target_raster=target_raster, dst_raster=dst_raster)
+    align_raster(src_raster=projected_source_loc, target_raster=target_raster, dst_raster=dst_raster)
 
     # Run the alignment check
     alignment_outcome = validate_raster_alignment(target_raster, dst_raster)
