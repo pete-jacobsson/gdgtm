@@ -1,6 +1,7 @@
 ### These functions cover raster transofrmations: changing resolution, aligning, set bounding boxes, reprojecting (as well as relevant helper functions).
 
 
+#### Tested in test single
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def change_raster_res(target_res, src_raster, dst_raster):
     '''
@@ -215,10 +216,6 @@ def set_raster_boundbox(target_bbox, src_raster, dst_raster = None):
         ### TODO: Implement a check
 
         return f"{src_raster} now set to bounding box {target_bbox}"
-
-
-
-
 
 
 
