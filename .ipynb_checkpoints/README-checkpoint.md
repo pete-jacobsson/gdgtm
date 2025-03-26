@@ -1,54 +1,49 @@
 # gdgtm (Geospatial Data Getting Transforming and Managing)
 
-## Project overviews
-The purpose of the project is to wrap a set of extant Python utilities to streamline geospatial data downloads and processing (reprojection, bound setting and mosaicing), to allow easier pipeline construction for downstream processing. The main point is to simplify the process of acquiring raster data from online sources and building a straightforward pipeline for their processing and standardization ahead of downstream analysis. As of version 0.6 of the package the get functions are written for OpenLandMap STAC (https://stac.openlandmap.org/) and Chelsa (https://chelsa-climate.org/).
+## Package overview
+This package is about simplifying repetitive spatial data management actions. Its success is defined by whether it can allow someone with limited knowledge of spatial data processing packages or GIS software to batch-process simple transformations from a code-based interface with Python.
 
-The core workflow of this package is:
-1. Get a raster from an online source
-2. Process it to the desired projection, resolution and bounding box - this is the **Master GeoTIFF**
-3. Get further rasters (**complementary rasters**) and align those to the Master
+For example, if you a Neural Networks kind of person and you have an idea for a project that involves reprojecting, clipping, or aligning a whole bunch of different rasters, you might find this package useful (these guys told me they did: https://www.biorxiv.org/content/10.1101/2025.01.31.635975v1.full).
 
-The result is a collection of GeoTIFF files that is standardized in terms of projection, bounding box, resolution, and exact pixel location.
+Underneath the hood the package consists of a set of rasterio wrappers for common problems, using functional Python throughout. While I see advantages in moving towards an OOP approach, I find a functional approach more logical in this kind of context (though this might change).
 
-The package is built in Python, with almost all functions being in reality GDAL wrappers designed to simplify the workflow and reduce number of lines of code required to do a project.
+I chose rasterio because it is easier to install in Python environments than GDAL is (at least in my exxperience from June 2024). Of course, this is not an issue if you're using Conda, but a) not everyone likes Conda and b) your HPC Cluster Sysadmin might have reasons for deep dislike of Conda.
+
+The package is built around a process-based approach, where you can "inject" your data at any stage:
+* Getting Geospatial data from online resources (*note: this functionality needs to be re-instated after the move from a GDAL base: see CHANGELOG*)
+* Setting up a target blank covering the bit of the map that you want covered in the projection you need, with the datatype necessary for your project
+* Aligning your geospatial data to that target blank
+
+If you are interested in an example project, check out the sample_pipeline.py, which uses development versions of the functions herein to produce rasters underpinning some Neural Network research in an upcoming paper.
+
+If you want to know more, check out the demo and the Documentation folder.
+
+Last, if you would like to know the extent of the testing, see the tests notebook.
 
 
 ## Installation
-### Ubuntu with pre-installed GDAL 
-pip install "git+https://github.com/pete-jacobsson/gdgtm"
 
-### Virtual environments
-For set-up in venv, the key challenge is installing GDAL (the effective GIS engine underneath all of the gdgtm functions. Unfortunately, pip cannot install GDAL easily, making it difficult to set up virtual environments through the usual means. However, Conda can install GDAL easily, making it possible to set up a virtual environment across all three major platforms.
+=======
+pip install "git+https://github.com/pete-jacobsson/gdgtm" 
 
-1. set up virtual environment: conda create -n gdgtm python =3.10
-2. Activate the virtual environment: conda activate my_env
-3. Intsall GDAL: conda install gdal=3.6.2
-4. pip install matplotlib
-5. pip install "git+https://github.com/pete-jacobsson/gdgtm"
-
-In the Conda environment, GDAL 3.6.2 is required for the correct functioning of the shapefile processing functions.
 
 ### Package was developed and tested using the following:
 * Python 3.10.12
 * datetime 5.5
 * dateutil 2.8.2
-* GDAL 3.6.2 ### NOTE: failing to work for Shapefiles
 * Numpy 1.24.3
 * rasterio 1.3.10
 * pystac 1.10.1
 * pandas 2.0.3
-* datetime 5.5
-* dateutil 2.8.2
+
 The .toml is configured to import these versions of the packages or higher.
 
 ## Structure
 The package is built around the following modules:
-- gdgtm_core: covers functions for transforming and aligning rasters.
-- gdgtm_chelsa_gets: functions for getting data from https://chelsa-climate.org/
-- gdgtm_stac_gets: functions for interacting with STAC objects (static and open only).
-- gdgtm_merge_mosaic: functions for mosaicing rasters and for merging multiple rasters into a single multi-layer raster.
-- gdgtm_numpys: functions for converting GeoTiffs into numpy arrays (2D only).
-- gdgtm_shapefiles: functions for converting ESRI .shp files into GeoTiffs.
+- auto_workflow
+- get
+- transform
+- manage
 
 Specific usage examples provided in the documentation and the demo.
 
