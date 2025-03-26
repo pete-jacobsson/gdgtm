@@ -398,12 +398,12 @@ def replace_nodata_with_lowest(input_path, output_path):
 
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-def align_raster(source_raster, target_raster, dst_raster):
+def align_raster(src_raster, target_raster, dst_raster):
     '''
     This function aligns the source_raster to the target_raster
 
     **Args:**
-        - source_raster (str): link to the geotiff location of the source raster.
+        - src_raster (str): link to the geotiff location of the source raster.
         - target_raster (str): link to the geotiff location of the target raster.
         - dst_raster (str): path (including name) to the destination where the raster is saved.
 
@@ -424,7 +424,7 @@ def align_raster(source_raster, target_raster, dst_raster):
 
     # Open the target and source rasters
     with rasterio.open(target_raster) as target:
-        with rasterio.open(source_raster) as src:
+        with rasterio.open(src_raster) as src:
             # Get the target raster's bounds, transform, and dimensions
             target_bounds = target.bounds
             target_transform = target.transform
@@ -522,7 +522,7 @@ def validate_raster_alignment(raster_1, raster_2):
 
 
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def align_validate_raster(source_raster, target_raster, dst_raster, delete_source=False):
+def align_validate_raster(source_raster, target_raster, dst_raster):
     '''
     This function aligns the source_raster to the target_raster and validates the alignment.
 
@@ -530,7 +530,6 @@ def align_validate_raster(source_raster, target_raster, dst_raster, delete_sourc
         - source_raster (str): Link to the geotiff location of the source raster.
         - target_raster (str): Link to the geotiff location of the target raster.
         - dst_raster (str): Path (including name) to the destination where the raster is saved.
-        - delete_source (bool): If True, delete the source raster after completing the function.
 
     **Returns:**
         - dict: A dictionary containing the results of the alignment validation.
@@ -575,9 +574,5 @@ def align_validate_raster(source_raster, target_raster, dst_raster, delete_sourc
     # Clean up the temporary reprojected raster if it exists
     if os.path.exists('temp_reproj_source.tif'):
         os.remove('temp_reproj_source.tif')
-
-    # Optionally delete the source raster
-    if delete_source and os.path.exists(source_raster):
-        os.remove(source_raster)
 
     return alignment_outcome

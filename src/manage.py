@@ -86,7 +86,7 @@ def convert_gtif_to_jpg(input_path, output_path):
 
 
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def process_folder(input_folder, output_folder):
+def process_dir_to_jpg(input_folder, output_folder):
     """
     Process all GeoTIFF files in the input folder and save JPGs to the output folder.
     
