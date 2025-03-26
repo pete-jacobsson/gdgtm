@@ -1,8 +1,10 @@
 ### These functions cover the management of raster data
+import seaborn as sns
 import rasterio
 from rasterio.enums import Resampling
 import numpy as np
-import seaborn as sns
+from PIL import Image
+import os
 
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def convert_gtif_to_nparray (src_path, height, width, convert_no_data=False):

@@ -1,5 +1,10 @@
 ### These functions cover the management of raster data
-
+import seaborn as sns
+import rasterio
+from rasterio.enums import Resampling
+import numpy as np
+from PIL import Image
+import os
 
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def convert_gtif_to_nparray (src_path, height, width, convert_no_data=False):
@@ -17,9 +22,6 @@ def convert_gtif_to_nparray (src_path, height, width, convert_no_data=False):
     Returns:
         np.ndarray: The image data as a NumPy array.
     """
-    import rasterio
-    from rasterio.enums import Resampling
-    import numpy as np
 
     with rasterio.open(src_path) as src:
         # print(f"Height/Width passed from function: {height}, {width}")
