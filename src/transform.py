@@ -282,7 +282,7 @@ def apply_land_mask(land_mask_path, data_raster_path, output_path):
 
 
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def rescale_raster_to_zero_one(input_path, output_path, output_dtype=rasterio.float32):
+def rescale_raster_to_zero_one(input_path, output_path, output_dtype="float32"):
     """
     Rescale raster values to a 0-1 range and save the result.
 
