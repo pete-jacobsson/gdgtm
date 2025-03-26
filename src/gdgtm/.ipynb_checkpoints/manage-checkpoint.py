@@ -5,6 +5,7 @@ from rasterio.enums import Resampling
 import numpy as np
 from PIL import Image
 import os
+from matplotlib import plt
 
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def convert_gtif_to_nparray (src_path, height, width, convert_no_data=False):
