@@ -1,7 +1,150 @@
 ### These functions cover raster transofrmations: changing resolution, aligning, set bounding boxes, reprojecting (as well as relevant helper functions).
 
 
-### Function set-up~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def change_raster_res(target_res, src_raster, dst_raster):
+    '''
+    The objective of this function is to load a raster from a geotiff, resample it to a set resolution,
+    save it to a new file, and optionally delete the source raster.
+
+    Args:
+        target_res (float): Target resolution in units relevant to the CRS
+        src_raster (str): Path to the original raster document
+        dst_raster (str): Path to the file that will hold the re-resolved raster
+
+    Returns:
+        str: String confirming that the new raster has the desired number of pixels (height and width)
+
+    Assumptions:
+    1. The source_raster is a geotiff.
+    2. Function tested using Python 3.10 and rasterio.
+    3. WARNING: Assumes that the new target resolution is provided within the CRS units
+
+    Usage example:
+    >>> change_raster_res(target_res=500,
+    >>>                   src_raster="/home/pete/Downloads/chesla_transformed.tif",
+    >>>                   dst_raster="/home/pete/Downloads/chesla_transformed_500.tif")
+    "Resolution meets target, file exists: /home/pete/Downloads/chelsa_transformed_500.tif"
+    '''
+
+    # Load the source raster into rasterio
+    with rasterio.open(src_raster) as src:
+        # Calculate the new dimensions based on the target resolution
+        new_width = int(src.width * (abs(src.transform[0] / target_res)))
+        new_height = int(src.height * (abs(src.transform[4] / target_res)))
+
+    # print([new_width, new_height, src.width, src.height])
+
+        # Resample the data to the new dimensions
+        data = src.read(
+            out_shape=(src.count, new_height, new_width),
+            resampling=Resampling.nearest  # Use nearest neighbor resampling to avoid interpolation
+        )
+
+        # Calculate the new transform
+        new_transform = src.transform * Affine.scale(target_res / abs(src.transform[0]), target_res / abs(src.transform[4]))
+
+        # Write the resampled data to the new raster file
+        with rasterio.open(
+            dst_raster,
+            'w',
+            driver='GTiff',
+            height=new_height,
+            width=new_width,
+            count=src.count,
+            dtype=src.dtypes[0],
+            crs=src.crs,
+            transform=new_transform,
+            nodata=src.nodata
+        ) as dst:
+            dst.write(data)
+
+    # Check if the new resolution matches the target
+    file_exists = os.path.exists(dst_raster)
+    if not file_exists:
+        return_string = "Warning, the file does not exist: " + dst_raster
+    else:
+        with rasterio.open(dst_raster) as dst:
+            dst_res = [dst.transform[0], -dst.transform[4]]
+            if dst_res == [target_res, target_res]:
+                return_string = "Resolution meets target, file exists: " + dst_raster
+            else:
+                return_string = "Warning, resolution does not meet the target, file exists: " + dst_raster
+
+    return return_string
+
+
+
+###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def reproject_raster(new_crs, src_raster, dst_raster):
+    '''
+    This function takes a geotiff raster (with metadata including coordinate projection) and outputs a geotiff raster with an updated projection.
+    The function also has the option to delete the source raster.
+
+    Args:
+        new_crs (str): New coordinate system to which the raster is to be projected.
+        src_raster (str): Path to the geotiff with relevant metadata that will be reprojected.
+        dst_raster (str): Path and filename into which the new (re-projected) raster will be saved.
+        delete_source (bool): Determines whether the source raster is deleted following function execution.
+
+    Returns:
+        str: String confirming that the new geotiff has the expected projection system.
+
+    Assumptions:
+    1. Input data is a geotiff with a header readable by rasterio.
+    2. rasterio is working.
+    3. Function tested on Python 3.10.12.
+
+    Usage example:
+    >>> reproject_raster(new_crs="EPSG:54028", 
+    >>>                  src_raster='/home/pete/Documents/tests_and_vals/gdgtm/01_get_functions/chelsa_tas_01_01_2023.tif',
+    >>>                  dst_raster='/home/pete/Downloads/chelsa_transformed.tif')
+    "File exists: /home/pete/Downloads/chelsa_transformed.tif"
+    '''
+    # Open the source raster
+    with rasterio.open(src_raster) as src:
+        # Define the new CRS
+        new_crs = CRS.from_string(new_crs)
+
+        # Calculate the new transform and dimensions
+        dst_transform, dst_width, dst_height = calculate_default_transform(
+            src.crs, new_crs, src.width, src.height, *src.bounds
+        )
+
+        # Create the output raster
+        kwargs = src.meta.copy()
+        kwargs.update({
+            'crs': new_crs,
+            'transform': dst_transform,
+            'width': dst_width,
+            'height': dst_height
+        })
+
+        with rasterio.open(dst_raster, 'w', **kwargs) as dst:
+            # Reproject the source raster to the new CRS
+            for i in range(1, src.count + 1):
+                reproject(
+                    source=rasterio.band(src, i),
+                    destination=rasterio.band(dst, i),
+                    src_transform=src.transform,
+                    src_crs=src.crs,
+                    dst_transform=dst_transform,
+                    dst_crs=new_crs,
+                    resampling=rasterio.warp.Resampling.nearest
+                )
+
+    # Test that the new raster exists
+    file_exists = os.path.exists(dst_raster)
+
+    if file_exists:
+        return_string = "File exists: " + dst_raster
+    else:
+        return_string = "Warning, file does not exist: " + dst_raster
+
+
+    return return_string
+
+
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def set_raster_boundbox(target_bbox, src_raster, dst_raster = None):
     '''
@@ -75,77 +218,7 @@ def set_raster_boundbox(target_bbox, src_raster, dst_raster = None):
 
 
 
-###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def change_raster_res(target_res, src_raster, dst_raster):
-    '''
-    The objective of this function is to load a raster from a geotiff, resample it to a set resolution,
-    save it to a new file, and optionally delete the source raster.
 
-    Args:
-        target_res (float): Target resolution in units relevant to the CRS
-        src_raster (str): Path to the original raster document
-        dst_raster (str): Path to the file that will hold the re-resolved raster
-
-    Returns:
-        str: String confirming that the new raster has the desired number of pixels (height and width)
-
-    Assumptions:
-    1. The source_raster is a geotiff.
-    2. Function tested using Python 3.10 and rasterio.
-    3. WARNING: Assumes that the new target resolution is provided within the CRS units
-
-    Usage example:
-    >>> change_raster_res(target_res=500,
-    >>>                   src_raster="/home/pete/Downloads/chesla_transformed.tif",
-    >>>                   dst_raster="/home/pete/Downloads/chesla_transformed_500.tif")
-    "Resolution meets target, file exists: /home/pete/Downloads/chelsa_transformed_500.tif"
-    '''
-
-    # Load the source raster into rasterio
-    with rasterio.open(src_raster) as src:
-        # Calculate the new dimensions based on the target resolution
-        new_width = int(src.width * (abs(src.transform[0] / target_res)))
-        new_height = int(src.height * (abs(src.transform[4] / target_res)))
-
-    # print([new_width, new_height, src.width, src.height])
-
-        # Resample the data to the new dimensions
-        data = src.read(
-            out_shape=(src.count, new_height, new_width),
-            resampling=Resampling.nearest  # Use nearest neighbor resampling to avoid interpolation
-        )
-
-        # Calculate the new transform
-        new_transform = src.transform * Affine.scale(target_res / abs(src.transform[0]), target_res / abs(src.transform[4]))
-
-        # Write the resampled data to the new raster file
-        with rasterio.open(
-            dst_raster,
-            'w',
-            driver='GTiff',
-            height=new_height,
-            width=new_width,
-            count=src.count,
-            dtype=src.dtypes[0],
-            crs=src.crs,
-            transform=new_transform,
-            nodata=src.nodata
-        ) as dst:
-            dst.write(data)
-
-    # Check if the new resolution matches the target
-    file_exists = os.path.exists(dst_raster)
-    if not file_exists:
-        return_string = "Warning, the file does not exist: " + dst_raster
-    else:
-        with rasterio.open(dst_raster) as dst:
-            dst_res = [dst.transform[0], -dst.transform[4]]
-            if dst_res == [target_res, target_res]:
-                return_string = "Resolution meets target, file exists: " + dst_raster
-            else:
-                return_string = "Warning, resolution does not meet the target, file exists: " + dst_raster
-
-    return return_string
 
 
 
@@ -448,75 +521,7 @@ def validate_raster_alignment(raster_1, raster_2):
     return check_results
 
 
-###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-def reproject_raster(new_crs, src_raster, dst_raster):
-    '''
-    This function takes a geotiff raster (with metadata including coordinate projection) and outputs a geotiff raster with an updated projection.
-    The function also has the option to delete the source raster.
-
-    Args:
-        new_crs (str): New coordinate system to which the raster is to be projected.
-        src_raster (str): Path to the geotiff with relevant metadata that will be reprojected.
-        dst_raster (str): Path and filename into which the new (re-projected) raster will be saved.
-        delete_source (bool): Determines whether the source raster is deleted following function execution.
-
-    Returns:
-        str: String confirming that the new geotiff has the expected projection system.
-
-    Assumptions:
-    1. Input data is a geotiff with a header readable by rasterio.
-    2. rasterio is working.
-    3. Function tested on Python 3.10.12.
-
-    Usage example:
-    >>> reproject_raster(new_crs="EPSG:54028", 
-    >>>                  src_raster='/home/pete/Documents/tests_and_vals/gdgtm/01_get_functions/chelsa_tas_01_01_2023.tif',
-    >>>                  dst_raster='/home/pete/Downloads/chelsa_transformed.tif')
-    "File exists: /home/pete/Downloads/chelsa_transformed.tif"
-    '''
-    # Open the source raster
-    with rasterio.open(src_raster) as src:
-        # Define the new CRS
-        new_crs = CRS.from_string(new_crs)
-
-        # Calculate the new transform and dimensions
-        dst_transform, dst_width, dst_height = calculate_default_transform(
-            src.crs, new_crs, src.width, src.height, *src.bounds
-        )
-
-        # Create the output raster
-        kwargs = src.meta.copy()
-        kwargs.update({
-            'crs': new_crs,
-            'transform': dst_transform,
-            'width': dst_width,
-            'height': dst_height
-        })
-
-        with rasterio.open(dst_raster, 'w', **kwargs) as dst:
-            # Reproject the source raster to the new CRS
-            for i in range(1, src.count + 1):
-                reproject(
-                    source=rasterio.band(src, i),
-                    destination=rasterio.band(dst, i),
-                    src_transform=src.transform,
-                    src_crs=src.crs,
-                    dst_transform=dst_transform,
-                    dst_crs=new_crs,
-                    resampling=rasterio.warp.Resampling.nearest
-                )
-
-    # Test that the new raster exists
-    file_exists = os.path.exists(dst_raster)
-
-    if file_exists:
-        return_string = "File exists: " + dst_raster
-    else:
-        return_string = "Warning, file does not exist: " + dst_raster
-
-
-    return return_string
 
 
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
