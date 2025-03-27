@@ -815,32 +815,30 @@ def align_rasters (bbox, proj, pixel_size, dst_blank, src_rasters, dst_rasters):
     ## Set up blank raster
     set_up_blank(bbox, proj, pixel_size, dst_blank)
       
-    ## Download src_rasters
-    raw_temps = [] ## Set up the raw temps list to enable correct handling
+    # ## Download src_rasters  TODO: This code will be relevant when we re-build the capacity to point at online sources and process to project
+    # raw_temps = [] ## Set up the raw temps list to enable correct handling
     
-    for i in range(len(src_rasters)):
-        raw_temps.append(f"raw_temp{i}.tif")
+    # for i in range(len(src_rasters)):
+    #     raw_temps.append(f"raw_temp{i}.tif")
 
-    for i in range(len(src_rasters)):
-        download_raster(src_rasters[i], raw_temps[i])
+    # for i in range(len(src_rasters)):
+    #     download_raster(src_rasters[i], raw_temps[i])
 
-    ## Re-project src_rasters
-    reproject_temps = []
+    # ## Re-project src_rasters
+    # reproject_temps = []
     
-    for i in range(len(raw_temps)):
-        reproject_temps.append(f"reproject_temp{i}.tif")
+    # for i in range(len(raw_temps)):
+    #     reproject_temps.append(f"reproject_temp{i}.tif")
 
     alignment_log = {}
-    for i in range(len(raw_temps)):
+    for i in range(len(src_rasters)):
         gdgtm.reproject_raster(new_crs = proj,
-                               src_raster = raw_temps[i],
-                               dst_raster = reproject_temps[i],
-                               delete_source = True)
+                               src_raster = src_rasters[i],
+                               dst_raster = "reproject_temp.tif")
         
-        alignment_validation = gdgtm.align_validate_raster(source_raster = reproject_temps[i],
+        alignment_validation = gdgtm.align_validate_raster(src_raster = "reproject_temp.tif",
                                                            target_raster = dst_blank,
-                                                           dst_raster = dst_rasters[i],
-                                                           delete_source = True)
+                                                           dst_raster = dst_rasters[i])
         ##Run alignment checks
         if os.path.exists(dst_rasters[i]):
             alignment_log[dst_rasters[i]] = alignment_validation
