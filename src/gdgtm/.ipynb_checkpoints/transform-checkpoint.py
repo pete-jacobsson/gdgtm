@@ -5,6 +5,7 @@ import rasterio
 from rasterio.windows import Window
 from rasterio.transform import Affine
 from rasterio.errors import RasterioIOError, NotGeoreferencedWarning
+from rasterio.enums import Resampling
 import warnings
 
 #### Tested in test single
