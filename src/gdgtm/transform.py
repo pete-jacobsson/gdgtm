@@ -3,6 +3,7 @@ import os
 import numpy as np
 import rasterio
 from rasterio.windows import Window
+from rasterio.warp import reproject
 from rasterio.transform import Affine
 from rasterio.errors import RasterioIOError, NotGeoreferencedWarning
 from rasterio.enums import Resampling
