@@ -564,7 +564,7 @@ def align_validate_raster(src_raster, target_raster, dst_raster):
         target_crs = target.crs
 
     # Check if the source raster needs to be reprojected
-    with rasterio.open(ssrc_raster) as src:
+    with rasterio.open(src_raster) as src:
         if src.crs != target_crs:
             # Reproject the source raster
             reproject_raster(new_crs=target_crs.to_string(), src_raster=src_raster, dst_raster='temp_reproj_source.tif')
