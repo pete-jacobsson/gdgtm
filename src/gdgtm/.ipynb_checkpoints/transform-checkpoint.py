@@ -669,7 +669,7 @@ def get_proj_transform (filename):
 
 
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def check_if_geotiff (file_path):
+def check_if_geotif (file_path):
     '''
     This function checks if a given file is a geotiff
 
