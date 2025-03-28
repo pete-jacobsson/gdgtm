@@ -233,59 +233,47 @@ def set_raster_boundbox(target_bbox, src_raster, dst_raster = None):
 def apply_land_mask(land_mask_path, data_raster_path, output_path):
     """
     Apply a land mask to a data raster and save the result.
-
-    This function reads a land mask raster and a data raster, applies the mask
-    to the data, and saves the result as a new raster file. The land mask is 
-    expected to have values of 1 for land and any other value for non-land areas.
+    
+    Sets data values to 0 where the land mask has no-data values,
+    preserving original values where the land mask has valid data.
 
     Parameters:
     -----------
     land_mask_path : str
-        Path to the land mask raster file.
+        Path to the land mask raster file (with defined no-data value)
     data_raster_path : str
-        Path to the data raster file to be masked.
+        Path to the data raster file to be masked
     output_path : str
-        Path where the masked raster will be saved.
+        Path where the masked raster will be saved
 
     Raises:
     -------
     ValueError
-        If the land mask and data raster have different dimensions.
-
-    Notes:
-    ------
-    - Both input rasters are assumed to be single-band.
-    - The output raster will have the same profile (CRS, transform, etc.) as the land mask.
-    - Areas where the land mask is not 1 will be set to 0 in the output.
-
-    Example:
-    --------
-    >>> apply_land_mask('land_mask.tif', 'data.tif', 'masked_data.tif')
-    Masked raster saved to masked_data.tif
+        If rasters have different dimensions or land mask lacks no-data value
     """
-    # Open the land mask raster
     with rasterio.open(land_mask_path) as land_mask:
-        mask_data = land_mask.read(1)  # Assuming it's a single band
+        mask_data = land_mask.read(1)
+        mask_nodata = land_mask.nodata
+        
+        if mask_nodata is None:
+            raise ValueError("Land mask must have a defined no-data value")
+            
         profile = land_mask.profile
 
-    # Open the data raster
     with rasterio.open(data_raster_path) as data_raster:
-        data = data_raster.read(1)  # Assuming it's a single band
+        data = data_raster.read(1)
         
-        # Ensure the rasters have the same shape
         if data.shape != mask_data.shape:
-            raise ValueError("The land mask and data raster must have the same dimensions")
-        
-        # Apply the mask
-        masked_data = np.where(mask_data != 0, 0, data)
+            raise ValueError("Rasters must have identical dimensions")
 
-    # Update the profile for the output raster
-    profile.update(dtype=masked_data.dtype, count=1)
+        # Apply mask: 0 where landmask has no-data, original value otherwise
+        masked_data = np.where(mask_data == mask_nodata, 0, data)
 
-    # Write the result to a new raster
+    profile.update(dtype=masked_data.dtype, count=1, nodata=0)
+    
     with rasterio.open(output_path, 'w', **profile) as dst:
         dst.write(masked_data, 1)
-
+    
     print(f"Masked raster saved to {output_path}")
 
 
@@ -565,6 +553,14 @@ def align_validate_raster(src_raster, target_raster, dst_raster):
     # Load the target raster to get its CRS
     with rasterio.open(target_raster) as target:
         target_crs = target.crs
+
+    ### TODO(!!!):
+    ### Check target crs and src crs
+    ### If not match: back reproject target to src
+    ### BBox src to target + margin
+    ### Reproject bboxed src
+    ### Run the align_raster
+    
 
     # Check if the source raster needs to be reprojected
     with rasterio.open(src_raster) as src:
