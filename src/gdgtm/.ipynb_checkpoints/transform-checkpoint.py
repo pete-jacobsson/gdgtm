@@ -230,7 +230,7 @@ def set_raster_boundbox(target_bbox, src_raster, dst_raster = None):
 
 
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def apply_land_mask(land_mask_path, data_raster_path, output_path):
+def apply_land_mask(land_mask_path, data_raster_path, output_path, mask_value):
     """
     Apply a land mask to a data raster and save the result.
     
@@ -245,6 +245,8 @@ def apply_land_mask(land_mask_path, data_raster_path, output_path):
         Path to the data raster file to be masked
     output_path : str
         Path where the masked raster will be saved
+    mask_value : int
+        value for "sea" in the landmask
 
     Raises:
     -------
@@ -252,12 +254,7 @@ def apply_land_mask(land_mask_path, data_raster_path, output_path):
         If rasters have different dimensions or land mask lacks no-data value
     """
     with rasterio.open(land_mask_path) as land_mask:
-        mask_data = land_mask.read(1)
-        mask_nodata = land_mask.nodata
-        
-        if mask_nodata is None:
-            raise ValueError("Land mask must have a defined no-data value")
-            
+        mask_data = land_mask.read(1)            
         profile = land_mask.profile
 
     with rasterio.open(data_raster_path) as data_raster:
@@ -267,7 +264,7 @@ def apply_land_mask(land_mask_path, data_raster_path, output_path):
             raise ValueError("Rasters must have identical dimensions")
 
         # Apply mask: 0 where landmask has no-data, original value otherwise
-        masked_data = np.where(mask_data == mask_nodata, 0, data)
+        masked_data = np.where(mask_data == mask_value, 0, data)
 
     profile.update(dtype=masked_data.dtype, count=1, nodata=0)
     
