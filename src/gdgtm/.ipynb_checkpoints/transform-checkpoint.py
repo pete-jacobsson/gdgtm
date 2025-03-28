@@ -834,11 +834,11 @@ def align_rasters (bbox, proj, pixel_size, dst_blank, src_rasters, dst_rasters):
 
     alignment_log = {}
     for i in range(len(src_rasters)):
-        reproject_raster(new_crs = proj,
-                         src_raster = src_rasters[i],
-                         dst_raster = "reproject_temp.tif")
+        # reproject_raster(new_crs = proj,
+        #                  src_raster = src_rasters[i],
+        #                  dst_raster = "reproject_temp.tif")
         
-        alignment_validation = align_validate_raster(src_raster = "reproject_temp.tif",
+        alignment_validation = align_validate_raster(src_raster = src_rasters[i],
                                                      target_raster = dst_blank,
                                                      dst_raster = dst_rasters[i])
         ##Run alignment checks
