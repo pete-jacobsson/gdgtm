@@ -2,11 +2,13 @@
 import os
 import numpy as np
 import rasterio
-from rasterio.windows import Window, from_bounds
-from rasterio.warp import reproject
-from rasterio.transform import Affine
-from rasterio.errors import RasterioIOError, NotGeoreferencedWarning
+from rasterio import Affine
+from rasterio.windows import Window
+from rasterio.windows import from_bounds
+from rasterio.warp import reproject, calculate_default_transform, reproject
 from rasterio.enums import Resampling
+from rasterio.crs import CRS
+from rasterio.plot import reshape_as_image
 import warnings
 
 #### Tested in test single
