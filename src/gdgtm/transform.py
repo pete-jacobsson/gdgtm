@@ -2,7 +2,7 @@
 import os
 import numpy as np
 import rasterio
-from rasterio.windows import Window
+from rasterio.windows import Window, from_bounds
 from rasterio.warp import reproject
 from rasterio.transform import Affine
 from rasterio.errors import RasterioIOError, NotGeoreferencedWarning
@@ -275,7 +275,7 @@ def apply_land_mask(land_mask_path, data_raster_path, output_path):
             raise ValueError("The land mask and data raster must have the same dimensions")
         
         # Apply the mask
-        masked_data = np.where(mask_data != 1, 0, data)
+        masked_data = np.where(mask_data != 0, 0, data)
 
     # Update the profile for the output raster
     profile.update(dtype=masked_data.dtype, count=1)
@@ -832,13 +832,13 @@ def align_rasters (bbox, proj, pixel_size, dst_blank, src_rasters, dst_rasters):
 
     alignment_log = {}
     for i in range(len(src_rasters)):
-        gdgtm.reproject_raster(new_crs = proj,
-                               src_raster = src_rasters[i],
-                               dst_raster = "reproject_temp.tif")
+        reproject_raster(new_crs = proj,
+                         src_raster = src_rasters[i],
+                         dst_raster = "reproject_temp.tif")
         
-        alignment_validation = gdgtm.align_validate_raster(src_raster = "reproject_temp.tif",
-                                                           target_raster = dst_blank,
-                                                           dst_raster = dst_rasters[i])
+        alignment_validation = align_validate_raster(src_raster = "reproject_temp.tif",
+                                                     target_raster = dst_blank,
+                                                     dst_raster = dst_rasters[i])
         ##Run alignment checks
         if os.path.exists(dst_rasters[i]):
             alignment_log[dst_rasters[i]] = alignment_validation
