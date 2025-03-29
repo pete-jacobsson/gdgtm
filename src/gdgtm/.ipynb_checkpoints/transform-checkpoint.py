@@ -230,7 +230,7 @@ def set_raster_boundbox(target_bbox, src_raster, dst_raster = None):
 
 
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def apply_land_mask(land_mask_path, data_raster_path, output_path, mask_value):
+def apply_land_mask(land_mask_path, data_raster_path, output_path, mask_value = 1):
     """
     Apply a land mask to a data raster and save the result.
     
@@ -264,7 +264,7 @@ def apply_land_mask(land_mask_path, data_raster_path, output_path, mask_value):
             raise ValueError("Rasters must have identical dimensions")
 
         # Apply mask: 0 where landmask has no-data, original value otherwise
-        masked_data = np.where(mask_data == mask_value, 0, data)
+        masked_data = np.where(masked_data == mask_value, data, 0)
 
     profile.update(dtype=masked_data.dtype, count=1, nodata=0)
     
