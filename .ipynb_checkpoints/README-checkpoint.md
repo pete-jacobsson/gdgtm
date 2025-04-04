@@ -1,32 +1,18 @@
 # gdgtm (Geospatial Data Getting Transforming and Managing)
 
-## Project overviews
-The purpose of the project is to wrap a set of extant Python utilities to streamline geospatial data downloads and processing (reprojection, bound setting and mosaicing), to allow easier pipeline construction for downstream processing. The main point is to simplify the process of acquiring raster data from online sources and building a straightforward pipeline for their processing and standardization ahead of downstream analysis. As of version 0.6 of the package the get functions are written for OpenLandMap STAC (https://stac.openlandmap.org/) and Chelsa (https://chelsa-climate.org/).
+## Project overview
+The purpose of this package is to simplify getting, transforming and managing geospatial data within programmatic workflows. What we want to achieve here is a platform that will allow, in relatively few lines of code, to bulk process sizeable volumes of geospatial data for downstream analysis, quickly.
 
-The core workflow of this package is:
-1. Get a raster from an online source
-2. Process it to the desired projection, resolution and bounding box - this is the **Master GeoTIFF**
-3. Get further rasters (**complementary rasters**) and align those to the Master
+Hence, if you want to run a machine learning project based on a collection of a hundred rasters downlaoded from different sources, but first need to align those rasters, you might find gdgtm helpful.
 
-The result is a collection of GeoTIFF files that is standardized in terms of projection, bounding box, resolution, and exact pixel location.
-
-The package is built in Python, with almost all functions being in reality GDAL wrappers designed to simplify the workflow and reduce number of lines of code required to do a project.
-
+To get an overview of the functuionality see the test script, 
 
 ## Installation
-### Ubuntu with pre-installed GDAL 
-pip install "git+https://github.com/pete-jacobsson/gdgtm"
 
-### Virtual environments
-For set-up in venv, the key challenge is installing GDAL (the effective GIS engine underneath all of the gdgtm functions. Unfortunately, pip cannot install GDAL easily, making it difficult to set up virtual environments through the usual means. However, Conda can install GDAL easily, making it possible to set up a virtual environment across all three major platforms.
 
-1. set up virtual environment: conda create -n gdgtm python =3.10
-2. Activate the virtual environment: conda activate my_env
-3. Intsall GDAL: conda install gdal=3.6.2
-4. pip install matplotlib
-5. pip install "git+https://github.com/pete-jacobsson/gdgtm"
 
-In the Conda environment, GDAL 3.6.2 is required for the correct functioning of the shapefile processing functions.
+
+
 
 ### Package was developed and tested using the following:
 * Python 3.10.12
