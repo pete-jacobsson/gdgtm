@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module gdgtm.manage</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="gdgtm.html"><font color="#ffffff">gdgtm</font></a>.manage</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/pete/miniconda/envs/gdgtm_test/lib/python3.10/site-packages/gdgtm/manage.py">/home/pete/miniconda/envs/gdgtm_test/lib/python3.10/site-packages/gdgtm/manage.py</a></font></td></tr></table>
+    <p><tt>###&nbsp;These&nbsp;functions&nbsp;cover&nbsp;the&nbsp;management&nbsp;of&nbsp;raster&nbsp;data</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="PIL.Image.html">PIL.Image</a><br>
+<a href="numpy.html">numpy</a><br>
+</td><td width="25%" valign=top><a href="os.html">os</a><br>
+<a href="matplotlib.pyplot.html">matplotlib.pyplot</a><br>
+</td><td width="25%" valign=top><a href="rasterio.html">rasterio</a><br>
+<a href="seaborn.html">seaborn</a><br>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-convert_gtif_to_jpg"><strong>convert_gtif_to_jpg</strong></a>(input_path, output_path)</dt><dd><tt>Convert&nbsp;a&nbsp;single&nbsp;GeoTIFF&nbsp;file&nbsp;to&nbsp;a&nbsp;JPG&nbsp;image.<br>
+&nbsp;<br>
+:param&nbsp;input_path:&nbsp;Path&nbsp;to&nbsp;the&nbsp;input&nbsp;GeoTIFF&nbsp;file<br>
+:param&nbsp;output_path:&nbsp;Path&nbsp;to&nbsp;save&nbsp;the&nbsp;output&nbsp;JPG&nbsp;file</tt></dd></dl>
+ <dl><dt><a name="-convert_gtif_to_nparray"><strong>convert_gtif_to_nparray</strong></a>(src_path, height, width, convert_no_data=False)</dt><dd><tt>This&nbsp;function&nbsp;takes&nbsp;a&nbsp;single-layer&nbsp;GeoTIFF&nbsp;source&nbsp;file&nbsp;and&nbsp;converts&nbsp;it&nbsp;into&nbsp;an&nbsp;np.array.<br>
+Optionally&nbsp;converts&nbsp;no&nbsp;data&nbsp;values&nbsp;to&nbsp;np.nan.<br>
+Also&nbsp;validates&nbsp;that&nbsp;the&nbsp;GeoTIFF&nbsp;has&nbsp;values&nbsp;within&nbsp;the&nbsp;expected&nbsp;ranges.<br>
+&nbsp;<br>
+Parameters:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;src_path&nbsp;(str):&nbsp;Path&nbsp;to&nbsp;the&nbsp;input&nbsp;GeoTIFF&nbsp;file.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;height&nbsp;(int):&nbsp;Expected&nbsp;height&nbsp;of&nbsp;the&nbsp;image.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;width&nbsp;(int):&nbsp;Expected&nbsp;width&nbsp;of&nbsp;the&nbsp;image.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;convert_no_data&nbsp;(bool):&nbsp;Whether&nbsp;to&nbsp;convert&nbsp;no&nbsp;data&nbsp;values&nbsp;to&nbsp;np.nan.<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;np.ndarray:&nbsp;The&nbsp;image&nbsp;data&nbsp;as&nbsp;a&nbsp;NumPy&nbsp;array.</tt></dd></dl>
+ <dl><dt><a name="-plot_raster_with_colorbar"><strong>plot_raster_with_colorbar</strong></a>(raster_path, title=None, cmap='viridis')</dt><dd><tt>Plots&nbsp;a&nbsp;raster&nbsp;with&nbsp;a&nbsp;color&nbsp;bar&nbsp;using&nbsp;seaborn&nbsp;and&nbsp;rasterio.<br>
+&nbsp;<br>
+Parameters:<br>
+raster_path&nbsp;(str):&nbsp;Path&nbsp;to&nbsp;the&nbsp;raster&nbsp;file<br>
+title&nbsp;(str,&nbsp;optional):&nbsp;Title&nbsp;for&nbsp;the&nbsp;plot<br>
+cmap&nbsp;(str,&nbsp;optional):&nbsp;Colormap&nbsp;to&nbsp;use&nbsp;for&nbsp;the&nbsp;plot&nbsp;(default&nbsp;is&nbsp;'viridis')</tt></dd></dl>
+ <dl><dt><a name="-process_dir_to_jpg"><strong>process_dir_to_jpg</strong></a>(input_folder, output_folder)</dt><dd><tt>Process&nbsp;all&nbsp;GeoTIFF&nbsp;files&nbsp;in&nbsp;the&nbsp;input&nbsp;folder&nbsp;and&nbsp;save&nbsp;JPGs&nbsp;to&nbsp;the&nbsp;output&nbsp;folder.<br>
+&nbsp;<br>
+:param&nbsp;input_folder:&nbsp;Path&nbsp;to&nbsp;the&nbsp;folder&nbsp;containing&nbsp;GeoTIFF&nbsp;files<br>
+:param&nbsp;output_folder:&nbsp;Path&nbsp;to&nbsp;the&nbsp;folder&nbsp;where&nbsp;JPG&nbsp;files&nbsp;will&nbsp;be&nbsp;saved</tt></dd></dl>
+</td></tr></table>
+</body></html>

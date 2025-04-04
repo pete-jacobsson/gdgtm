@@ -34,6 +34,7 @@ The .toml is configured to import these versions of the packages or higher:
 
 ## Supported Data Formats
 gdgtm has only been tested for geotif (.tif) format.
+gdgtm.manage functions have not been tested due to need to re-evaluate their role in target workflows
 
 ## Testing
 gdgtm functions are built in Jupyter with explicit tests built into the process.
