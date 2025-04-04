@@ -587,11 +587,13 @@ def align_validate_raster(src_raster, target_raster, dst_raster):
 ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 def get_nearest_pixel(dataset, lon, lat):
     # Convert geographic coordinates to pixel coordinates
+    # Requires lon lat to be in same units as dataset
     py, px = dataset.index(lon, lat)
     return int(px), int(py)
 
 def extract_window(dataset, px, py, width=128, height=128):
     # Create a window object
+    # Assumes window fits within the 
     window = Window(px, py, width, height)
     
     # Read the data within the window
@@ -601,12 +603,11 @@ def check_window_values(data, threshold=0.5):
     return np.any(data > threshold)
 
 
-def random_square_from_raster(raster_width, raster_height, dim_x, dim_y, seed=None):
+def random_square_from_raster(dim_x, dim_y, src_dim_x, src_dim_y, seed=None):
     """
     This function chooses a random pixel within the raster that is a set distance away from E, S edges, therefore making it possible to random squares by extract_window, without crossing over the line of the raster.
 
     **Args:**
-        - raster_width, raster_height (int): width/height of the raster from which we want to extract
         - dim_x, dim_y (int): x and y dimensions of the target raster
         - seed (int): random seed
 
@@ -618,17 +619,18 @@ def random_square_from_raster(raster_width, raster_height, dim_x, dim_y, seed=No
     # Set the random seed
     rng = np.random.default_rng(seed)
     
+    
     # Ensure the raster is large enough
-    if raster_width < dim_x or raster_height < dim_y:
+    if src_dim_x < dim_x or src_dim_y < dim_y:
         raise ValueError("Raster dimensions must be at least 128x128")
     
     # Generate random top-left corner coordinates
-    x_max = raster_width - dim_x
-    y_max = raster_height - dim_x_y
+    x_max = src_dim_x - dim_x
+    y_max = src_dim_y - dim_y
     x = rng.integers(0, x_max + 1)
     y = rng.integers(0, y_max + 1)
     
-    return x, y + 128
+    return x, y + dim_y
 
 
 
