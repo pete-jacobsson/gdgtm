@@ -1,0 +1,334 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module gdgtm.transform</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="gdgtm.html"><font color="#ffffff">gdgtm</font></a>.transform</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/pete/miniconda/envs/gdgtm_test/lib/python3.10/site-packages/gdgtm/transform.py">/home/pete/miniconda/envs/gdgtm_test/lib/python3.10/site-packages/gdgtm/transform.py</a></font></td></tr></table>
+    <p><tt>###&nbsp;These&nbsp;functions&nbsp;cover&nbsp;raster&nbsp;transofrmations:&nbsp;changing&nbsp;resolution,&nbsp;aligning,&nbsp;set&nbsp;bounding&nbsp;boxes,&nbsp;reprojecting&nbsp;(as&nbsp;well&nbsp;as&nbsp;relevant&nbsp;helper&nbsp;functions).</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="numpy.html">numpy</a><br>
+</td><td width="25%" valign=top><a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="rasterio.html">rasterio</a><br>
+</td><td width="25%" valign=top><a href="warnings.html">warnings</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-align_raster"><strong>align_raster</strong></a>(src_raster, target_raster, dst_raster)</dt><dd><tt>This&nbsp;function&nbsp;aligns&nbsp;the&nbsp;source_raster&nbsp;to&nbsp;the&nbsp;target_raster<br>
+&nbsp;<br>
+**Args:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;src_raster&nbsp;(str):&nbsp;link&nbsp;to&nbsp;the&nbsp;geotiff&nbsp;location&nbsp;of&nbsp;the&nbsp;source&nbsp;raster.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;target_raster&nbsp;(str):&nbsp;link&nbsp;to&nbsp;the&nbsp;geotiff&nbsp;location&nbsp;of&nbsp;the&nbsp;target&nbsp;raster.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;dst_raster&nbsp;(str):&nbsp;path&nbsp;(including&nbsp;name)&nbsp;to&nbsp;the&nbsp;destination&nbsp;where&nbsp;the&nbsp;raster&nbsp;is&nbsp;saved.<br>
+&nbsp;<br>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;str:&nbsp;confirmation&nbsp;that&nbsp;dst_raster&nbsp;exists<br>
+&nbsp;<br>
+**Assumptions:**<br>
+1.&nbsp;All&nbsp;input&nbsp;files&nbsp;are&nbsp;geotiffs.<br>
+2.&nbsp;os&nbsp;and&nbsp;rasterio&nbsp;are&nbsp;installed&nbsp;and&nbsp;working.<br>
+3.&nbsp;Function&nbsp;tested&nbsp;using&nbsp;Python&nbsp;3.10.12<br>
+&nbsp;<br>
+**Usage:**<br>
+&gt;&gt;&gt;&nbsp;<a href="#-align_raster">align_raster</a>(source_raster&nbsp;=&nbsp;"/home/pete/Documents/tests_and_vals/gdgtm/02_master_reprojected/olm_alc_switz_reproj_20040101.tif",<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;target_raster&nbsp;=&nbsp;"/home/pete/Documents/tests_and_vals/gdgtm/04_master_rebound/olm_alc_switz_rebound_100_20040101.tif",<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dst_raster&nbsp;=&nbsp;"/home/pete/Documents/tests_and_vals/gdgtm/05_supplements_aligned/olm_alc_switz_aligned_20040101.tif")<br>
+"/home/pete/Documents/tests_and_vals/gdgtm/05_supplements_aligned/olm_alc_switz_aligned_20040101.tif&nbsp;exists"</tt></dd></dl>
+ <dl><dt><a name="-align_rasters"><strong>align_rasters</strong></a>(bbox, proj, pixel_size, dst_blank, src_rasters, dst_rasters)</dt><dd><tt>The&nbsp;function&nbsp;takes&nbsp;on&nbsp;projection,&nbsp;resolution&nbsp;and&nbsp;bbox&nbsp;specs,&nbsp;alongside&nbsp;a&nbsp;list&nbsp;of&nbsp;raster&nbsp;links,&nbsp;or&nbsp;a&nbsp;string&nbsp;with&nbsp;a&nbsp;single&nbsp;raster&nbsp;name.<br>
+It&nbsp;generates&nbsp;a&nbsp;blank&nbsp;raster,&nbsp;checks&nbsp;whether&nbsp;it&nbsp;matches&nbsp;required&nbsp;specs,&nbsp;and&nbsp;then&nbsp;aligns&nbsp;the&nbsp;rasters&nbsp;from&nbsp;the&nbsp;list&nbsp;provided.<br>
+**Args:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;bbox&nbsp;(tuple):&nbsp;a&nbsp;WNES&nbsp;bbox&nbsp;defining&nbsp;the&nbsp;limits&nbsp;of&nbsp;the&nbsp;blank&nbsp;raster.&nbsp;Values&nbsp;need&nbsp;to&nbsp;match&nbsp;the&nbsp;standard&nbsp;set&nbsp;in&nbsp;the&nbsp;projection.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;proj&nbsp;(str):&nbsp;authority:code&nbsp;formatted&nbsp;projection.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;pixel_size&nbsp;(float):&nbsp;size&nbsp;of&nbsp;the&nbsp;individual&nbsp;pixels&nbsp;(length&nbsp;of&nbsp;edges).&nbsp;Units&nbsp;need&nbsp;to&nbsp;be&nbsp;concurrent&nbsp;with&nbsp;the&nbsp;projection.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;dst_blank&nbsp;(str):&nbsp;string&nbsp;indicating&nbsp;the&nbsp;location&nbsp;and&nbsp;filename&nbsp;where&nbsp;the&nbsp;blank&nbsp;raster&nbsp;is&nbsp;to&nbsp;be&nbsp;saved.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;src_rasters&nbsp;(str&nbsp;or&nbsp;list):&nbsp;name&nbsp;of&nbsp;a&nbsp;single&nbsp;input&nbsp;raster&nbsp;or&nbsp;a&nbsp;list&nbsp;of&nbsp;input&nbsp;raster&nbsp;names.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;dst_rasters&nbsp;(str&nbsp;or&nbsp;list):&nbsp;paths/names&nbsp;of&nbsp;the&nbsp;saved,&nbsp;aligned&nbsp;rasters.<br>
+&nbsp;<br>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-dict:&nbsp;confirmation&nbsp;that&nbsp;the&nbsp;.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+**Assumptions:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;raster_links&nbsp;points&nbsp;to&nbsp;a&nbsp;valid&nbsp;raster&nbsp;links&nbsp;(local&nbsp;or&nbsp;online)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Function&nbsp;developed&nbsp;and&nbsp;tested&nbsp;using&nbsp;GDAL&nbsp;version&nbsp;3.6.2&nbsp;and&nbsp;Python&nbsp;3.10.12<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;Number&nbsp;of&nbsp;src_rasters&nbsp;matches&nbsp;the&nbsp;number&nbsp;of&nbsp;dst_rasters<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+**Usage:**<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#-align_rasters">align_rasters</a>(bbox&nbsp;=&nbsp;(6,&nbsp;47,&nbsp;7,&nbsp;45),&nbsp;proj&nbsp;=&nbsp;"EPSG:21781",&nbsp;pixel_size&nbsp;=&nbsp;200,<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dst_blank&nbsp;=&nbsp;"/home/pete/Documents/tests_and_vals/gdgtm_dev_copy/align_blank.tif",<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;src_rasters&nbsp;=&nbsp;"home/pete/Documents/tests_and_vals/gdgtm_dev_copy/down_raster.tif",<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dst_rasters&nbsp;=&nbsp;"home/pete/Documents/tests_and_vals/gdgtm_dev_copy/down_aligned.tif")<br>
+{'/home/pete/Documents/tests_and_vals/gdgtm_dev_copy/down_aligned.tif':&nbsp;{'dimension_match':&nbsp;True,&nbsp;'projection_match':&nbsp;True,&nbsp;'pixel_count_match':&nbsp;True,&nbsp;'geotransform_match':&nbsp;True}}</tt></dd></dl>
+ <dl><dt><a name="-align_validate_raster"><strong>align_validate_raster</strong></a>(src_raster, target_raster, dst_raster)</dt><dd><tt>This&nbsp;function&nbsp;aligns&nbsp;the&nbsp;source_raster&nbsp;to&nbsp;the&nbsp;target_raster&nbsp;and&nbsp;validates&nbsp;the&nbsp;alignment.<br>
+&nbsp;<br>
+**Args:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;src_raster&nbsp;(str):&nbsp;Link&nbsp;to&nbsp;the&nbsp;geotiff&nbsp;location&nbsp;of&nbsp;the&nbsp;source&nbsp;raster.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;target_raster&nbsp;(str):&nbsp;Link&nbsp;to&nbsp;the&nbsp;geotiff&nbsp;location&nbsp;of&nbsp;the&nbsp;target&nbsp;raster.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;dst_raster&nbsp;(str):&nbsp;Path&nbsp;(including&nbsp;name)&nbsp;to&nbsp;the&nbsp;destination&nbsp;where&nbsp;the&nbsp;raster&nbsp;is&nbsp;saved.<br>
+&nbsp;<br>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;dict:&nbsp;A&nbsp;dictionary&nbsp;containing&nbsp;the&nbsp;results&nbsp;of&nbsp;the&nbsp;alignment&nbsp;validation.<br>
+&nbsp;<br>
+**Assumptions:**<br>
+1.&nbsp;All&nbsp;input&nbsp;files&nbsp;are&nbsp;geotiffs.<br>
+2.&nbsp;os&nbsp;and&nbsp;rasterio&nbsp;are&nbsp;installed&nbsp;and&nbsp;working.<br>
+3.&nbsp;Function&nbsp;tested&nbsp;using&nbsp;Python&nbsp;3.10.12.<br>
+4.&nbsp;Function&nbsp;relies&nbsp;on&nbsp;reproject_raster&nbsp;and&nbsp;align_raster&nbsp;functions.<br>
+&nbsp;<br>
+**Usage:**<br>
+&gt;&gt;&gt;&nbsp;<a href="#-align_validate_raster">align_validate_raster</a>(source_raster&nbsp;=&nbsp;"/home/pete/Documents/tests_and_vals/gdgtm/01_get_functions/olm_alc_switz_reproj_20040101.tif",<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;target_raster&nbsp;=&nbsp;"/home/pete/Documents/tests_and_vals/gdgtm/04_master_rebound/olm_alc_switz_rebound_100_20040101.tif",<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dst_raster&nbsp;=&nbsp;"/home/pete/Documents/tests_and_vals/gdgtm/05_supplements_aligned/olm_alc_switz_aligned_20040101.tif",<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete_source&nbsp;=&nbsp;False)<br>
+&nbsp;<br>
+{'dimension_match':&nbsp;True,<br>
+&nbsp;'projection_match':&nbsp;True,<br>
+&nbsp;'pixel_count_match':&nbsp;True,<br>
+&nbsp;'geotransform_match':&nbsp;True}</tt></dd></dl>
+ <dl><dt><a name="-apply_land_mask"><strong>apply_land_mask</strong></a>(land_mask_path, data_raster_path, output_path, mask_value=1)</dt><dd><tt>Apply&nbsp;a&nbsp;land&nbsp;mask&nbsp;to&nbsp;a&nbsp;data&nbsp;raster&nbsp;and&nbsp;save&nbsp;the&nbsp;result.<br>
+&nbsp;<br>
+Sets&nbsp;data&nbsp;values&nbsp;to&nbsp;0&nbsp;where&nbsp;the&nbsp;land&nbsp;mask&nbsp;has&nbsp;no-data&nbsp;values,<br>
+preserving&nbsp;original&nbsp;values&nbsp;where&nbsp;the&nbsp;land&nbsp;mask&nbsp;has&nbsp;valid&nbsp;data.<br>
+&nbsp;<br>
+Parameters:<br>
+-----------<br>
+land_mask_path&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Path&nbsp;to&nbsp;the&nbsp;land&nbsp;mask&nbsp;raster&nbsp;file&nbsp;(with&nbsp;defined&nbsp;no-data&nbsp;value)<br>
+data_raster_path&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Path&nbsp;to&nbsp;the&nbsp;data&nbsp;raster&nbsp;file&nbsp;to&nbsp;be&nbsp;masked<br>
+output_path&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Path&nbsp;where&nbsp;the&nbsp;masked&nbsp;raster&nbsp;will&nbsp;be&nbsp;saved<br>
+mask_value&nbsp;:&nbsp;int<br>
+&nbsp;&nbsp;&nbsp;&nbsp;value&nbsp;for&nbsp;"sea"&nbsp;in&nbsp;the&nbsp;landmask<br>
+&nbsp;<br>
+Raises:<br>
+-------<br>
+ValueError<br>
+&nbsp;&nbsp;&nbsp;&nbsp;If&nbsp;rasters&nbsp;have&nbsp;different&nbsp;dimensions&nbsp;or&nbsp;land&nbsp;mask&nbsp;lacks&nbsp;no-data&nbsp;value</tt></dd></dl>
+ <dl><dt><a name="-change_raster_res"><strong>change_raster_res</strong></a>(target_res, src_raster, dst_raster)</dt><dd><tt>The&nbsp;objective&nbsp;of&nbsp;this&nbsp;function&nbsp;is&nbsp;to&nbsp;load&nbsp;a&nbsp;raster&nbsp;from&nbsp;a&nbsp;geotiff,&nbsp;resample&nbsp;it&nbsp;to&nbsp;a&nbsp;set&nbsp;resolution,<br>
+save&nbsp;it&nbsp;to&nbsp;a&nbsp;new&nbsp;file,&nbsp;and&nbsp;optionally&nbsp;delete&nbsp;the&nbsp;source&nbsp;raster.<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;target_res&nbsp;(float):&nbsp;Target&nbsp;resolution&nbsp;in&nbsp;units&nbsp;relevant&nbsp;to&nbsp;the&nbsp;CRS<br>
+&nbsp;&nbsp;&nbsp;&nbsp;src_raster&nbsp;(str):&nbsp;Path&nbsp;to&nbsp;the&nbsp;original&nbsp;raster&nbsp;document<br>
+&nbsp;&nbsp;&nbsp;&nbsp;dst_raster&nbsp;(str):&nbsp;Path&nbsp;to&nbsp;the&nbsp;file&nbsp;that&nbsp;will&nbsp;hold&nbsp;the&nbsp;re-resolved&nbsp;raster<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;str:&nbsp;String&nbsp;confirming&nbsp;that&nbsp;the&nbsp;new&nbsp;raster&nbsp;has&nbsp;the&nbsp;desired&nbsp;number&nbsp;of&nbsp;pixels&nbsp;(height&nbsp;and&nbsp;width)<br>
+&nbsp;<br>
+Assumptions:<br>
+1.&nbsp;The&nbsp;source_raster&nbsp;is&nbsp;a&nbsp;geotiff.<br>
+2.&nbsp;Function&nbsp;tested&nbsp;using&nbsp;Python&nbsp;3.10&nbsp;and&nbsp;rasterio.<br>
+3.&nbsp;WARNING:&nbsp;Assumes&nbsp;that&nbsp;the&nbsp;new&nbsp;target&nbsp;resolution&nbsp;is&nbsp;provided&nbsp;within&nbsp;the&nbsp;CRS&nbsp;units<br>
+&nbsp;<br>
+Usage&nbsp;example:<br>
+&gt;&gt;&gt;&nbsp;<a href="#-change_raster_res">change_raster_res</a>(target_res=500,<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;src_raster="/home/pete/Downloads/chesla_transformed.tif",<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dst_raster="/home/pete/Downloads/chesla_transformed_500.tif")<br>
+"Resolution&nbsp;meets&nbsp;target,&nbsp;file&nbsp;exists:&nbsp;/home/pete/Downloads/chelsa_transformed_500.tif"</tt></dd></dl>
+ <dl><dt><a name="-check_if_geotif"><strong>check_if_geotif</strong></a>(file_path)</dt><dd><tt>This&nbsp;function&nbsp;checks&nbsp;if&nbsp;a&nbsp;given&nbsp;file&nbsp;is&nbsp;a&nbsp;geotiff<br>
+&nbsp;<br>
+**Args:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;file_path&nbsp;(str):&nbsp;path&nbsp;(including&nbsp;filename)&nbsp;to&nbsp;the&nbsp;raster&nbsp;to&nbsp;be&nbsp;tested.&nbsp;Can&nbsp;be&nbsp;local&nbsp;or&nbsp;URL.<br>
+&nbsp;<br>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;dict:&nbsp;Indication&nbsp;of&nbsp;point&nbsp;of&nbsp;failure&nbsp;and&nbsp;whether&nbsp;file&nbsp;is&nbsp;a&nbsp;GeoTIFF<br>
+&nbsp;<br>
+**Assumptions:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;Function&nbsp;developed&nbsp;and&nbsp;tested&nbsp;using&nbsp;Python&nbsp;3.10.14&nbsp;and&nbsp;rasterio&nbsp;1.4.3&nbsp;working&nbsp;under&nbsp;conda&nbsp;24.4.0&nbsp;virtual&nbsp;environment.<br>
+&nbsp;<br>
+**Usage:**<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;test&nbsp;=&nbsp;check_if_geotiff("<a href="https://s3.openlandmap.org/arco/bulkdens.fineearth_usda.4a1h_m_250m_b0cm_19500101_20171231_go_epsg.4326_v0.2.tif">https://s3.openlandmap.org/arco/bulkdens.fineearth_usda.4a1h_m_250m_b0cm_19500101_20171231_go_epsg.4326_v0.2.tif</a>")<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;print(test)<br>
+{"File&nbsp;is&nbsp;GeoTIFF":&nbsp;True}<br>
+&nbsp;<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;test&nbsp;=&nbsp;check_if_geotiff("/home/pete/Documents/tests_and_vals/gdgtm_dev_copy/lol_cat.tif")<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;print(test)<br>
+{"src.crs":&nbsp;False}</tt></dd></dl>
+ <dl><dt><a name="-check_window_values"><strong>check_window_values</strong></a>(data, threshold=0.5)</dt></dl>
+ <dl><dt><a name="-extract_window"><strong>extract_window</strong></a>(dataset, px, py, width=128, height=128)</dt></dl>
+ <dl><dt><a name="-get_nearest_pixel"><strong>get_nearest_pixel</strong></a>(dataset, lon, lat)</dt><dd><tt>###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~<br>
+###&nbsp;Functions&nbsp;for&nbsp;setting&nbsp;the&nbsp;bounding&nbsp;box&nbsp;based&nbsp;on&nbsp;NW&nbsp;corner&nbsp;coordinates&nbsp;#####<br>
+###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</tt></dd></dl>
+ <dl><dt><a name="-get_proj_transform"><strong>get_proj_transform</strong></a>(filename)</dt><dd><tt>This&nbsp;function&nbsp;extracts&nbsp;the&nbsp;projection&nbsp;and&nbsp;GeoTransform&nbsp;from&nbsp;a&nbsp;GeoTIFF&nbsp;and&nbsp;returns&nbsp;it&nbsp;as&nbsp;a&nbsp;Python&nbsp;list<br>
+&nbsp;<br>
+**Args:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;filename&nbsp;(str):&nbsp;Filename&nbsp;along&nbsp;the&nbsp;relevant&nbsp;path.<br>
+&nbsp;<br>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;list:&nbsp;List&nbsp;containing&nbsp;projection&nbsp;in&nbsp;the&nbsp;authority:code&nbsp;format&nbsp;and&nbsp;GDAL-formatted&nbsp;geotransform<br>
+&nbsp;<br>
+**Assumptions:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;1.&nbsp;Function&nbsp;tested&nbsp;using&nbsp;Python&nbsp;3.10.12&nbsp;and&nbsp;GDAL&nbsp;3.6.2&nbsp;in&nbsp;a&nbsp;conda&nbsp;24.4.0&nbsp;environment<br>
+&nbsp;&nbsp;&nbsp;&nbsp;2.&nbsp;Function&nbsp;currently&nbsp;written&nbsp;to&nbsp;only&nbsp;work&nbsp;with&nbsp;GeoTIFFs<br>
+&nbsp;<br>
+**Usage:**<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;test&nbsp;=&nbsp;<a href="#-get_proj_transform">get_proj_transform</a>("/home/pete/Documents/tests_and_vals/gdgtm_dev_copy/dev_blank_cassini.tif")<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;print(test)<br>
+['ESRI:54028',&nbsp;[200.0,&nbsp;0.0,&nbsp;460000.0,&nbsp;0.0,&nbsp;-200.0,&nbsp;5300000.0,&nbsp;0.0,&nbsp;0.0,&nbsp;1.0]]</tt></dd></dl>
+ <dl><dt><a name="-random_square_from_raster"><strong>random_square_from_raster</strong></a>(dim_x, dim_y, src_dim_x, src_dim_y, seed=None)</dt><dd><tt>This&nbsp;function&nbsp;chooses&nbsp;a&nbsp;random&nbsp;pixel&nbsp;within&nbsp;the&nbsp;raster&nbsp;that&nbsp;is&nbsp;a&nbsp;set&nbsp;distance&nbsp;away&nbsp;from&nbsp;E,&nbsp;S&nbsp;edges,&nbsp;therefore&nbsp;making&nbsp;it&nbsp;possible&nbsp;to&nbsp;random&nbsp;squares&nbsp;by&nbsp;extract_window,&nbsp;without&nbsp;crossing&nbsp;over&nbsp;the&nbsp;line&nbsp;of&nbsp;the&nbsp;raster.<br>
+&nbsp;<br>
+**Args:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;dim_x,&nbsp;dim_y&nbsp;(int):&nbsp;x&nbsp;and&nbsp;y&nbsp;dimensions&nbsp;of&nbsp;the&nbsp;target&nbsp;raster<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;seed&nbsp;(int):&nbsp;random&nbsp;seed<br>
+&nbsp;<br>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;tupple:&nbsp;cordinates&nbsp;of&nbsp;a&nbsp;viable&nbsp;point</tt></dd></dl>
+ <dl><dt><a name="-replace_nodata_with_lowest"><strong>replace_nodata_with_lowest</strong></a>(input_path, output_path)</dt><dd><tt>Replace&nbsp;NoData&nbsp;values&nbsp;in&nbsp;a&nbsp;raster&nbsp;with&nbsp;the&nbsp;lowest&nbsp;valid&nbsp;data&nbsp;value.<br>
+&nbsp;<br>
+This&nbsp;function&nbsp;reads&nbsp;a&nbsp;raster&nbsp;file,&nbsp;identifies&nbsp;NoData&nbsp;values,&nbsp;replaces&nbsp;them<br>
+with&nbsp;the&nbsp;lowest&nbsp;valid&nbsp;value&nbsp;found&nbsp;in&nbsp;the&nbsp;raster,&nbsp;and&nbsp;saves&nbsp;the&nbsp;result&nbsp;to&nbsp;a<br>
+new&nbsp;file.&nbsp;The&nbsp;NoData&nbsp;value&nbsp;is&nbsp;removed&nbsp;from&nbsp;the&nbsp;output&nbsp;raster's&nbsp;metadata.<br>
+&nbsp;<br>
+Parameters:<br>
+-----------<br>
+input_path&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Path&nbsp;to&nbsp;the&nbsp;input&nbsp;raster&nbsp;file.<br>
+output_path&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Path&nbsp;where&nbsp;the&nbsp;processed&nbsp;raster&nbsp;will&nbsp;be&nbsp;saved.<br>
+&nbsp;<br>
+Notes:<br>
+------<br>
+-&nbsp;Assumes&nbsp;a&nbsp;single-band&nbsp;raster&nbsp;input.<br>
+-&nbsp;The&nbsp;original&nbsp;NoData&nbsp;value&nbsp;is&nbsp;obtained&nbsp;from&nbsp;the&nbsp;raster's&nbsp;metadata.<br>
+-&nbsp;All&nbsp;metadata&nbsp;(CRS,&nbsp;transform,&nbsp;etc.)&nbsp;is&nbsp;preserved,&nbsp;except&nbsp;the&nbsp;NoData&nbsp;value.<br>
+-&nbsp;The&nbsp;output&nbsp;raster&nbsp;will&nbsp;not&nbsp;have&nbsp;a&nbsp;NoData&nbsp;value&nbsp;defined&nbsp;in&nbsp;its&nbsp;metadata.<br>
+&nbsp;<br>
+Caution:<br>
+--------<br>
+-&nbsp;This&nbsp;operation&nbsp;modifies&nbsp;the&nbsp;data&nbsp;distribution&nbsp;by&nbsp;introducing&nbsp;new&nbsp;values.<br>
+-&nbsp;The&nbsp;output&nbsp;raster&nbsp;will&nbsp;not&nbsp;distinguish&nbsp;between&nbsp;original&nbsp;low&nbsp;values&nbsp;and&nbsp;<br>
+&nbsp;&nbsp;what&nbsp;were&nbsp;previously&nbsp;NoData&nbsp;values.<br>
+&nbsp;<br>
+Example:<br>
+--------<br>
+&gt;&gt;&gt;&nbsp;<a href="#-replace_nodata_with_lowest">replace_nodata_with_lowest</a>('input_dem.tif',&nbsp;'processed_dem.tif')<br>
+Processed&nbsp;raster&nbsp;saved&nbsp;to&nbsp;processed_dem.tif</tt></dd></dl>
+ <dl><dt><a name="-reproject_raster"><strong>reproject_raster</strong></a>(new_crs, src_raster, dst_raster)</dt><dd><tt>This&nbsp;function&nbsp;takes&nbsp;a&nbsp;geotiff&nbsp;raster&nbsp;(with&nbsp;metadata&nbsp;including&nbsp;coordinate&nbsp;projection)&nbsp;and&nbsp;outputs&nbsp;a&nbsp;geotiff&nbsp;raster&nbsp;with&nbsp;an&nbsp;updated&nbsp;projection.<br>
+The&nbsp;function&nbsp;also&nbsp;has&nbsp;the&nbsp;option&nbsp;to&nbsp;delete&nbsp;the&nbsp;source&nbsp;raster.<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;new_crs&nbsp;(str):&nbsp;New&nbsp;coordinate&nbsp;system&nbsp;to&nbsp;which&nbsp;the&nbsp;raster&nbsp;is&nbsp;to&nbsp;be&nbsp;projected.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;src_raster&nbsp;(str):&nbsp;Path&nbsp;to&nbsp;the&nbsp;geotiff&nbsp;with&nbsp;relevant&nbsp;metadata&nbsp;that&nbsp;will&nbsp;be&nbsp;reprojected.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;dst_raster&nbsp;(str):&nbsp;Path&nbsp;and&nbsp;filename&nbsp;into&nbsp;which&nbsp;the&nbsp;new&nbsp;(re-projected)&nbsp;raster&nbsp;will&nbsp;be&nbsp;saved.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;delete_source&nbsp;(bool):&nbsp;Determines&nbsp;whether&nbsp;the&nbsp;source&nbsp;raster&nbsp;is&nbsp;deleted&nbsp;following&nbsp;function&nbsp;execution.<br>
+&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;str:&nbsp;String&nbsp;confirming&nbsp;that&nbsp;the&nbsp;new&nbsp;geotiff&nbsp;has&nbsp;the&nbsp;expected&nbsp;projection&nbsp;system.<br>
+&nbsp;<br>
+Assumptions:<br>
+1.&nbsp;Input&nbsp;data&nbsp;is&nbsp;a&nbsp;geotiff&nbsp;with&nbsp;a&nbsp;header&nbsp;readable&nbsp;by&nbsp;rasterio.<br>
+2.&nbsp;rasterio&nbsp;is&nbsp;working.<br>
+3.&nbsp;Function&nbsp;tested&nbsp;on&nbsp;Python&nbsp;3.10.12.<br>
+&nbsp;<br>
+Usage&nbsp;example:<br>
+&gt;&gt;&gt;&nbsp;<a href="#-reproject_raster">reproject_raster</a>(new_crs="EPSG:54028",&nbsp;<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;src_raster='/home/pete/Documents/tests_and_vals/gdgtm/01_get_functions/chelsa_tas_01_01_2023.tif',<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dst_raster='/home/pete/Downloads/chelsa_transformed.tif')<br>
+"File&nbsp;exists:&nbsp;/home/pete/Downloads/chelsa_transformed.tif"</tt></dd></dl>
+ <dl><dt><a name="-rescale_raster_to_zero_one"><strong>rescale_raster_to_zero_one</strong></a>(input_path, output_path, output_dtype='float32')</dt><dd><tt>Rescale&nbsp;raster&nbsp;values&nbsp;to&nbsp;a&nbsp;0-1&nbsp;range&nbsp;and&nbsp;save&nbsp;the&nbsp;result.<br>
+&nbsp;<br>
+This&nbsp;function&nbsp;normalizes&nbsp;raster&nbsp;values&nbsp;using&nbsp;min-max&nbsp;scaling,&nbsp;preserving&nbsp;the<br>
+original&nbsp;data&nbsp;distribution&nbsp;while&nbsp;converting&nbsp;it&nbsp;to&nbsp;a&nbsp;specified&nbsp;floating-point&nbsp;format.<br>
+&nbsp;<br>
+Parameters:<br>
+-----------<br>
+input_path&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Path&nbsp;to&nbsp;the&nbsp;input&nbsp;raster&nbsp;file<br>
+output_path&nbsp;:&nbsp;str<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Path&nbsp;to&nbsp;save&nbsp;the&nbsp;rescaled&nbsp;output&nbsp;raster<br>
+output_dtype&nbsp;:&nbsp;rasterio&nbsp;dtype,&nbsp;optional<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Output&nbsp;data&nbsp;type&nbsp;(default:&nbsp;rasterio.float32)<br>
+&nbsp;<br>
+Notes:<br>
+------<br>
+-&nbsp;Handles&nbsp;masked&nbsp;arrays&nbsp;to&nbsp;ignore&nbsp;nodata&nbsp;values&nbsp;during&nbsp;calculation<br>
+-&nbsp;Preserves&nbsp;original&nbsp;raster&nbsp;metadata&nbsp;(CRS,&nbsp;transform,&nbsp;etc.)<br>
+-&nbsp;Maintains&nbsp;masked&nbsp;(nodata)&nbsp;values&nbsp;as&nbsp;NaN&nbsp;in&nbsp;output<br>
+-&nbsp;Integer&nbsp;output&nbsp;types&nbsp;will&nbsp;lose&nbsp;precision&nbsp;in&nbsp;the&nbsp;0-1&nbsp;range<br>
+&nbsp;<br>
+Example:<br>
+--------<br>
+&gt;&gt;&gt;&nbsp;<a href="#-rescale_raster_to_zero_one">rescale_raster_to_zero_one</a>('input.tif',&nbsp;'scaled.tif')<br>
+Rescaled&nbsp;raster&nbsp;saved&nbsp;to&nbsp;scaled.tif<br>
+Original&nbsp;range:&nbsp;[12.5,&nbsp;87.3]&nbsp;rescaled&nbsp;to&nbsp;[0,&nbsp;1]</tt></dd></dl>
+ <dl><dt><a name="-set_raster_boundbox"><strong>set_raster_boundbox</strong></a>(target_bbox, src_raster, dst_raster=None)</dt><dd><tt>This&nbsp;function&nbsp;loads&nbsp;a&nbsp;geotiff&nbsp;raster,&nbsp;fits&nbsp;it&nbsp;to&nbsp;a&nbsp;new&nbsp;bounding&nbsp;box,&nbsp;saves&nbsp;it&nbsp;as&nbsp;a&nbsp;geotiff&nbsp;file.<br>
+The&nbsp;function&nbsp;tests&nbsp;if&nbsp;the&nbsp;new&nbsp;bounds&nbsp;are&nbsp;in&nbsp;excess&nbsp;of&nbsp;the&nbsp;new&nbsp;bounds&nbsp;and&nbsp;if&nbsp;so&nbsp;amaneds&nbsp;the&nbsp;new&nbsp;bounds.<br>
+&nbsp;<br>
+Args:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;target_bbox&nbsp;(list):&nbsp;Four&nbsp;numbers&nbsp;defining&nbsp;the&nbsp;target&nbsp;for&nbsp;the&nbsp;new&nbsp;BB&nbsp;(Order:&nbsp;WNES).&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;src_raster&nbsp;(str):&nbsp;Path&nbsp;to&nbsp;the&nbsp;original&nbsp;raster&nbsp;documents<br>
+&nbsp;&nbsp;&nbsp;&nbsp;dst_raster&nbsp;(str):&nbsp;Path&nbsp;to&nbsp;the&nbsp;file&nbsp;that&nbsp;will&nbsp;hold&nbsp;the&nbsp;re-resolved&nbsp;raster<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+Returns:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;str:&nbsp;string&nbsp;confirming&nbsp;that&nbsp;the&nbsp;new&nbsp;BB&nbsp;corners&nbsp;match&nbsp;the&nbsp;target&nbsp;spec.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<br>
+Assumptions:<br>
+1.&nbsp;The&nbsp;source_raster&nbsp;is&nbsp;a&nbsp;geotiff.<br>
+2.&nbsp;os&nbsp;and&nbsp;rasterio&nbsp;are&nbsp;installed&nbsp;and&nbsp;working&nbsp;(function&nbsp;tested&nbsp;using&nbsp;rasterio&nbsp;1.3.10)<br>
+3.&nbsp;numpy&nbsp;is&nbsp;working&nbsp;(function&nbsp;tested&nbsp;using&nbsp;numpy&nbsp;1.24.3)<br>
+4.&nbsp;Function&nbsp;tested&nbsp;using&nbsp;Python&nbsp;3.10.12<br>
+&nbsp;<br>
+Usage&nbsp;example:<br>
+&gt;&gt;&gt;&nbsp;new_bb&nbsp;=&nbsp;(556400,&nbsp;5254900,&nbsp;566200,&nbsp;5238900)<br>
+&gt;&gt;&gt;&nbsp;gdgtm.<a href="#-set_raster_boundbox">set_raster_boundbox</a>(target_bbox&nbsp;=&nbsp;new_bb,<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;source_raster&nbsp;=&nbsp;"/home/pete/Downloads/chelsa_rescaled_2000.tif",<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dst_raster&nbsp;=&nbsp;"/home/pete/Downloads/chelsa_new_bb.tif")<br>
+"File&nbsp;exists:&nbsp;/home/pete/Downloads/chelsa_transformed_500_cropped.tif"</tt></dd></dl>
+ <dl><dt><a name="-set_up_blank"><strong>set_up_blank</strong></a>(bbox, proj, pixel_size, dst_raster, dtype='uint16')</dt><dd><tt>This&nbsp;function&nbsp;takes&nbsp;a&nbsp;projection&nbsp;and&nbsp;a&nbsp;bbox,&nbsp;and&nbsp;sets&nbsp;up&nbsp;a&nbsp;blank&nbsp;geotiff&nbsp;<br>
+raster&nbsp;to&nbsp;those&nbsp;specifications&nbsp;using&nbsp;rasterio.<br>
+&nbsp;<br>
+**Args:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;bbox&nbsp;(tuple):&nbsp;WNES&nbsp;bbox&nbsp;(west,&nbsp;north,&nbsp;east,&nbsp;south)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;proj&nbsp;(str):&nbsp;authority:code&nbsp;formatted&nbsp;projection&nbsp;(e.g.,&nbsp;"EPSG:4326")<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;pixel_size&nbsp;(float):&nbsp;pixel&nbsp;edge&nbsp;length&nbsp;in&nbsp;projection&nbsp;units<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;dst_raster&nbsp;(str):&nbsp;output&nbsp;file&nbsp;path<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;dtype&nbsp;(str):&nbsp;data&nbsp;type&nbsp;used.&nbsp;Note&nbsp;that&nbsp;this&nbsp;will&nbsp;propagate&nbsp;in&nbsp;automated&nbsp;workflows.<br>
+&nbsp;<br>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;list:&nbsp;[CRS&nbsp;string,&nbsp;transform&nbsp;coefficients&nbsp;list]<br>
+&nbsp;<br>
+**Usage:**<br>
+&gt;&gt;&gt;&nbsp;bbox&nbsp;=&nbsp;(5,&nbsp;47,&nbsp;8,&nbsp;45)&nbsp;&nbsp;#&nbsp;West,&nbsp;North,&nbsp;East,&nbsp;South<br>
+&gt;&gt;&gt;&nbsp;proj&nbsp;=&nbsp;"EPSG:4326"<br>
+&gt;&gt;&gt;&nbsp;pixel_size&nbsp;=&nbsp;0.01<br>
+&gt;&gt;&gt;&nbsp;output&nbsp;=&nbsp;<a href="#-set_up_blank">set_up_blank</a>(bbox,&nbsp;proj,&nbsp;pixel_size,&nbsp;"blank.tif")<br>
+&gt;&gt;&gt;&nbsp;print(output)<br>
+['EPSG:4326',&nbsp;[0.01,&nbsp;0.0,&nbsp;5.0,&nbsp;0.0,&nbsp;-0.01,&nbsp;47.0,&nbsp;0.0,&nbsp;0.0,&nbsp;1.0]]</tt></dd></dl>
+ <dl><dt><a name="-validate_raster_alignment"><strong>validate_raster_alignment</strong></a>(raster_1, raster_2)</dt><dd><tt>This&nbsp;function&nbsp;checks&nbsp;whether&nbsp;two&nbsp;rasters&nbsp;are&nbsp;aligned:&nbsp;i.e.,&nbsp;whether&nbsp;they&nbsp;have&nbsp;the&nbsp;same&nbsp;number&nbsp;of&nbsp;pixels&nbsp;and&nbsp;whether&nbsp;these&nbsp;pixels&nbsp;have&nbsp;identical&nbsp;coordinates.<br>
+&nbsp;<br>
+**Args:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;raster_1&nbsp;(str):&nbsp;link&nbsp;to&nbsp;the&nbsp;geotiff&nbsp;location&nbsp;of&nbsp;the&nbsp;first&nbsp;raster<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;raster_2&nbsp;(str):&nbsp;link&nbsp;to&nbsp;the&nbsp;geotiff&nbsp;location&nbsp;of&nbsp;the&nbsp;second&nbsp;raster<br>
+&nbsp;<br>
+**Returns:**<br>
+&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;dict:&nbsp;A&nbsp;dictionary&nbsp;containing&nbsp;the&nbsp;results&nbsp;of&nbsp;the&nbsp;alignment&nbsp;checks.<br>
+&nbsp;<br>
+**Assumptions:**<br>
+1.&nbsp;All&nbsp;input&nbsp;files&nbsp;are&nbsp;geotiffs.<br>
+2.&nbsp;os&nbsp;and&nbsp;rasterio&nbsp;are&nbsp;installed&nbsp;and&nbsp;working.<br>
+3.&nbsp;Function&nbsp;tested&nbsp;using&nbsp;Python&nbsp;3.10.12<br>
+&nbsp;<br>
+**Usage:**<br>
+&gt;&gt;&gt;&nbsp;<a href="#-validate_raster_alignment">validate_raster_alignment</a>("/home/pete/Documents/tests_and_vals/gdgtm/04_master_rebound/olm_alc_switz_rebound_100_20040101.tif",<br>
+&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"/home/pete/Documents/tests_and_vals/gdgtm/05_supplements_aligned/olm_alc_switz_aligned_20040101.tif")<br>
+&nbsp;&nbsp;&nbsp;<br>
+{'dimension_match':&nbsp;False,<br>
+&nbsp;'projection_match':&nbsp;True,<br>
+&nbsp;'pixel_count_match':&nbsp;False,<br>
+&nbsp;'geotransform_match':&nbsp;False}</tt></dd></dl>
+</td></tr></table>
+</body></html>

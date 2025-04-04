@@ -8,14 +8,21 @@ Hence, if you want to run a machine learning project based on a collection of a 
 To get an overview of the functuionality see the test script and the Documentation.
 
 
-## Installation
-The package is compiled using the .toml process.
+## Package build
+The package is compiled using the .toml process:
+python -m build
 
+Building the deocs:
+chmod +x generate_docs.sh
+./build_docs.sh
+
+
+## Installation
 You can install it from github (requires GIT):
 pip install "git+https://github.com/pete-jacobsson/gdgtm"
 
 
-### Package was developed and tested using the following:
+## Package was developed and tested using the following:
 The .toml is configured to import these versions of the packages or higher:
 
 - numpy 1.24.3
