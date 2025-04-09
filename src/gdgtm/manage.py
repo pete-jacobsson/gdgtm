@@ -47,11 +47,11 @@ def convert_gtif_to_nparray (src_path, height, width, convert_no_data=False):
         #     raise ValueError(f"{src_path} contains values outside the range [0, 1]")
 
         
-        # Clip values to [0, 1] range and convert to float16
-        data = np.clip(data, 0, 1).astype(np.float16)
+        # # Clip values to [0, 1] range and convert to float16  #### TODO: bring this out to a different function
+        # data = np.clip(data, 0, 1).astype(np.float16)
 
-        # Reorganize the shape to (height, width, channels)
-        data = np.transpose(data, (1, 2, 0))
+        # # Reorganize the shape to (height, width, channels)
+        # data = np.transpose(data, (1, 2, 0))
         
     return data
 
