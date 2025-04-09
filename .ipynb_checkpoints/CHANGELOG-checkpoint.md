@@ -26,13 +26,9 @@
 ## Version 0.6 (test)
 - 0.6.1 Module re-organization, including function renaming
 - 0.6.2 rasterize_shape
-- 0.6.3 numpyify_raster
+- 0.6.3 numpyify_raster + general clean-up
 
 
 ## Version 0.7 (planned)
-- 0.7.0: get_stac
-- 0.7.1: Function robustness with try:
-- 0.7.2: Address nodata issue
-- 0.7.3: Data management functions
-- Improve .md docs production: string to text, text to .md
+- 0.7.0: Add automated workflow to a blank raster
 
