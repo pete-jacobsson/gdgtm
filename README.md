@@ -11,6 +11,7 @@ To get an overview of the functuionality see the test script and the Documentati
 ## Package build
 The package is compiled using the .toml process:
 python -m build
+The build package is required.
 
 Building the docs:
 chmod +x generate_docs.sh
