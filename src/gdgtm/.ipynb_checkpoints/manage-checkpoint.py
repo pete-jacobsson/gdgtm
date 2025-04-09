@@ -51,7 +51,7 @@ def convert_gtif_to_nparray (src_path, height, width, convert_no_data=False):
         # data = np.clip(data, 0, 1).astype(np.float16)
 
         # # Reorganize the shape to (height, width, channels)
-        # data = np.transpose(data, (1, 2, 0))
+        data = np.transpose(data, (1, 2, 0))
         
     return data
 
