@@ -12,7 +12,7 @@ To get an overview of the functuionality see the test script and the Documentati
 The package is compiled using the .toml process:
 python -m build
 
-Building the deocs:
+Building the docs:
 chmod +x generate_docs.sh
 ./build_docs.sh
 
