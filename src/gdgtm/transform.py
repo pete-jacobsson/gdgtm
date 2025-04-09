@@ -749,14 +749,14 @@ def set_up_blank (bbox, proj, pixel_size, dst_raster, dtype = "uint16"):
     transform = Affine(pixel_size, 0, west,
                        0, -pixel_size, north)
     
-    # Define raster profile
+    # Define profile with raw CRS string
     profile = {
         'driver': 'GTiff',
         'width': width,
         'height': height,
         'count': 1,
         'dtype': dtype,
-        'crs': rasterio.crs.CRS.from_string(proj),
+        'crs': crs_str,  # Pass CRS directly as string
         'transform': transform,
         'nodata': 1,
         'tiled': True,         # Enable tiling for large rasters
