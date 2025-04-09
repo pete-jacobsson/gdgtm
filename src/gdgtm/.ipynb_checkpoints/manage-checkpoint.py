@@ -2,6 +2,7 @@
 import seaborn as sns
 import rasterio
 from rasterio.enums import Resampling
+from rasterio.plot import reshape_as_image
 import numpy as np
 from PIL import Image
 import os
