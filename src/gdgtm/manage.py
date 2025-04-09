@@ -71,15 +71,15 @@ def convert_gtif_to_jpg(input_path, output_path):
         with rasterio.open(input_path) as src:
             data = src.read()
             image_data = reshape_as_image(data)
-            image_data = np.clip(image_data, 0, 1) 
-            image_data = (image_data * 255.0).astype(np.uint8)
+            # image_data = np.clip(image_data, 0, 1) 
+            # image_data = (image_data * 255.0).astype(np.uint8)
             
-            if image_data.shape[2] == 3:
-                img = Image.fromarray(image_data, 'RGB')
-            elif image_data.shape[2] == 1:
-                img = Image.fromarray(image_data[:,:,0], 'L')
-            else:
-                raise ValueError("Unsupported number of bands")
+            # if image_data.shape[2] == 3:
+            #     img = Image.fromarray(image_data, 'RGB')
+            # elif image_data.shape[2] == 1:
+            #     img = Image.fromarray(image_data[:,:,0], 'L')
+            # else:
+            #     raise ValueError("Unsupported number of bands")
             
             img.save(output_path, 'JPEG', quality=85)
         
