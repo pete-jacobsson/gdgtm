@@ -58,93 +58,93 @@ def convert_gtif_to_nparray (src_path, height, width, convert_no_data=False):
 
 
 
-
-###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def convert_gtif_to_jpg(input_path, output_path):
-    """
-    Convert a single GeoTIFF file to a JPG image.
+### TO RE_IMPLEMENT
+# ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# def convert_gtif_to_jpg(input_path, output_path):
+#     """
+#     Convert a single GeoTIFF file to a JPG image.
     
-    :param input_path: Path to the input GeoTIFF file
-    :param output_path: Path to save the output JPG file
-    """
-    try:
-        with rasterio.open(input_path) as src:
-            data = src.read()
-            image_data = reshape_as_image(data)
-            # image_data = np.clip(image_data, 0, 1) 
-            # image_data = (image_data * 255.0).astype(np.uint8)
+#     :param input_path: Path to the input GeoTIFF file
+#     :param output_path: Path to save the output JPG file
+#     """
+#     try:
+#         with rasterio.open(input_path) as src:
+#             data = src.read()
+#             image_data = reshape_as_image(data)
+#             # image_data = np.clip(image_data, 0, 1) 
+#             # image_data = (image_data * 255.0).astype(np.uint8)
             
-            if image_data.shape[2] == 3:
-                img = Image.fromarray(image_data, 'RGB')
-            elif image_data.shape[2] == 1:
-                img = Image.fromarray(image_data[:,:,0], 'L')
-            else:
-                raise ValueError("Unsupported number of bands")
+#             if image_data.shape[2] == 3:
+#                 img = Image.fromarray(image_data, 'RGB')
+#             elif image_data.shape[2] == 1:
+#                 img = Image.fromarray(image_data[:,:,0], 'L')
+#             else:
+#                 raise ValueError("Unsupported number of bands")
             
-            img.save(output_path, 'JPEG', quality=85)
+#             img.save(output_path, 'JPEG', quality=85)
         
-        print(f"Successfully converted {input_path} to {output_path}")
+#         print(f"Successfully converted {input_path} to {output_path}")
     
-    except Exception as e:
-        print(f"An error occurred processing {input_path}: {str(e)}")
+#     except Exception as e:
+#         print(f"An error occurred processing {input_path}: {str(e)}")
 
 
-###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def process_dir_to_jpg(input_folder, output_folder):
-    """
-    Process all GeoTIFF files in the input folder and save JPGs to the output folder.
+# ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# def process_dir_to_jpg(input_folder, output_folder):
+#     """
+#     Process all GeoTIFF files in the input folder and save JPGs to the output folder.
     
-    :param input_folder: Path to the folder containing GeoTIFF files
-    :param output_folder: Path to the folder where JPG files will be saved
-    """
-    # Create output folder if it doesn't exist
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
+#     :param input_folder: Path to the folder containing GeoTIFF files
+#     :param output_folder: Path to the folder where JPG files will be saved
+#     """
+#     # Create output folder if it doesn't exist
+#     if not os.path.exists(output_folder):
+#         os.makedirs(output_folder)
     
-    # Process each file in the input folder
-    for filename in os.listdir(input_folder):
-        if filename.lower().endswith(('.tif', '.tiff')):
-            input_path = os.path.join(input_folder, filename)
-            output_filename = os.path.splitext(filename)[0] + '.jpg'
-            output_path = os.path.join(output_folder, output_filename)
-            geotiff_to_jpg(input_path, output_path)
+#     # Process each file in the input folder
+#     for filename in os.listdir(input_folder):
+#         if filename.lower().endswith(('.tif', '.tiff')):
+#             input_path = os.path.join(input_folder, filename)
+#             output_filename = os.path.splitext(filename)[0] + '.jpg'
+#             output_path = os.path.join(output_folder, output_filename)
+#             geotiff_to_jpg(input_path, output_path)
 
 
-###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-def plot_raster_with_colorbar(raster_path, title=None, cmap='viridis'):
-    """
-    Plots a raster with a color bar using seaborn and rasterio.
+# ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# def plot_raster_with_colorbar(raster_path, title=None, cmap='viridis'):
+#     """
+#     Plots a raster with a color bar using seaborn and rasterio.
     
-    Parameters:
-    raster_path (str): Path to the raster file
-    title (str, optional): Title for the plot
-    cmap (str, optional): Colormap to use for the plot (default is 'viridis')
-    """
+#     Parameters:
+#     raster_path (str): Path to the raster file
+#     title (str, optional): Title for the plot
+#     cmap (str, optional): Colormap to use for the plot (default is 'viridis')
+#     """
     
-    # Open the raster file
-    with rasterio.open(raster_path) as src:
-        # Read the first band
-        raster_data = src.read(1)
+#     # Open the raster file
+#     with rasterio.open(raster_path) as src:
+#         # Read the first band
+#         raster_data = src.read(1)
         
-        # Create a figure and axis
-        fig, ax = plt.subplots(figsize=(12, 8))
+#         # Create a figure and axis
+#         fig, ax = plt.subplots(figsize=(12, 8))
         
-        # Plot the raster using seaborn's heatmap
-        sns.heatmap(raster_data, cmap=cmap, ax=ax, cbar=True, cbar_kws={'label': 'Value'})
+#         # Plot the raster using seaborn's heatmap
+#         sns.heatmap(raster_data, cmap=cmap, ax=ax, cbar=True, cbar_kws={'label': 'Value'})
         
-        # Remove x and y ticks
-        ax.set_xticks([])
-        ax.set_yticks([])
+#         # Remove x and y ticks
+#         ax.set_xticks([])
+#         ax.set_yticks([])
         
-        # Set title if provided
-        if title:
-            ax.set_title(title, fontsize=16)
+#         # Set title if provided
+#         if title:
+#             ax.set_title(title, fontsize=16)
         
-        # Add some padding to the plot
-        plt.tight_layout()
+#         # Add some padding to the plot
+#         plt.tight_layout()
         
-        # Show the plot
-        plt.show()
+#         # Show the plot
+#         plt.show()
 
 # Example usage
 # raster_path = "path/to/your/raster.tif"
