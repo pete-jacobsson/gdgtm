@@ -756,7 +756,7 @@ def set_up_blank (bbox, proj, pixel_size, dst_raster, dtype = "uint16"):
         'height': height,
         'count': 1,
         'dtype': dtype,
-        'crs': crs_str,  # Pass CRS directly as string
+        'crs': proj,  # Pass CRS directly as string
         'transform': transform,
         'nodata': 1,
         'tiled': True,         # Enable tiling for large rasters
