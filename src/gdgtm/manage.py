@@ -110,41 +110,41 @@ def convert_gtif_to_nparray (src_path, height, width, convert_no_data=False):
 #             geotiff_to_jpg(input_path, output_path)
 
 
-# ###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# def plot_raster_with_colorbar(raster_path, title=None, cmap='viridis'):
-#     """
-#     Plots a raster with a color bar using seaborn and rasterio.
+###~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+def plot_raster_with_colorbar(raster_path, title=None, cmap='viridis'):
+    """
+    Plots a raster with a color bar using seaborn and rasterio.
     
-#     Parameters:
-#     raster_path (str): Path to the raster file
-#     title (str, optional): Title for the plot
-#     cmap (str, optional): Colormap to use for the plot (default is 'viridis')
-#     """
+    Parameters:
+    raster_path (str): Path to the raster file
+    title (str, optional): Title for the plot
+    cmap (str, optional): Colormap to use for the plot (default is 'viridis')
+    """
     
-#     # Open the raster file
-#     with rasterio.open(raster_path) as src:
-#         # Read the first band
-#         raster_data = src.read(1)
+    # Open the raster file
+    with rasterio.open(raster_path) as src:
+        # Read the first band
+        raster_data = src.read(1)
         
-#         # Create a figure and axis
-#         fig, ax = plt.subplots(figsize=(12, 8))
+        # Create a figure and axis
+        fig, ax = plt.subplots(figsize=(12, 8))
         
-#         # Plot the raster using seaborn's heatmap
-#         sns.heatmap(raster_data, cmap=cmap, ax=ax, cbar=True, cbar_kws={'label': 'Value'})
+        # Plot the raster using seaborn's heatmap
+        sns.heatmap(raster_data, cmap=cmap, ax=ax, cbar=True, cbar_kws={'label': 'Value'})
         
-#         # Remove x and y ticks
-#         ax.set_xticks([])
-#         ax.set_yticks([])
+        # Remove x and y ticks
+        ax.set_xticks([])
+        ax.set_yticks([])
         
-#         # Set title if provided
-#         if title:
-#             ax.set_title(title, fontsize=16)
+        # Set title if provided
+        if title:
+            ax.set_title(title, fontsize=16)
         
-#         # Add some padding to the plot
-#         plt.tight_layout()
+        # Add some padding to the plot
+        plt.tight_layout()
         
-#         # Show the plot
-#         plt.show()
+        # Show the plot
+        plt.show()
 
 # Example usage
 # raster_path = "path/to/your/raster.tif"
