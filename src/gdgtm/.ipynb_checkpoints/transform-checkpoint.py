@@ -630,7 +630,7 @@ def random_square_from_raster(dim_x, dim_y, src_dim_x, src_dim_y, seed=None):
     x = rng.integers(0, x_max + 1)
     y = rng.integers(0, y_max + 1)
     
-    return x, y + dim_y
+    return x, y
 
 
 
