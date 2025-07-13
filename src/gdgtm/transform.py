@@ -844,3 +844,126 @@ def align_rasters (bbox, proj, pixel_size, dst_blank, src_rasters, dst_rasters):
     
     ## Return alignment log.
     return alignment_log
+
+
+
+
+#############################################################################
+####  BROUGHT OVER FROM TERRAGEN
+#############################################################################
+
+
+def reproject_raster_from_wkt(new_crs, src_raster, dst_raster):
+    """This function takes a geotiff raster (with metadata including coordinate projection) and outputs a geotiff raster with an updated projection.
+    The function also has the option to delete the source raster.
+
+    Args:
+        new_crs (str): New coordinate system to which the raster is to be projected.
+        src_raster (str): Path to the geotiff with relevant metadata that will be reprojected.
+        dst_raster (str): Path and filename into which the new (re-projected) raster will be saved.
+        delete_source (bool): Determines whether the source raster is deleted following function execution.
+
+    Returns:
+        str: String confirming that the new geotiff has the expected projection system.
+
+    Assumptions:
+    1. Input data is a geotiff with a header readable by rasterio.
+    2. rasterio is working.
+    3. Function tested on Python 3.10.12.
+
+    Usage example:
+    >>> reproject_raster(new_crs="EPSG:54028",
+    >>>                  src_raster='/home/pete/Documents/tests_and_vals/gdgtm/01_get_functions/chelsa_tas_01_01_2023.tif',
+    >>>                  dst_raster='/home/pete/Downloads/chelsa_transformed.tif')
+    "File exists: /home/pete/Downloads/chelsa_transformed.tif"
+    """
+    # Open the source raster
+    with rasterio.open(src_raster) as src:
+
+        # Calculate the new transform and dimensions
+        dst_transform, dst_width, dst_height = calculate_default_transform(
+            src.crs, new_crs, src.width, src.height, *src.bounds
+        )
+
+        # Create the output raster
+        kwargs = src.meta.copy()
+        kwargs.update(
+            {
+                "crs": new_crs,
+                "transform": dst_transform,
+                "width": dst_width,
+                "height": dst_height,
+            }
+        )
+
+        with rasterio.open(dst_raster, "w", **kwargs) as dst:
+            # Reproject the source raster to the new CRS
+            for i in range(1, src.count + 1):
+                reproject(
+                    source=rasterio.band(src, i),
+                    destination=rasterio.band(dst, i),
+                    src_transform=src.transform,
+                    src_crs=src.crs,
+                    dst_transform=dst_transform,
+                    dst_crs=new_crs,
+                    resampling=rasterio.warp.Resampling.nearest,
+                )
+
+
+def align_and_clip_by_reprojection(
+    src_raster_path, target_grid_raster_path, dst_raster_path, **kwargs
+):
+    """Aligns a source raster to a target grid by reprojecting it on the fly.
+
+    This function is highly efficient for clipping a small area from a large raster,
+    even if they have different CRSs. It avoids creating large intermediate files
+    by streaming data directly from the source to the final destination.
+
+    Args:
+        src_raster_path (str): Path to the large source raster to be clipped and aligned.
+        target_grid_raster_path (str): Path to a raster that defines the target grid
+                                     (CRS, transform, width, height).
+        dst_raster_path (str): Path to the output raster.
+        **kwargs: Additional keyword arguments for the output raster profile,
+                  such as `dtype` or `nodata`.
+    """
+    # Open the source raster to get its metadata (CRS, band count, dtype)
+    with rasterio.open(src_raster_path) as src:
+        src_profile = src.profile
+
+        # Open the target grid raster to get the destination grid definition
+        with rasterio.open(target_grid_raster_path) as target_grid:
+            # Prepare the metadata for our new output file.
+            # It will have the grid of the target but the data type/count of the source.
+            profile = target_grid.profile.copy()
+            profile.update(
+                {
+                    "count": src_profile["count"],
+                    "dtype": src_profile["dtype"],
+                    "nodata": src_profile.get(
+                        "nodata"
+                    ),  # Use source nodata value if it exists
+                }
+            )
+            # Override with any user-provided kwargs
+            profile.update(kwargs)
+
+            # Open the final destination file for writing
+            with rasterio.open(dst_raster_path, "w", **profile) as dst:
+                # For each band in the source, reproject it directly to the
+                # corresponding band in the destination. rasterio handles reading
+                # only the necessary window from the source.
+                for i in range(1, src.count + 1):
+                    reproject(
+                        source=rasterio.band(src, i),
+                        destination=rasterio.band(dst, i),
+                        src_transform=src.transform,
+                        src_crs=src.crs,
+                        dst_transform=dst.transform,
+                        dst_crs=dst.crs,
+                        resampling=Resampling.nearest,
+                    )
+    return f"Successfully created {dst_raster_path}"
+
+
+
